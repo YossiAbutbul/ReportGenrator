@@ -1,72 +1,34 @@
 import type { ReactElement } from 'react';
+import { useState } from 'react';
 import {
   ChevronDown,
   FileText,
   RotateCcw,
   ScanSearch,
 } from 'lucide-react';
-import { UploadSourceDataCard } from '../features/components/UploadSourceDataCard';
+import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
+import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
+import {
+  filterChips,
+  initialMetadata,
+  metadataFields,
+  resultRows,
+  summaryCards,
+} from '../data/trpDashboardMockData';
+import type {
+  ResultRow,
+  SummaryCardData,
+} from '../types/trpDashboard';
 
-type MetadataFieldData = {
-  label: string;
-  value: string;
-};
-
-type SummaryCardData = {
-  label: string;
-  value: string;
-};
-
-type ResultRow = {
-  unit: string;
-  frequency: string;
-  trp: string;
-  peak: string;
-};
-
-type MetadataFieldProps = MetadataFieldData & {
-  wide?: boolean;
-};
-
-const metadataFields = [
-  { label: 'Report Title', value: 'TRP_Analysis_Device_Q4_2023' },
-  { label: 'Author', value: 'Clinical Engineering Team' },
-  { label: 'Date', value: '11/25/2023' },
-  { label: 'HW Version', value: 'v1.2' },
-  { label: 'FW Version', value: '10.0.1' },
-] satisfies MetadataFieldData[];
-
-const summaryCards = [
-  { label: 'Total Units', value: '12' },
-  { label: 'Frequencies', value: '48' },
-  { label: 'Data Rows', value: '576' },
-] satisfies SummaryCardData[];
-
-const filterChips = ['Unit Type: All', 'Unit ID: All', 'Freq: All'] as const;
-
-const rows = [
-  { unit: 'U001', frequency: '850 MHz', trp: '21.45', peak: '24.12' },
-  { unit: 'U001', frequency: '1900 MHz', trp: '19.82', peak: '22.05' },
-  { unit: 'U002', frequency: '850 MHz', trp: '22.01', peak: '24.55' },
-  { unit: 'U003', frequency: '2400 MHz', trp: '18.15', peak: '20.98' },
-] satisfies ResultRow[];
-
-function MetadataField({
+function SummaryCard({
   label,
   value,
-  wide = false,
-}: MetadataFieldProps): ReactElement {
+  toneClassName,
+}: SummaryCardData & { toneClassName: string }): ReactElement {
   return (
-    <div className={`metadata-field${wide ? ' metadata-field--wide' : ''}`}>
-      <span className="metadata-field__label">{label}</span>
-      <div className="metadata-field__value">{value}</div>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value }: SummaryCardData): ReactElement {
-  return (
-    <article className="summary-card">
+    <article className={`summary-card ${toneClassName}`}>
+      <span className="summary-card__blob summary-card__blob--top" aria-hidden="true" />
+      <span className="summary-card__blob summary-card__blob--bottom" aria-hidden="true" />
       <span className="summary-card__label">{label}</span>
       <strong className="summary-card__value">{value}</strong>
     </article>
@@ -83,37 +45,37 @@ function FilterChip({ label }: { label: string }): ReactElement {
 }
 
 export function TrpDashboardPage(): ReactElement {
+  const [metadata, setMetadata] = useState(initialMetadata);
+
+  const handleMetadataFieldChange = (key: string, value: string): void => {
+    setMetadata((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
+
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
       <UploadSourceDataCard />
 
       <div className="dashboard-grid">
-        <article className="panel-card panel-card--metadata">
-          <div className="panel-card__header">
-            <span>Report Metadata</span>
-            <span className="panel-card__badge">Draft Auto-Saved</span>
-          </div>
-
-          <div className="metadata-grid">
-            {metadataFields.map((field, index) => (
-              <MetadataField
-                key={field.label}
-                label={field.label}
-                value={field.value}
-                wide={index < 2}
-              />
-            ))}
-            <MetadataField
-              label="Scope of Testing"
-              value="Omni-directional test scan across standard LTE and Wi-Fi bands for validation of radiation efficiency."
-              wide
-            />
-          </div>
-        </article>
+        <ReportMetadataSection
+          fields={metadataFields.map((field) => ({
+            ...field,
+            value: metadata[field.key],
+          }))}
+          scopeOfTesting={metadata.scopeOfTesting}
+          onFieldChange={handleMetadataFieldChange}
+          onScopeChange={(value) => handleMetadataFieldChange('scopeOfTesting', value)}
+        />
 
         <div className="summary-column">
-          {summaryCards.map((card) => (
-            <SummaryCard key={card.label} label={card.label} value={card.value} />
+          {summaryCards.map((card, index) => (
+            <SummaryCard
+              key={card.label}
+              {...card}
+              toneClassName={`summary-card--tone-${index + 1}`}
+            />
           ))}
         </div>
       </div>
@@ -136,10 +98,10 @@ export function TrpDashboardPage(): ReactElement {
             <span>Frequency</span>
             <span>TRP (dBm)</span>
             <span>Max Peak (dBm)</span>
-            <span>Visual</span>
+            <span>3D Graph</span>
           </div>
 
-          {rows.map((row) => (
+          {resultRows.map((row) => (
             <div className="results-table__row" role="row" key={`${row.unit}-${row.frequency}`}>
               <span>{row.unit}</span>
               <span>{row.frequency}</span>
