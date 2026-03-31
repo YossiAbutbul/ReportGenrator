@@ -5,10 +5,19 @@ import type {
   SummaryCardData,
 } from '../types/trpDashboard';
 
+function getTodayDateString(): string {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = String(today.getFullYear());
+
+  return `${day}/${month}/${year}`;
+}
+
 export const initialMetadata: ReportMetadataForm = {
   reportTitle: 'TRP_Analysis_Device_Q4_2023',
   author: 'Clinical Engineering Team',
-  date: '25/11/2023',
+  date: getTodayDateString(),
   hwVersion: 'v1.2',
   fwVersion: '10.0.1',
   scopeOfTesting:
