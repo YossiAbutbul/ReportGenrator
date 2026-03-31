@@ -14,12 +14,11 @@ import { ReportMetadataSection } from '../components/reportMetadata/ReportMetada
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 import {
   metadataFields,
-  resultRows,
 } from '../data/trpDashboardMockData';
 import { parseReportWorkbook } from '../services/excel/parseReportWorkbook';
+import { useAppStore } from '../store/store';
 import type {
   ResultRow,
-  ReportMetadataForm,
   SummaryCardData,
 } from '../types/trpDashboard';
 
@@ -34,12 +33,6 @@ type FilterSectionProps = {
   className?: string;
   searchValue: string;
   onSearchChange: (value: string) => void;
-};
-
-type TrpDashboardPageProps = {
-  metadata: ReportMetadataForm;
-  onGenerateReport: () => void;
-  onMetadataChange: Dispatch<SetStateAction<ReportMetadataForm>>;
 };
 
 function SummaryCard({
@@ -134,12 +127,14 @@ function FilterSection({
   );
 }
 
-export function ReportSetupPage({
-  metadata,
-  onGenerateReport,
-  onMetadataChange,
-}: TrpDashboardPageProps): ReactElement {
-  const [tableRows, setTableRows] = useState<ResultRow[]>(resultRows);
+export function ReportSetupPage(): ReactElement {
+  const {
+    metadata,
+    setActivePage,
+    setMetadata,
+    tableRows,
+    setTableRows,
+  } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -214,7 +209,7 @@ export function ReportSetupPage({
   }, [searchQuery, selectedFrequencies, selectedIds, selectedTypes, tableRows]);
 
   const handleMetadataFieldChange = (key: string, value: string): void => {
-    onMetadataChange((current) => ({
+    setMetadata((current) => ({
       ...current,
       [key]: value,
     }));
@@ -431,7 +426,7 @@ export function ReportSetupPage({
               <div
                 className="results-table__row"
                 role="row"
-                key={`${row.unitType}-${row.unit}-${row.frequency}`}
+                key={row.rowKey}
               >
                 <span>{row.unitType}</span>
                 <span>{row.unit}</span>
@@ -469,7 +464,7 @@ export function ReportSetupPage({
           <button
             className="button button--primary dashboard-footer__button"
             type="button"
-            onClick={onGenerateReport}
+            onClick={() => setActivePage('reportArea')}
           >
             <FileText aria-hidden="true" />
             Generate Report

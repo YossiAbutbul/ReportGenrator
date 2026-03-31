@@ -21,6 +21,7 @@ export type SummaryCardData = {
 };
 
 export type ResultRow = {
+  rowKey: string;
   unitType: string;
   unit: string;
   frequency: string;

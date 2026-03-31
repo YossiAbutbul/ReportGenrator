@@ -93,6 +93,7 @@ export async function parseReportWorkbook(file: File): Promise<ResultRow[]> {
       }
 
       rows.push({
+        rowKey: `${worksheet.id}:${rowNumber}`,
         unitType,
         unit: currentUnitId,
         frequency: formatFrequency(frequency),
