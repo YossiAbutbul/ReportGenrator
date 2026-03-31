@@ -370,6 +370,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--summary-width);
   gap: var(--space-lg);
+  align-items: start;
 }
 
 .panel-card {
@@ -394,6 +395,9 @@
 
 .panel-card--metadata {
   padding: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
 }
 
 .panel-card__header--metadata {
@@ -415,16 +419,26 @@
   letter-spacing: 0.05em;
 }
 
+.metadata-layout {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100%;
+  padding: 0.95rem 1.125rem 1.1rem;
+}
+
 .metadata-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem 0.875rem;
-  padding: 1rem 1.125rem 1.25rem;
+  gap: 0.9rem 0.875rem;
+}
+
+.metadata-scope-row {
+  min-height: 0;
+  padding-top: 0.9rem;
 }
 
 .metadata-field {
-  display: grid;
-  gap: 0.35rem;
+  min-height: 0;
 }
 
 .metadata-field--span-1 {
@@ -439,7 +453,13 @@
   grid-column: span 4;
 }
 
+.metadata-scope-row .metadata-field--span-4 {
+  height: 100%;
+}
+
 .metadata-field__label {
+  display: grid;
+  gap: 0.42rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-soft);
@@ -477,8 +497,9 @@
 }
 
 .metadata-field__control--textarea {
-  min-height: 3.125rem;
-  padding: 0.75rem var(--space-md);
+  height: 100%;
+  min-height: 100%;
+  padding: 0.7rem var(--space-md) 0.8rem;
   border: var(--border-thin) solid var(--color-input-border);
   border-radius: var(--radius-sm);
   background: var(--color-input-bg);
@@ -491,17 +512,8 @@
   background: rgba(26, 86, 173, 0.15);
 }
 
-.metadata-field__control[readonly],
-.metadata-field__control--textarea[readonly] {
-  cursor: default;
-}
-
 .metadata-field__control--textarea::-webkit-resizer {
   display: none;
-}
-
-.metadata-field__text {
-  min-width: 0;
 }
 
 .metadata-field__trailing-icon {
@@ -535,11 +547,14 @@
 
 .summary-column {
   display: grid;
+  grid-auto-rows: 1fr;
   gap: var(--space-md);
+  align-self: stretch;
 }
 
 .summary-card {
   display: grid;
+  align-content: center;
   justify-items: center;
   gap: var(--space-sm);
   padding: var(--space-2xl) var(--space-md);
@@ -737,6 +752,10 @@
 
   .metadata-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metadata-layout {
+    grid-template-rows: auto auto;
   }
 
   .metadata-field--span-4 {

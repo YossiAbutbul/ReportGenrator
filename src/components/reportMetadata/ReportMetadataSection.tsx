@@ -31,24 +31,28 @@ export function ReportMetadataSection({
         </span>
       </div>
 
-      <div className="metadata-grid">
-        {fields.map((field) => (
+      <div className="metadata-layout">
+        <div className="metadata-grid">
+          {fields.map((field) => (
+            <MetadataField
+              key={field.key}
+              label={field.label}
+              value={field.value}
+              span={field.span}
+              type={field.type}
+              onChange={(value) => onFieldChange(field.key, value)}
+            />
+          ))}
+        </div>
+        <div className="metadata-scope-row">
           <MetadataField
-            key={field.key}
-            label={field.label}
-            value={field.value}
-            span={field.span}
-            type={field.type}
-            onChange={(value) => onFieldChange(field.key, value)}
+            label="Scope of Testing"
+            value={scopeOfTesting}
+            span={4}
+            multiline
+            onChange={onScopeChange}
           />
-        ))}
-        <MetadataField
-          label="Scope of Testing"
-          value={scopeOfTesting}
-          span={4}
-          multiline
-          onChange={onScopeChange}
-        />
+        </div>
       </div>
     </article>
   );
