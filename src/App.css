@@ -58,6 +58,14 @@
   color: var(--color-text-muted);
   font-size: 0.75rem;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+.icon-button svg,
+.avatar-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  stroke-width: 2;
 }
 
 .avatar-button {
@@ -110,6 +118,10 @@
 }
 
 .sidebar-nav__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
   height: 2.5rem;
   border: 0;
   border-radius: var(--radius-md);
@@ -155,6 +167,12 @@
   color: #47638b;
   font-size: 0.65rem;
   font-weight: 700;
+}
+
+.sidebar-nav__item-icon svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  stroke-width: 2.1;
 }
 
 .app-shell__content {
@@ -227,10 +245,21 @@
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
   min-height: 2.375rem;
   padding: 0 var(--space-xl);
   border-radius: var(--radius-md);
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.button svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  stroke-width: 2;
 }
 
 .button--primary {
@@ -365,6 +394,12 @@
   font-weight: 700;
 }
 
+.filter-chip svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  stroke-width: 2.2;
+}
+
 .text-button {
   color: var(--color-danger);
   font-size: var(--font-size-sm);
@@ -410,6 +445,10 @@
 }
 
 .table-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
   min-height: 1.75rem;
   padding: 0 var(--space-sm);
   border: var(--border-thin) solid #dbe6f4;
@@ -418,6 +457,12 @@
   background: #fbfdff;
   font-size: 0.76rem;
   font-weight: 700;
+}
+
+.table-link svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  stroke-width: 2;
 }
 
 .dashboard-footer {

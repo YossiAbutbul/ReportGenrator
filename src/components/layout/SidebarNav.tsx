@@ -1,14 +1,22 @@
 import type { ReactElement } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  Database,
+  FileCog,
+  HelpCircle,
+  Settings2,
+} from 'lucide-react';
 
 type NavItem = {
   label: string;
   active?: boolean;
+  icon: LucideIcon;
 };
 
 type SidebarNavProps = {
   productName: string;
   versionLabel: string;
-  actionLabel: string;
   items: NavItem[];
   footerLabel: string;
 };
@@ -16,7 +24,6 @@ type SidebarNavProps = {
 export function SidebarNav({
   productName,
   versionLabel,
-  actionLabel,
   items,
   footerLabel,
 }: SidebarNavProps): ReactElement {
@@ -28,10 +35,6 @@ export function SidebarNav({
           <div className="sidebar-nav__product-version">{versionLabel}</div>
         </div>
 
-        <button className="sidebar-nav__action" type="button">
-          + {actionLabel}
-        </button>
-
         <nav className="sidebar-nav__items" aria-label="Primary navigation">
           {items.map((item) => (
             <button
@@ -40,7 +43,7 @@ export function SidebarNav({
               type="button"
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">
-                {item.active ? 'P' : 'D'}
+                <item.icon aria-hidden="true" />
               </span>
               <span>{item.label}</span>
             </button>
@@ -50,10 +53,17 @@ export function SidebarNav({
 
       <button className="sidebar-nav__footer" type="button">
         <span className="sidebar-nav__item-icon" aria-hidden="true">
-          ?
+          <HelpCircle aria-hidden="true" />
         </span>
         <span>{footerLabel}</span>
       </button>
     </aside>
   );
 }
+
+export const defaultSidebarItems: NavItem[] = [
+  { label: 'Report Setup', active: true, icon: FileCog },
+  { label: 'Analytics', icon: BarChart3 },
+  { label: 'Data Tables', icon: Database },
+  { label: 'Settings', icon: Settings2 },
+];
