@@ -71,6 +71,27 @@ export function GraphViewerPage(): ReactElement {
     }
   };
 
+  const handleViewControlChange = (
+    nextMode: 'turntable' | 'pan' | 'zoom',
+  ): void => {
+    if (activeViewControl === nextMode) {
+      return;
+    }
+
+    setActiveViewControl(nextMode);
+    requestAnimationFrame(() => {
+      graphPlotRef.current?.setDragMode(nextMode);
+    });
+  };
+
+  const handleResetView = (): void => {
+    setActiveViewControl('turntable');
+    requestAnimationFrame(() => {
+      graphPlotRef.current?.resetView();
+      graphPlotRef.current?.setDragMode('turntable');
+    });
+  };
+
   return (
     <section className="graph-viewer-page" aria-label="Graph viewer">
       <GraphUploadCard onFileSelected={handleGraphFileSelected} />
@@ -145,10 +166,7 @@ export function GraphViewerPage(): ReactElement {
               <button
                 className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
                 type="button"
-                onClick={() => {
-                  setActiveViewControl('pan');
-                  graphPlotRef.current?.setDragMode('pan');
-                }}
+                onClick={() => handleViewControlChange('pan')}
               >
                 <Move aria-hidden="true" />
                 <span>Pan</span>
@@ -156,10 +174,7 @@ export function GraphViewerPage(): ReactElement {
               <button
                 className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
                 type="button"
-                onClick={() => {
-                  setActiveViewControl('turntable');
-                  graphPlotRef.current?.setDragMode('turntable');
-                }}
+                onClick={() => handleViewControlChange('turntable')}
               >
                 <RotateCw aria-hidden="true" />
                 <span>Rotate</span>
@@ -167,10 +182,7 @@ export function GraphViewerPage(): ReactElement {
               <button
                 className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
                 type="button"
-                onClick={() => {
-                  setActiveViewControl('zoom');
-                  graphPlotRef.current?.setDragMode('zoom');
-                }}
+                onClick={() => handleViewControlChange('zoom')}
               >
                 <Search aria-hidden="true" />
                 <span>Zoom</span>
@@ -178,11 +190,7 @@ export function GraphViewerPage(): ReactElement {
               <button
                 className="graph-viewer-card__control-button"
                 type="button"
-                onClick={() => {
-                  setActiveViewControl('turntable');
-                  graphPlotRef.current?.resetView();
-                  graphPlotRef.current?.setDragMode('turntable');
-                }}
+                onClick={handleResetView}
               >
                 <Home aria-hidden="true" />
                 <span>Reset</span>

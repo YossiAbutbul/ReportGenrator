@@ -49,6 +49,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
 }, ref): ReactElement {
   const plotRef = useRef<HTMLDivElement | null>(null);
   const plotlyRef = useRef<PlotlyLike | null>(null);
+  const currentDragModeRef = useRef<'turntable' | 'pan' | 'zoom'>('turntable');
   const metricGrid = graphData.zValues[metric];
   const cartesianGeometry = useMemo(() => {
     const numericValues = metricGrid.flat().filter((value) => Number.isFinite(value));
@@ -285,12 +286,13 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       });
     },
     setDragMode: (mode) => {
-      if (!plotRef.current || !plotlyRef.current) {
+      if (!plotRef.current || !plotlyRef.current || currentDragModeRef.current === mode) {
         return;
       }
 
+      currentDragModeRef.current = mode;
       void plotlyRef.current.relayout(plotRef.current, {
-        'scene.dragmode': mode,
+        dragmode: mode,
       });
     },
   }), []);
