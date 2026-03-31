@@ -23,9 +23,12 @@ import type {
 function SummaryCard({
   label,
   value,
-}: SummaryCardData): ReactElement {
+  toneClassName,
+}: SummaryCardData & { toneClassName: string }): ReactElement {
   return (
-    <article className="summary-card">
+    <article className={`summary-card ${toneClassName}`}>
+      <span className="summary-card__blob summary-card__blob--top" aria-hidden="true" />
+      <span className="summary-card__blob summary-card__blob--bottom" aria-hidden="true" />
       <span className="summary-card__label">{label}</span>
       <strong className="summary-card__value">{value}</strong>
     </article>
@@ -67,8 +70,12 @@ export function TrpDashboardPage(): ReactElement {
         />
 
         <div className="summary-column">
-          {summaryCards.map((card) => (
-            <SummaryCard key={card.label} {...card} />
+          {summaryCards.map((card, index) => (
+            <SummaryCard
+              key={card.label}
+              {...card}
+              toneClassName={`summary-card--tone-${index + 1}`}
+            />
           ))}
         </div>
       </div>

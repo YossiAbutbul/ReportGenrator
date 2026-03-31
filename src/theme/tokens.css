@@ -2,6 +2,17 @@
   --color-page-bg: #e8edf5;
   --color-shell-bg: rgba(255, 255, 255, 0.94);
   --color-panel-bg: #ffffff;
+  --color-panel-tint: #fbfcff;
+  --color-summary-card-blob: rgba(255, 255, 255, 0.22);
+  --color-summary-card-blob-soft: rgba(255, 255, 255, 0.16);
+  --color-summary-card-label: #6b88ad;
+  --color-summary-card-value: #4e75a6;
+  --color-summary-card-blue-top: #e7f1fb;
+  --color-summary-card-blue-bottom: #dceaf8;
+  --color-summary-card-lavender-top: #edeefe;
+  --color-summary-card-lavender-bottom: #e4e8fb;
+  --color-summary-card-sky-top: #e9f6ff;
+  --color-summary-card-sky-bottom: #dff0fb;
   --color-panel-muted: #f9fbfd;
   --color-panel-soft: #eef4fd;
   --color-panel-accent: #edf4ff;

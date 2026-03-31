@@ -423,7 +423,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 100%;
-  padding: 0.95rem 1.125rem 1.1rem;
+  padding: 0.95rem 1.125rem 0.95rem;
 }
 
 .metadata-grid {
@@ -433,8 +433,9 @@
 }
 
 .metadata-scope-row {
+  display: grid;
   min-height: 0;
-  padding-top: 0.9rem;
+  padding-top: 0.55rem;
 }
 
 .metadata-field {
@@ -457,14 +458,24 @@
   height: 100%;
 }
 
+.metadata-scope-row .metadata-field__label {
+  height: 100%;
+}
+
 .metadata-field__label {
   display: grid;
+  grid-template-rows: auto auto;
   gap: 0.42rem;
+  align-content: start;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-soft);
   font-size: 0.64rem;
   font-weight: 800;
+}
+
+.metadata-scope-row .metadata-field__label {
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .metadata-field__value {
@@ -498,8 +509,8 @@
 
 .metadata-field__control--textarea {
   height: 100%;
-  min-height: 100%;
-  padding: 0.7rem var(--space-md) 0.8rem;
+  min-height: 0;
+  padding: 0.9rem var(--space-md) 1.2rem;
   border: var(--border-thin) solid var(--color-input-border);
   border-radius: var(--radius-sm);
   background: var(--color-input-bg);
@@ -557,29 +568,130 @@
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: 0.35rem;
+  gap: 0.6rem;
   min-height: 0;
-  padding: 1rem 0.9rem;
+  padding: 1.15rem 1.25rem;
   text-align: left;
   overflow: hidden;
+  border: 0;
+  background: linear-gradient(
+    180deg,
+    #dbe8f7 0%,
+    var(--color-summary-card-bg) 100%
+  );
+  box-shadow: none;
+  border-radius: 1rem;
+  isolation: isolate;
+}
+
+.summary-card--tone-1 {
+  background: linear-gradient(
+    180deg,
+    var(--color-summary-card-sky-top) 0%,
+    var(--color-summary-card-sky-bottom) 100%
+  );
+}
+
+.summary-card--tone-2 {
+  background: linear-gradient(
+    180deg,
+    var(--color-summary-card-blue-top) 0%,
+    var(--color-summary-card-blue-bottom) 100%
+  );
+}
+
+.summary-card--tone-3 {
+  background: linear-gradient(
+    180deg,
+    var(--color-summary-card-lavender-top) 0%,
+    var(--color-summary-card-lavender-bottom) 100%
+  );
+}
+
+.summary-card__blob {
+  position: absolute;
+  z-index: -1;
+  background: var(--color-summary-card-blob);
+  pointer-events: none;
+}
+
+.summary-card__blob--bottom {
+  background: var(--color-summary-card-blob-soft);
+}
+
+.summary-card--tone-1 .summary-card__blob--top {
+  top: -2.5rem;
+  right: -2.5rem;
+  width: 8rem;
+  height: 8rem;
+  clip-path: ellipse(40% 50% at 50% 50%);
+  border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+  transform: rotate(12deg);
+}
+
+.summary-card--tone-1 .summary-card__blob--bottom {
+  bottom: -2rem;
+  left: -2rem;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 48% 52% 67% 33% / 38% 45% 55% 62%;
+}
+
+.summary-card--tone-2 .summary-card__blob--top {
+  top: -3rem;
+  right: -3rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 73% 27% 46% 54% / 59% 71% 29% 41%;
+  transform: rotate(45deg);
+}
+
+.summary-card--tone-2 .summary-card__blob--bottom {
+  bottom: -2.5rem;
+  left: -2.5rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+  transform: rotate(-12deg);
+}
+
+.summary-card--tone-3 .summary-card__blob--top {
+  top: -2rem;
+  right: -2rem;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 64% 36% 27% 73% / 55% 58% 42% 45%;
+}
+
+.summary-card--tone-3 .summary-card__blob--bottom {
+  bottom: -3rem;
+  left: -3rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 41% 59% 42% 58% / 64% 47% 53% 36%;
+  transform: rotate(12deg);
 }
 
 .summary-card__label {
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-soft);
-  font-size: 0.62rem;
-  font-weight: 800;
-  padding-left: 0.4rem;
+  letter-spacing: 0.14em;
+  color: var(--color-summary-card-label);
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding-left: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .summary-card__value {
-  padding-left: 0.4rem;
-  font-size: 2.2rem;
-  line-height: 0.95;
-  color: var(--color-text);
+  padding-left: 0;
+  font-size: 2.8rem;
+  line-height: 0.9;
+  color: var(--color-summary-card-value);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
+  position: relative;
+  z-index: 1;
 }
 
 .table-card {
