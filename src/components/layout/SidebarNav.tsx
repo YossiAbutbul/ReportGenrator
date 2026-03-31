@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { AppPage } from '../../types/navigation';
 import {
+  ChartColumnBig,
   FileText,
   HelpCircle,
   Settings2,
@@ -27,6 +28,7 @@ export function SidebarNav({
   const items: NavItem[] = [
     { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
     { key: 'reportArea', label: 'Report Area', icon: FileText },
+    { key: 'graphViewer', label: 'Graph Viewer', icon: ChartColumnBig },
   ];
   const activeIndex = items.findIndex((item) => item.key === activeItem);
 

@@ -387,6 +387,15 @@
   min-height: 0;
 }
 
+.graph-viewer-page {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
 .report-area-card {
   display: grid;
   align-content: start;
@@ -441,6 +450,83 @@
   width: 0.9rem;
   height: 0.9rem;
   stroke-width: 2.1;
+}
+
+.graph-viewer-card {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.graph-viewer-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.graph-viewer-card__title {
+  margin: 0.25rem 0 0;
+  color: #27405f;
+  font-size: 1.55rem;
+}
+
+.graph-viewer-card__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.graph-viewer-card__metric-button {
+  min-height: 2.2rem;
+  padding: 0 0.95rem;
+  border: var(--border-thin) solid #d5e1f0;
+  border-radius: 999rem;
+  background: #ffffff;
+  color: #5c7292;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.graph-viewer-card__metric-button.is-active {
+  border-color: #2f68bf;
+  background: #eef5ff;
+  color: #2f68bf;
+}
+
+.graph-viewer-card__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.graph-viewer-card__plot-shell,
+.graph-viewer-card__empty {
+  min-height: 0;
+  border: var(--border-thin) solid #dbe5f2;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fbfdff 0%, #f4f8fc 100%);
+}
+
+.graph-viewer-card__plot-shell {
+  overflow: hidden;
+}
+
+.graph-viewer-card__empty {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  color: #7a8da8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.graph-surface-plot {
+  width: 100%;
+  height: 100%;
+  min-height: 24rem;
 }
 
 .button,
@@ -1504,6 +1590,14 @@
     grid-template-columns: 1fr;
   }
 
+  .graph-viewer-card__header {
+    flex-direction: column;
+  }
+
+  .graph-viewer-card__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .upload-card__actions,
   .dashboard-footer__actions {
     flex-wrap: wrap;
@@ -1564,5 +1658,9 @@
 
   .app-shell__content {
     padding: var(--space-md);
+  }
+
+  .graph-viewer-card__stats {
+    grid-template-columns: 1fr;
   }
 }
