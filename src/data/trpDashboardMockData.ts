@@ -15,8 +15,8 @@ function getTodayDateString(): string {
 }
 
 export const initialMetadata: ReportMetadataForm = {
-  reportTitle: 'TRP_Analysis_Device_Q4_2023',
-  author: 'Clinical Engineering Team',
+  reportTitle: 'TRP Sonata EU',
+  author: 'Yossi Abutbul',
   date: getTodayDateString(),
   hwVersion: 'v1.2',
   fwVersion: '10.0.1',

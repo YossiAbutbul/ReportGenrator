@@ -15,43 +15,35 @@ type NavItem = {
 
 type SidebarNavProps = {
   activeItem: AppPage;
-  canOpenReportArea: boolean;
   onNavigate: (item: AppPage) => void;
-  productName: string;
-  versionLabel: string;
   footerLabel: string;
 };
 
 export function SidebarNav({
   activeItem,
-  canOpenReportArea,
   onNavigate,
-  productName,
-  versionLabel,
   footerLabel,
 }: SidebarNavProps): ReactElement {
-  const items: Array<NavItem & { disabled?: boolean }> = [
+  const items: NavItem[] = [
     { key: 'reportSetup', label: 'Report Setup', icon: FileCog },
-    { key: 'reportArea', label: 'Report Area', icon: FileText, disabled: !canOpenReportArea },
+    { key: 'reportArea', label: 'Report Area', icon: FileText },
   ];
+  const activeIndex = items.findIndex((item) => item.key === activeItem);
 
   return (
     <aside className="sidebar-nav">
       <div className="sidebar-nav__top">
-        <div className="sidebar-nav__product">
-          <div className="sidebar-nav__product-name">{productName}</div>
-          <div className="sidebar-nav__product-version">{versionLabel}</div>
-        </div>
-
-        <nav className="sidebar-nav__items" aria-label="Primary navigation">
+        <nav
+          className="sidebar-nav__items"
+          aria-label="Primary navigation"
+          style={{ ['--active-index' as string]: activeIndex }}
+        >
+          <span className="sidebar-nav__active-indicator" aria-hidden="true" />
           {items.map((item) => (
             <button
               key={item.key}
-              className={`sidebar-nav__item${activeItem === item.key ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`}
+              className={`sidebar-nav__item${activeItem === item.key ? ' is-active' : ''}`}
               type="button"
-              disabled={item.disabled}
-              aria-disabled={item.disabled ? 'true' : undefined}
-              title={item.disabled ? 'Available after report preview is created' : undefined}
               onClick={() => onNavigate(item.key)}
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">

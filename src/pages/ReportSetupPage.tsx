@@ -12,12 +12,12 @@ import {
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 import {
-  initialMetadata,
   metadataFields,
   resultRows,
   summaryCards,
 } from '../data/trpDashboardMockData';
 import type {
+  ReportMetadataForm,
   SummaryCardData,
 } from '../types/trpDashboard';
 
@@ -35,7 +35,9 @@ type FilterSectionProps = {
 };
 
 type TrpDashboardPageProps = {
+  metadata: ReportMetadataForm;
   onGenerateReport: () => void;
+  onMetadataChange: Dispatch<SetStateAction<ReportMetadataForm>>;
 };
 
 function SummaryCard({
@@ -130,8 +132,11 @@ function FilterSection({
   );
 }
 
-export function ReportSetupPage({ onGenerateReport }: TrpDashboardPageProps): ReactElement {
-  const [metadata, setMetadata] = useState(initialMetadata);
+export function ReportSetupPage({
+  metadata,
+  onGenerateReport,
+  onMetadataChange,
+}: TrpDashboardPageProps): ReactElement {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -192,7 +197,7 @@ export function ReportSetupPage({ onGenerateReport }: TrpDashboardPageProps): Re
   }, [searchQuery, selectedFrequencies, selectedIds, selectedTypes]);
 
   const handleMetadataFieldChange = (key: string, value: string): void => {
-    setMetadata((current) => ({
+    onMetadataChange((current) => ({
       ...current,
       [key]: value,
     }));
