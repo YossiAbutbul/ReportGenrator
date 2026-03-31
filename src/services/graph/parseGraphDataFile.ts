@@ -11,6 +11,12 @@ function formatFrequency(value: string): string {
     return '-';
   }
 
+  const numericMatch = normalized.match(/-?\d+(?:\.\d+)?/);
+
+  if (numericMatch) {
+    return `${Number(numericMatch[0]).toFixed(2)} MHz`;
+  }
+
   return normalized.toLowerCase().includes('mhz') ? normalized : `${normalized} MHz`;
 }
 
@@ -69,6 +75,7 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
 
   const frequencyLine = lines.find((line) => line.startsWith('Test Frequency:'));
   const calculatedTrpLine = lines.find((line) => line.startsWith('Calculated TRP ='));
+  const vPolFactorLine = lines.find((line) => line.startsWith('Path Loss VPOL Cal Factor ='));
   const sourceFileLine = lines.find((line) => line.startsWith('File Name:'));
   const resultsStartIndex = lines.findIndex((line) => line.includes('Test Data Results'));
 
@@ -104,6 +111,9 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
   const thetaValues = getUniqueSorted(samples.map((sample) => sample.theta));
   const phiGrid = groupedRows.map((rowSamples) => rowSamples.map((sample) => sample.phi));
   const thetaGrid = groupedRows.map((rowSamples) => rowSamples.map((sample) => sample.theta));
+  const maxPeak = Math.max(
+    ...samples.map((sample) => Math.max(sample.hPol, sample.vPol)),
+  );
 
   const zValues: Record<GraphMetric, number[][]> = {
     combined: createGrid(groupedRows, (sample) =>
@@ -115,7 +125,11 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
 
   const frequencyValue = frequencyLine?.split(':')[1]?.trim() ?? '';
   const calculatedTrpValueMatch = calculatedTrpLine?.match(/(-?\d+(?:\.\d+)?)/);
+  const vPolFactorValueMatch = vPolFactorLine?.match(/(-?\d+(?:\.\d+)?)/);
   const sourceFileName = sourceFileLine?.replace('File Name:', '').trim() ?? file.name;
+  const vPolFactorValue = vPolFactorValueMatch ? Number(vPolFactorValueMatch[1]) : null;
+  const maxPeakWithVPolFactor =
+    vPolFactorValue === null ? null : maxPeak + vPolFactorValue;
 
   return {
     calculatedTrp: formatMetric(
@@ -123,11 +137,16 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
     ),
     fileName: sourceFileName.split('\\').pop() ?? file.name,
     frequency: formatFrequency(frequencyValue),
+    maxPeak: formatMetric(maxPeak),
+    maxPeakWithVPolFactor: formatMetric(maxPeakWithVPolFactor),
     phiGrid,
     sampleCount: samples.length,
     samples,
     thetaGrid,
     thetaValues,
+    vPolFactor: vPolFactorValue !== null
+      ? `${vPolFactorValue.toFixed(2)} dB`
+      : '-',
     zValues,
   };
 }

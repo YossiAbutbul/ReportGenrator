@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import { useMemo } from 'react';
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { GraphMetric, ParsedGraphFile } from '../../types/graphViewer';
 
 type PlotlyLike = {
@@ -11,14 +10,21 @@ type PlotlyLike = {
     config: Record<string, unknown>,
   ) => Promise<unknown>;
   purge: (root: HTMLDivElement) => void;
+  relayout: (root: HTMLDivElement, update: Record<string, unknown>) => Promise<unknown>;
   Plots?: {
     resize: (root: HTMLDivElement) => void;
   };
 };
 
+export type GraphSurfacePlotHandle = {
+  resetView: () => void;
+  setDragMode: (mode: 'turntable' | 'pan' | 'zoom') => void;
+};
+
 type GraphSurfacePlotProps = {
   graphData: ParsedGraphFile;
   metric: GraphMetric;
+  onRenderStateChange?: (isRendering: boolean) => void;
 };
 
 const metricLabels: Record<GraphMetric, string> = {
@@ -31,11 +37,18 @@ function toRadians(value: number): number {
   return (value * Math.PI) / 180;
 }
 
-export function GraphSurfacePlot({
+const DEFAULT_CAMERA = {
+  center: { x: 0, y: 0, z: 0 },
+  eye: { x: 1.08, y: 0.9, z: 0.7 },
+};
+
+export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(function GraphSurfacePlot({
   graphData,
   metric,
-}: GraphSurfacePlotProps): ReactElement {
+  onRenderStateChange,
+}, ref): ReactElement {
   const plotRef = useRef<HTMLDivElement | null>(null);
+  const plotlyRef = useRef<PlotlyLike | null>(null);
   const metricGrid = graphData.zValues[metric];
   const cartesianGeometry = useMemo(() => {
     const numericValues = metricGrid.flat().filter((value) => Number.isFinite(value));
@@ -88,6 +101,7 @@ export function GraphSurfacePlot({
     let plotly: PlotlyLike | null = null;
     let resizeObserver: ResizeObserver | null = null;
     const originalGetContext = HTMLCanvasElement.prototype.getContext;
+    onRenderStateChange?.(true);
 
     HTMLCanvasElement.prototype.getContext = (function patchedGetContext(
       this: HTMLCanvasElement,
@@ -116,6 +130,7 @@ export function GraphSurfacePlot({
       }
 
       plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
+      plotlyRef.current = plotly;
 
       await plotly.newPlot(
         plotRef.current,
@@ -134,25 +149,22 @@ export function GraphSurfacePlot({
               [0.82, '#ff5330'],
               [1, '#e3172d'],
             ],
-            colorbar: {
-              title: {
-                text: `${metricLabels[metric]} (dBm)`,
-              },
-            },
+            showscale: false,
             contours: {
               x: {
-                color: 'rgba(93, 116, 148, 0.55)',
+                color: 'rgba(74, 60, 44, 0.7)',
                 highlight: false,
                 show: true,
               },
               y: {
-                color: 'rgba(93, 116, 148, 0.55)',
+                color: 'rgba(74, 60, 44, 0.7)',
                 highlight: false,
                 show: true,
               },
               z: {
-                color: 'rgba(93, 116, 148, 0.55)',
-                highlightcolor: '#2f5fcc',
+                color: 'rgba(74, 60, 44, 0.7)',
+                highlight: false,
+                highlightcolor: 'rgba(0, 0, 0, 0)',
                 show: true,
                 usecolormap: false,
               },
@@ -166,59 +178,62 @@ export function GraphSurfacePlot({
               roughness: 0.45,
               specular: 0.3,
             },
-            hovertemplate:
-              'Phi: %{customdata[0]:.2f}°<br>Theta: %{customdata[1]:.2f}°<br>Level: %{surfacecolor:.2f} dBm<extra></extra>',
-            customdata: graphData.thetaGrid.map((rowValues, rowIndex) =>
-              rowValues.map((theta, columnIndex) => [
-                graphData.phiGrid[rowIndex][columnIndex],
-                theta,
-              ]),
-            ),
+            lightposition: {
+              x: 1.2,
+              y: 1.2,
+              z: 0.9,
+            },
+            hoverinfo: 'skip',
           },
         ],
         {
           autosize: true,
           margin: {
-            b: 12,
-            l: 12,
-            r: 12,
-            t: 16,
+            b: 0,
+            l: 0,
+            r: 0,
+            t: 0,
           },
           paper_bgcolor: 'transparent',
           plot_bgcolor: 'transparent',
           scene: {
             aspectmode: 'cube',
-            bgcolor: '#eef3f8',
+            bgcolor: 'rgba(255,255,255,0)',
             camera: {
-              center: { x: 0, y: 0, z: 0 },
-              eye: { x: 1.45, y: 1.2, z: 0.92 },
+              ...DEFAULT_CAMERA,
             },
             xaxis: {
-              backgroundcolor: '#eef3f8',
+              backgroundcolor: 'rgba(255,255,255,0)',
               gridcolor: 'rgba(0, 0, 0, 0)',
               showbackground: false,
               showgrid: false,
               showline: false,
+              spikesides: false,
+              showspikes: false,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
             },
             yaxis: {
-              backgroundcolor: '#eef3f8',
+              backgroundcolor: 'rgba(255,255,255,0)',
               gridcolor: 'rgba(0, 0, 0, 0)',
               showbackground: false,
               showgrid: false,
               showline: false,
+              spikesides: false,
+              showspikes: false,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
             },
             zaxis: {
-              backgroundcolor: '#eef3f8',
+              backgroundcolor: 'rgba(255,255,255,0)',
               gridcolor: 'rgba(0, 0, 0, 0)',
               showbackground: false,
               showgrid: false,
               showline: false,
+              spikesides: false,
+              showspikes: false,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
@@ -227,8 +242,9 @@ export function GraphSurfacePlot({
         },
         {
           displaylogo: false,
+          displayModeBar: false,
           responsive: true,
-          modeBarButtonsToRemove: ['lasso2d', 'select2d', 'toImage'],
+          staticPlot: false,
         },
       );
 
@@ -239,6 +255,7 @@ export function GraphSurfacePlot({
       });
 
       resizeObserver.observe(plotRef.current);
+      onRenderStateChange?.(false);
     }
 
     void renderPlot();
@@ -247,12 +264,36 @@ export function GraphSurfacePlot({
       isCancelled = true;
       resizeObserver?.disconnect();
       HTMLCanvasElement.prototype.getContext = originalGetContext;
+      onRenderStateChange?.(false);
 
       if (plotRef.current && plotly) {
         plotly.purge(plotRef.current);
       }
+
+      plotlyRef.current = null;
     };
-  }, [cartesianGeometry, graphData.phiGrid, graphData.thetaGrid, metric]);
+  }, [cartesianGeometry, metric, onRenderStateChange]);
+
+  useImperativeHandle(ref, () => ({
+    resetView: () => {
+      if (!plotRef.current || !plotlyRef.current) {
+        return;
+      }
+
+      void plotlyRef.current.relayout(plotRef.current, {
+        'scene.camera': DEFAULT_CAMERA,
+      });
+    },
+    setDragMode: (mode) => {
+      if (!plotRef.current || !plotlyRef.current) {
+        return;
+      }
+
+      void plotlyRef.current.relayout(plotRef.current, {
+        'scene.dragmode': mode,
+      });
+    },
+  }), []);
 
   return <div className="graph-surface-plot" ref={plotRef} />;
-}
+});

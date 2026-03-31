@@ -11,10 +11,13 @@ export type ParsedGraphFile = {
   calculatedTrp: string;
   fileName: string;
   frequency: string;
+  maxPeak: string;
+  maxPeakWithVPolFactor: string;
   phiGrid: number[][];
   sampleCount: number;
   samples: GraphSample[];
   thetaGrid: number[][];
   thetaValues: number[];
+  vPolFactor: string;
   zValues: Record<GraphMetric, number[][]>;
 };
