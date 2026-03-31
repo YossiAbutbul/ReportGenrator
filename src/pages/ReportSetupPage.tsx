@@ -12,12 +12,12 @@ import {
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 import {
-  initialMetadata,
   metadataFields,
   resultRows,
   summaryCards,
 } from '../data/trpDashboardMockData';
 import type {
+  ReportMetadataForm,
   SummaryCardData,
 } from '../types/trpDashboard';
 
@@ -32,6 +32,12 @@ type FilterSectionProps = {
   className?: string;
   searchValue: string;
   onSearchChange: (value: string) => void;
+};
+
+type TrpDashboardPageProps = {
+  metadata: ReportMetadataForm;
+  onGenerateReport: () => void;
+  onMetadataChange: Dispatch<SetStateAction<ReportMetadataForm>>;
 };
 
 function SummaryCard({
@@ -126,8 +132,11 @@ function FilterSection({
   );
 }
 
-export function TrpDashboardPage(): ReactElement {
-  const [metadata, setMetadata] = useState(initialMetadata);
+export function ReportSetupPage({
+  metadata,
+  onGenerateReport,
+  onMetadataChange,
+}: TrpDashboardPageProps): ReactElement {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -188,7 +197,7 @@ export function TrpDashboardPage(): ReactElement {
   }, [searchQuery, selectedFrequencies, selectedIds, selectedTypes]);
 
   const handleMetadataFieldChange = (key: string, value: string): void => {
-    setMetadata((current) => ({
+    onMetadataChange((current) => ({
       ...current,
       [key]: value,
     }));
@@ -410,7 +419,11 @@ export function TrpDashboardPage(): ReactElement {
             <RotateCcw aria-hidden="true" />
             Discard Draft
           </button>
-          <button className="button button--primary dashboard-footer__button" type="button">
+          <button
+            className="button button--primary dashboard-footer__button"
+            type="button"
+            onClick={onGenerateReport}
+          >
             <FileText aria-hidden="true" />
             Generate Report
           </button>

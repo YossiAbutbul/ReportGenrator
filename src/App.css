@@ -76,9 +76,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--space-2xl) var(--space-lg);
-  background: linear-gradient(180deg, #f9fbfd 0%, #f2f6fb 100%);
-  border-right: var(--border-thin) solid #e4eaf3;
+  padding: 1.35rem 0.85rem;
+  background: linear-gradient(180deg, #fbfcff 0%, #f6f8fc 100%);
+  border-right: var(--border-thin) solid #edf1f6;
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar-sidebar-thumb)
@@ -108,25 +108,7 @@
 
 .sidebar-nav__top {
   display: grid;
-  gap: var(--space-xl);
-}
-
-.sidebar-nav__product {
-  padding: var(--space-lg);
-  background: var(--color-panel-soft);
-  border: var(--border-thin) solid var(--color-primary-border);
-  border-radius: var(--radius-lg);
-}
-
-.sidebar-nav__product-name {
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-}
-
-.sidebar-nav__product-version {
-  margin-top: var(--space-2xs);
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
+  gap: 0.85rem;
 }
 
 .sidebar-nav__action {
@@ -143,48 +125,80 @@
 }
 
 .sidebar-nav__items {
+  position: relative;
   display: grid;
-  gap: var(--space-xs);
+  gap: 0.2rem;
+  margin-inline: -0.85rem;
+  --sidebar-item-height: 3.4rem;
+  --sidebar-item-gap: 0.2rem;
+  --sidebar-indicator-offset: 0.45rem;
+}
+
+.sidebar-nav__active-indicator {
+  position: absolute;
+  right: 0.3rem;
+  z-index: 1;
+  width: 0.22rem;
+  top: var(--sidebar-indicator-offset);
+  height: calc(var(--sidebar-item-height) - (var(--sidebar-indicator-offset) * 2));
+  border-radius: 999rem;
+  background: #3f74ff;
+  transform: translateY(
+    calc((var(--sidebar-item-height) + var(--sidebar-item-gap)) * var(--active-index, 0))
+  );
+  transition: transform 220ms ease;
 }
 
 .sidebar-nav__item,
 .sidebar-nav__footer {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  min-height: 2.5rem;
-  padding: 0 var(--space-md);
-  border: var(--border-thin) solid transparent;
-  border-radius: var(--radius-md);
+  width: 100%;
+  min-height: 3.4rem;
+  padding: 0 1.45rem;
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: #5c6c84;
-  font-weight: 600;
+  color: #6e7f95;
+  font-weight: 700;
   text-align: left;
 }
 
 .sidebar-nav__item.is-active {
-  background: var(--color-primary-soft);
-  border-color: var(--color-primary-border);
-  color: var(--color-primary);
+  background: #f4f8ff;
+  color: #2f5fe0;
+}
+
+.sidebar-nav__item.is-disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+}
+
+.sidebar-nav__item.is-disabled .sidebar-nav__item-icon {
+  color: #9aabbe;
 }
 
 .sidebar-nav__item-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: var(--space-2xs);
-  background: #dce7f7;
-  color: #47638b;
-  font-size: 0.65rem;
-  font-weight: 700;
+  width: 1rem;
+  height: 1rem;
+  color: #6c7c92;
+  flex-shrink: 0;
 }
 
 .sidebar-nav__item-icon svg {
-  width: 0.75rem;
-  height: 0.75rem;
-  stroke-width: 2.1;
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 2;
+}
+
+.sidebar-nav__item.is-active .sidebar-nav__item-icon,
+.sidebar-nav__footer .sidebar-nav__item-icon {
+  color: #5f7ead;
 }
 
 .app-shell__content {
@@ -353,6 +367,68 @@
 .dashboard-footer__button.button--primary {
   background: var(--color-primary);
   color: #ffffff;
+}
+
+.report-area-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.report-area-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-lg);
+  height: 100%;
+  padding: 1.4rem;
+}
+
+.report-area-card__eyebrow {
+  color: #7c8faa;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.report-area-card h1 {
+  margin: 0;
+  color: #27405f;
+  font-size: 1.55rem;
+}
+
+.report-area-card p {
+  max-width: 36rem;
+  margin: 0;
+  color: #667b98;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.report-area-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.report-area-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 2.5rem;
+  padding: 0 0.95rem;
+  border: var(--border-thin) solid #dbe5f2;
+  border-radius: 0.8rem;
+  background: #f8fbff;
+  color: #567192;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.report-area-card__action svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  stroke-width: 2.1;
 }
 
 .button,

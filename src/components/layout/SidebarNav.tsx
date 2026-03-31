@@ -1,46 +1,50 @@
 import type { ReactElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import type { AppPage } from '../../types/navigation';
 import {
-  BarChart3,
-  Database,
-  FileCog,
+  FileText,
   HelpCircle,
   Settings2,
 } from 'lucide-react';
 
 type NavItem = {
   label: string;
-  active?: boolean;
+  key: AppPage;
   icon: LucideIcon;
 };
 
 type SidebarNavProps = {
-  productName: string;
-  versionLabel: string;
-  items: NavItem[];
+  activeItem: AppPage;
+  onNavigate: (item: AppPage) => void;
   footerLabel: string;
 };
 
 export function SidebarNav({
-  productName,
-  versionLabel,
-  items,
+  activeItem,
+  onNavigate,
   footerLabel,
 }: SidebarNavProps): ReactElement {
+  const items: NavItem[] = [
+    { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
+    { key: 'reportArea', label: 'Report Area', icon: FileText },
+  ];
+  const activeIndex = items.findIndex((item) => item.key === activeItem);
+
   return (
     <aside className="sidebar-nav">
       <div className="sidebar-nav__top">
-        <div className="sidebar-nav__product">
-          <div className="sidebar-nav__product-name">{productName}</div>
-          <div className="sidebar-nav__product-version">{versionLabel}</div>
-        </div>
-
-        <nav className="sidebar-nav__items" aria-label="Primary navigation">
+        <nav
+          className="sidebar-nav__items"
+          aria-label="Primary navigation"
+          style={{ ['--active-index' as string]: activeIndex }}
+        >
+          <span className="sidebar-nav__active-indicator" aria-hidden="true" />
           {items.map((item) => (
             <button
-              key={item.label}
-              className={`sidebar-nav__item${item.active ? ' is-active' : ''}`}
+              key={item.key}
+              className={`sidebar-nav__item${activeItem === item.key ? ' is-active' : ''}`}
               type="button"
+              onClick={() => onNavigate(item.key)}
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">
                 <item.icon aria-hidden="true" />
@@ -60,10 +64,3 @@ export function SidebarNav({
     </aside>
   );
 }
-
-export const defaultSidebarItems: NavItem[] = [
-  { label: 'Report Setup', active: true, icon: FileCog },
-  { label: 'Analytics', icon: BarChart3 },
-  { label: 'Data Tables', icon: Database },
-  { label: 'Settings', icon: Settings2 },
-];
