@@ -6,6 +6,7 @@ import {
   RotateCcw,
   ScanSearch,
   Search,
+  X,
 } from 'lucide-react';
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
@@ -99,6 +100,16 @@ export function TrpDashboardPage(): ReactElement {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
               />
+              {searchQuery ? (
+                <button
+                  aria-label="Clear search"
+                  className="table-search__clear"
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X aria-hidden="true" />
+                </button>
+              ) : null}
             </label>
           </div>
           <button className="filter-icon-button" type="button" aria-label="Open filters">
