@@ -6,6 +6,7 @@ import type {
 } from 'react';
 import { useRef, useState } from 'react';
 import { Download, FileSpreadsheet, Upload } from 'lucide-react';
+import { downloadReportTemplate } from '../services/downloadTemplate';
 
 type UploadSourceDataCardProps = {
   onFileSelected?: (file: File) => void;
@@ -88,7 +89,11 @@ export function UploadSourceDataCard({
       </div>
 
       <div className="upload-card__actions">
-        <button className="button button--ghost upload-card__button" type="button">
+        <button
+          className="button button--ghost upload-card__button"
+          type="button"
+          onClick={downloadReportTemplate}
+        >
           <Download aria-hidden="true" />
           <span>Download Template</span>
         </button>

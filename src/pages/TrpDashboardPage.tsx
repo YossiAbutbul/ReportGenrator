@@ -5,7 +5,7 @@ import {
   RotateCcw,
   ScanSearch,
 } from 'lucide-react';
-import { UploadSourceDataCard } from './components/UploadSourceDataCard';
+import { UploadSourceDataCard } from '../features/components/UploadSourceDataCard';
 
 type MetadataFieldData = {
   label: string;
