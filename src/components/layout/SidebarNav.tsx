@@ -1,32 +1,40 @@
 import type { ReactElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import type { AppPage } from '../../types/navigation';
 import {
-  BarChart3,
-  Database,
   FileCog,
+  FileText,
   HelpCircle,
-  Settings2,
 } from 'lucide-react';
 
 type NavItem = {
   label: string;
-  active?: boolean;
+  key: AppPage;
   icon: LucideIcon;
 };
 
 type SidebarNavProps = {
+  activeItem: AppPage;
+  canOpenReportArea: boolean;
+  onNavigate: (item: AppPage) => void;
   productName: string;
   versionLabel: string;
-  items: NavItem[];
   footerLabel: string;
 };
 
 export function SidebarNav({
+  activeItem,
+  canOpenReportArea,
+  onNavigate,
   productName,
   versionLabel,
-  items,
   footerLabel,
 }: SidebarNavProps): ReactElement {
+  const items: Array<NavItem & { disabled?: boolean }> = [
+    { key: 'reportSetup', label: 'Report Setup', icon: FileCog },
+    { key: 'reportArea', label: 'Report Area', icon: FileText, disabled: !canOpenReportArea },
+  ];
+
   return (
     <aside className="sidebar-nav">
       <div className="sidebar-nav__top">
@@ -38,9 +46,13 @@ export function SidebarNav({
         <nav className="sidebar-nav__items" aria-label="Primary navigation">
           {items.map((item) => (
             <button
-              key={item.label}
-              className={`sidebar-nav__item${item.active ? ' is-active' : ''}`}
+              key={item.key}
+              className={`sidebar-nav__item${activeItem === item.key ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`}
               type="button"
+              disabled={item.disabled}
+              aria-disabled={item.disabled ? 'true' : undefined}
+              title={item.disabled ? 'Available after report preview is created' : undefined}
+              onClick={() => onNavigate(item.key)}
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">
                 <item.icon aria-hidden="true" />
@@ -60,10 +72,3 @@ export function SidebarNav({
     </aside>
   );
 }
-
-export const defaultSidebarItems: NavItem[] = [
-  { label: 'Report Setup', active: true, icon: FileCog },
-  { label: 'Analytics', icon: BarChart3 },
-  { label: 'Data Tables', icon: Database },
-  { label: 'Settings', icon: Settings2 },
-];

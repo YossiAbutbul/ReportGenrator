@@ -34,6 +34,10 @@ type FilterSectionProps = {
   onSearchChange: (value: string) => void;
 };
 
+type TrpDashboardPageProps = {
+  onGenerateReport: () => void;
+};
+
 function SummaryCard({
   label,
   value,
@@ -126,7 +130,7 @@ function FilterSection({
   );
 }
 
-export function TrpDashboardPage(): ReactElement {
+export function ReportSetupPage({ onGenerateReport }: TrpDashboardPageProps): ReactElement {
   const [metadata, setMetadata] = useState(initialMetadata);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
@@ -410,7 +414,11 @@ export function TrpDashboardPage(): ReactElement {
             <RotateCcw aria-hidden="true" />
             Discard Draft
           </button>
-          <button className="button button--primary dashboard-footer__button" type="button">
+          <button
+            className="button button--primary dashboard-footer__button"
+            type="button"
+            onClick={onGenerateReport}
+          >
             <FileText aria-hidden="true" />
             Generate Report
           </button>
