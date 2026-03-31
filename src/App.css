@@ -582,6 +582,14 @@
   box-shadow: none;
   border-radius: 1rem;
   isolation: isolate;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.summary-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0.85rem 1.75rem rgba(78, 117, 166, 0.14);
 }
 
 .summary-card--tone-1 {
