@@ -8,43 +8,17 @@ import {
 } from 'lucide-react';
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
-
-type SummaryCardData = {
-  label: string;
-  value: string;
-};
-
-type ResultRow = {
-  unit: string;
-  frequency: string;
-  trp: string;
-  peak: string;
-};
-
-const initialMetadata = {
-  reportTitle: 'TRP_Analysis_Device_Q4_2023',
-  author: 'Clinical Engineering Team',
-  date: '11/25/2023',
-  hwVersion: 'v1.2',
-  fwVersion: '10.0.1',
-  scopeOfTesting:
-    'Omni-directional test scan across standard LTE and Wi-Fi bands for validation of radiation efficiency.',
-};
-
-const summaryCards = [
-  { label: 'Total Units', value: '12' },
-  { label: 'Frequencies', value: '48' },
-  { label: 'Data Rows', value: '576' },
-] satisfies SummaryCardData[];
-
-const filterChips = ['Unit Type: All', 'Unit ID: All', 'Freq: All'] as const;
-
-const rows = [
-  { unit: 'U001', frequency: '850 MHz', trp: '21.45', peak: '24.12' },
-  { unit: 'U001', frequency: '1900 MHz', trp: '19.82', peak: '22.05' },
-  { unit: 'U002', frequency: '850 MHz', trp: '22.01', peak: '24.55' },
-  { unit: 'U003', frequency: '2400 MHz', trp: '18.15', peak: '20.98' },
-] satisfies ResultRow[];
+import {
+  filterChips,
+  initialMetadata,
+  metadataFields,
+  resultRows,
+  summaryCards,
+} from '../data/trpDashboardMockData';
+import type {
+  ResultRow,
+  SummaryCardData,
+} from '../types/trpDashboard';
 
 function SummaryCard({ label, value }: SummaryCardData): ReactElement {
   return (
@@ -80,39 +54,10 @@ export function TrpDashboardPage(): ReactElement {
 
       <div className="dashboard-grid">
         <ReportMetadataSection
-          fields={[
-            {
-              key: 'reportTitle',
-              label: 'Report Title',
-              value: metadata.reportTitle,
-              span: 2,
-            },
-            {
-              key: 'author',
-              label: 'Author',
-              value: metadata.author,
-              span: 2,
-            },
-            {
-              key: 'date',
-              label: 'Date',
-              value: metadata.date,
-              span: 2,
-              withTrailingIcon: true,
-            },
-            {
-              key: 'hwVersion',
-              label: 'HW Version',
-              value: metadata.hwVersion,
-              span: 1,
-            },
-            {
-              key: 'fwVersion',
-              label: 'FW Version',
-              value: metadata.fwVersion,
-              span: 1,
-            },
-          ]}
+          fields={metadataFields.map((field) => ({
+            ...field,
+            value: metadata[field.key],
+          }))}
           scopeOfTesting={metadata.scopeOfTesting}
           onFieldChange={handleMetadataFieldChange}
           onScopeChange={(value) => handleMetadataFieldChange('scopeOfTesting', value)}
@@ -146,7 +91,7 @@ export function TrpDashboardPage(): ReactElement {
             <span>Visual</span>
           </div>
 
-          {rows.map((row) => (
+          {resultRows.map((row) => (
             <div className="results-table__row" role="row" key={`${row.unit}-${row.frequency}`}>
               <span>{row.unit}</span>
               <span>{row.frequency}</span>

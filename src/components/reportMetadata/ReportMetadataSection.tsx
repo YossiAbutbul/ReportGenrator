@@ -6,7 +6,7 @@ type MetadataFieldData = {
   label: string;
   value: string;
   span?: 1 | 2 | 4;
-  withTrailingIcon?: boolean;
+  type?: 'text' | 'date-formatted';
 };
 
 type ReportMetadataSectionProps = {
@@ -38,7 +38,7 @@ export function ReportMetadataSection({
             label={field.label}
             value={field.value}
             span={field.span}
-            withTrailingIcon={field.withTrailingIcon}
+            type={field.type}
             onChange={(value) => onFieldChange(field.key, value)}
           />
         ))}
