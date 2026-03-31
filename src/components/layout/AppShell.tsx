@@ -1,13 +1,6 @@
 import type { PropsWithChildren, ReactElement } from 'react';
 import { ShellHeader } from './ShellHeader';
-import { SidebarNav } from './SidebarNav';
-
-const navItems = [
-  { label: 'Report Setup', active: true },
-  { label: 'Analytics' },
-  { label: 'Data Tables' },
-  { label: 'Settings' },
-];
+import { SidebarNav, defaultSidebarItems } from './SidebarNav';
 
 export function AppShell({ children }: PropsWithChildren): ReactElement {
   return (
@@ -15,10 +8,10 @@ export function AppShell({ children }: PropsWithChildren): ReactElement {
       <ShellHeader />
       <div className="app-shell__body">
         <SidebarNav
-          productName="TRP Clinical"
+          productName="TRP Clinical 1"
           versionLabel="v2.4.0 Stable"
           actionLabel="New Analysis"
-          items={navItems}
+          items={defaultSidebarItems}
           footerLabel="Help Center"
         />
         <main className="app-shell__content">{children}</main>

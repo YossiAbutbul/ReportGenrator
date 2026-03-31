@@ -1,8 +1,18 @@
 import type { ReactElement } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  CirclePlus,
+  Database,
+  FileCog,
+  HelpCircle,
+  Settings2,
+} from 'lucide-react';
 
 type NavItem = {
   label: string;
   active?: boolean;
+  icon: LucideIcon;
 };
 
 type SidebarNavProps = {
@@ -29,7 +39,8 @@ export function SidebarNav({
         </div>
 
         <button className="sidebar-nav__action" type="button">
-          + {actionLabel}
+          <CirclePlus aria-hidden="true" />
+          <span>{actionLabel}</span>
         </button>
 
         <nav className="sidebar-nav__items" aria-label="Primary navigation">
@@ -40,7 +51,7 @@ export function SidebarNav({
               type="button"
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">
-                {item.active ? 'P' : 'D'}
+                <item.icon aria-hidden="true" />
               </span>
               <span>{item.label}</span>
             </button>
@@ -50,10 +61,17 @@ export function SidebarNav({
 
       <button className="sidebar-nav__footer" type="button">
         <span className="sidebar-nav__item-icon" aria-hidden="true">
-          ?
+          <HelpCircle aria-hidden="true" />
         </span>
         <span>{footerLabel}</span>
       </button>
     </aside>
   );
 }
+
+export const defaultSidebarItems: NavItem[] = [
+  { label: 'Report Setup', active: true, icon: FileCog },
+  { label: 'Analytics', icon: BarChart3 },
+  { label: 'Data Tables', icon: Database },
+  { label: 'Settings', icon: Settings2 },
+];

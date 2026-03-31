@@ -1,4 +1,12 @@
 import type { ReactElement } from 'react';
+import {
+  ChevronDown,
+  Download,
+  FileText,
+  HardDriveUpload,
+  RotateCcw,
+  ScanSearch,
+} from 'lucide-react';
 
 type MetadataFieldData = {
   label: string;
@@ -69,8 +77,8 @@ function SummaryCard({ label, value }: SummaryCardData): ReactElement {
 function FilterChip({ label }: { label: string }): ReactElement {
   return (
     <button className="filter-chip" type="button">
-      {label}
-      <span aria-hidden="true">v</span>
+      <span>{label}</span>
+      <ChevronDown aria-hidden="true" />
     </button>
   );
 }
@@ -80,7 +88,7 @@ export function TrpDashboardPage(): ReactElement {
     <section className="trp-dashboard" aria-label="TRP report setup">
       <div className="upload-card">
         <div className="upload-card__icon" aria-hidden="true">
-          ^
+          <HardDriveUpload aria-hidden="true" />
         </div>
         <div className="upload-card__copy">
           <h1>Upload Source Data</h1>
@@ -88,10 +96,12 @@ export function TrpDashboardPage(): ReactElement {
         </div>
         <div className="upload-card__actions">
           <button className="button button--ghost" type="button">
-            Download Template
+            <Download aria-hidden="true" />
+            <span>Download Template</span>
           </button>
           <button className="button button--primary" type="button">
-            Choose File
+            <FileText aria-hidden="true" />
+            <span>Choose File</span>
           </button>
         </div>
       </div>
@@ -155,7 +165,8 @@ export function TrpDashboardPage(): ReactElement {
               <span className="results-table__metric">{row.trp}</span>
               <span>{row.peak}</span>
               <button className="table-link" type="button">
-                View 3D
+                <ScanSearch aria-hidden="true" />
+                <span>View 3D</span>
               </button>
             </div>
           ))}
@@ -170,10 +181,12 @@ export function TrpDashboardPage(): ReactElement {
 
         <div className="dashboard-footer__actions">
           <button className="button button--ghost" type="button">
-            Discard Draft
+            <RotateCcw aria-hidden="true" />
+            <span>Discard Draft</span>
           </button>
           <button className="button button--primary" type="button">
-            Generate Word Report
+            <FileText aria-hidden="true" />
+            <span>Generate Word Report</span>
           </button>
         </div>
       </div>
