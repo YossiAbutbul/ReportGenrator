@@ -9,6 +9,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
+import { Modal } from '../components/common/Modal';
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 import {
@@ -147,6 +148,7 @@ export function ReportSetupPage({
   const [openFilterSection, setOpenFilterSection] = useState<string | null>(null);
   const [filterOptionQuery, setFilterOptionQuery] = useState('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [previewRow, setPreviewRow] = useState<ResultRow | null>(null);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -228,6 +230,7 @@ export function ReportSetupPage({
       setSelectedFrequencies([]);
       setOpenFilterSection(null);
       setFilterOptionQuery('');
+      setPreviewRow(null);
       setUploadError(null);
     } catch (error) {
       setUploadError(
@@ -435,10 +438,18 @@ export function ReportSetupPage({
                 <span>{row.frequency}</span>
                 <span className="results-table__metric">{row.trp}</span>
                 <span>{row.peak}</span>
-                <button className="table-link" type="button">
-                  <ScanSearch aria-hidden="true" />
-                  <span>View 3D</span>
-                </button>
+                {row.graphImageSrc ? (
+                  <button
+                    className="table-link"
+                    type="button"
+                    onClick={() => setPreviewRow(row)}
+                  >
+                    <ScanSearch aria-hidden="true" />
+                    <span>View 3D</span>
+                  </button>
+                ) : (
+                  <span className="results-table__dash">-</span>
+                )}
               </div>
             ))
           ) : (
@@ -465,6 +476,42 @@ export function ReportSetupPage({
           </button>
         </div>
       </div>
+
+      <Modal
+        isOpen={previewRow !== null}
+        title={
+          previewRow
+            ? `${previewRow.unitType} ${previewRow.unit} - ${previewRow.frequency}`
+            : '3D Graph Preview'
+        }
+        onClose={() => setPreviewRow(null)}
+      >
+        {previewRow?.graphImageSrc ? (
+          <div className="graph-preview">
+            <div className="graph-preview__metrics">
+              <article className="graph-preview__metric-card">
+                <span className="graph-preview__metric-label">TRP</span>
+                <strong className="graph-preview__metric-value">
+                  {previewRow.trp}
+                  <span className="graph-preview__metric-unit"> dBm</span>
+                </strong>
+              </article>
+              <article className="graph-preview__metric-card">
+                <span className="graph-preview__metric-label">Max Peak</span>
+                <strong className="graph-preview__metric-value">
+                  {previewRow.peak}
+                  <span className="graph-preview__metric-unit"> dBm</span>
+                </strong>
+              </article>
+            </div>
+            <img
+              alt={`3D graph preview for ${previewRow.unitType} ${previewRow.unit} at ${previewRow.frequency}`}
+              className="graph-preview__image"
+              src={previewRow.graphImageSrc}
+            />
+          </div>
+        ) : null}
+      </Modal>
     </section>
   );
 }

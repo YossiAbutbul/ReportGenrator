@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import type { ResultRow } from '../../types/trpDashboard';
+import { extractWorkbookImageMap } from './extractWorkbookImageMap';
 
 function getCellPrimitive(value: unknown): unknown {
   if (
@@ -56,6 +57,7 @@ export async function parseReportWorkbook(file: File): Promise<ResultRow[]> {
   const workbook = new ExcelJS.Workbook();
   const buffer = await file.arrayBuffer();
   await workbook.xlsx.load(buffer);
+  const imageMap = await extractWorkbookImageMap(buffer, workbook.worksheets);
 
   const rows: ResultRow[] = [];
 
@@ -96,6 +98,7 @@ export async function parseReportWorkbook(file: File): Promise<ResultRow[]> {
         frequency: formatFrequency(frequency),
         trp: formatMetric(trp),
         peak: formatMetric(peak),
+        graphImageSrc: imageMap.get(`${worksheet.id}:${rowNumber}`) ?? null,
       });
     });
   });

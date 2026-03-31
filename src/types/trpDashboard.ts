@@ -26,4 +26,5 @@ export type ResultRow = {
   frequency: string;
   trp: string;
   peak: string;
+  graphImageSrc: string | null;
 };
