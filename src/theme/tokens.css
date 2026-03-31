@@ -11,10 +11,10 @@
   --color-text: #24324a;
   --color-text-muted: #6d7d95;
   --color-text-soft: #8a97aa;
-  --color-primary: #315dbe;
-  --color-primary-strong: #2f5db6;
-  --color-primary-soft: #ecf3ff;
-  --color-primary-border: #d5e2f7;
+  --color-primary: #1A56AD;
+  --color-primary-strong: #1A56AD;
+  --color-primary-soft: #edf4ff;
+  --color-primary-border: #cddcf4;
   --color-danger: #c25c5c;
   --color-success: #36c26d;
   --color-avatar-bg: #ffd8aa;
@@ -33,7 +33,7 @@
   --space-3xl: 1.5rem;
 
   --radius-sm: 0.5rem;
-  --radius-md: 0.625rem;
+  --radius-md: 0.45rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 999rem;

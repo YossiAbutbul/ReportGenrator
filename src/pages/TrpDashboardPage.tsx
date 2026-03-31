@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
 import {
   ChevronDown,
-  Download,
   FileText,
-  HardDriveUpload,
   RotateCcw,
   ScanSearch,
 } from 'lucide-react';
+import { UploadSourceDataCard } from '../features/components/UploadSourceDataCard';
 
 type MetadataFieldData = {
   label: string;
@@ -86,25 +85,7 @@ function FilterChip({ label }: { label: string }): ReactElement {
 export function TrpDashboardPage(): ReactElement {
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
-      <div className="upload-card">
-        <div className="upload-card__icon" aria-hidden="true">
-          <HardDriveUpload aria-hidden="true" />
-        </div>
-        <div className="upload-card__copy">
-          <h1>Upload Source Data</h1>
-          <p>Drag and drop your Excel report files for automated analysis</p>
-        </div>
-        <div className="upload-card__actions">
-          <button className="button button--ghost" type="button">
-            <Download aria-hidden="true" />
-            <span>Download Template</span>
-          </button>
-          <button className="button button--primary" type="button">
-            <FileText aria-hidden="true" />
-            <span>Choose File</span>
-          </button>
-        </div>
-      </div>
+      <UploadSourceDataCard />
 
       <div className="dashboard-grid">
         <article className="panel-card panel-card--metadata">
