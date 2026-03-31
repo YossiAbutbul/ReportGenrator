@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { AppPage } from '../../types/navigation';
 import {
-  FileCog,
   FileText,
   HelpCircle,
+  Settings2,
 } from 'lucide-react';
 
 type NavItem = {
@@ -25,7 +25,7 @@ export function SidebarNav({
   footerLabel,
 }: SidebarNavProps): ReactElement {
   const items: NavItem[] = [
-    { key: 'reportSetup', label: 'Report Setup', icon: FileCog },
+    { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
     { key: 'reportArea', label: 'Report Area', icon: FileText },
   ];
   const activeIndex = items.findIndex((item) => item.key === activeItem);
