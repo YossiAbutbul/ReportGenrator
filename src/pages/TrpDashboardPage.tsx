@@ -1,16 +1,13 @@
 import type { ReactElement } from 'react';
+import { useState } from 'react';
 import {
   ChevronDown,
   FileText,
   RotateCcw,
   ScanSearch,
 } from 'lucide-react';
-import { UploadSourceDataCard } from '../features/components/UploadSourceDataCard';
-
-type MetadataFieldData = {
-  label: string;
-  value: string;
-};
+import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
+import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 
 type SummaryCardData = {
   label: string;
@@ -24,17 +21,15 @@ type ResultRow = {
   peak: string;
 };
 
-type MetadataFieldProps = MetadataFieldData & {
-  wide?: boolean;
+const initialMetadata = {
+  reportTitle: 'TRP_Analysis_Device_Q4_2023',
+  author: 'Clinical Engineering Team',
+  date: '11/25/2023',
+  hwVersion: 'v1.2',
+  fwVersion: '10.0.1',
+  scopeOfTesting:
+    'Omni-directional test scan across standard LTE and Wi-Fi bands for validation of radiation efficiency.',
 };
-
-const metadataFields = [
-  { label: 'Report Title', value: 'TRP_Analysis_Device_Q4_2023' },
-  { label: 'Author', value: 'Clinical Engineering Team' },
-  { label: 'Date', value: '11/25/2023' },
-  { label: 'HW Version', value: 'v1.2' },
-  { label: 'FW Version', value: '10.0.1' },
-] satisfies MetadataFieldData[];
 
 const summaryCards = [
   { label: 'Total Units', value: '12' },
@@ -50,19 +45,6 @@ const rows = [
   { unit: 'U002', frequency: '850 MHz', trp: '22.01', peak: '24.55' },
   { unit: 'U003', frequency: '2400 MHz', trp: '18.15', peak: '20.98' },
 ] satisfies ResultRow[];
-
-function MetadataField({
-  label,
-  value,
-  wide = false,
-}: MetadataFieldProps): ReactElement {
-  return (
-    <div className={`metadata-field${wide ? ' metadata-field--wide' : ''}`}>
-      <span className="metadata-field__label">{label}</span>
-      <div className="metadata-field__value">{value}</div>
-    </div>
-  );
-}
 
 function SummaryCard({ label, value }: SummaryCardData): ReactElement {
   return (
@@ -83,33 +65,58 @@ function FilterChip({ label }: { label: string }): ReactElement {
 }
 
 export function TrpDashboardPage(): ReactElement {
+  const [metadata, setMetadata] = useState(initialMetadata);
+
+  const handleMetadataFieldChange = (key: string, value: string): void => {
+    setMetadata((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
+
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
       <UploadSourceDataCard />
 
       <div className="dashboard-grid">
-        <article className="panel-card panel-card--metadata">
-          <div className="panel-card__header">
-            <span>Report Metadata</span>
-            <span className="panel-card__badge">Draft Auto-Saved</span>
-          </div>
-
-          <div className="metadata-grid">
-            {metadataFields.map((field, index) => (
-              <MetadataField
-                key={field.label}
-                label={field.label}
-                value={field.value}
-                wide={index < 2}
-              />
-            ))}
-            <MetadataField
-              label="Scope of Testing"
-              value="Omni-directional test scan across standard LTE and Wi-Fi bands for validation of radiation efficiency."
-              wide
-            />
-          </div>
-        </article>
+        <ReportMetadataSection
+          fields={[
+            {
+              key: 'reportTitle',
+              label: 'Report Title',
+              value: metadata.reportTitle,
+              span: 2,
+            },
+            {
+              key: 'author',
+              label: 'Author',
+              value: metadata.author,
+              span: 2,
+            },
+            {
+              key: 'date',
+              label: 'Date',
+              value: metadata.date,
+              span: 2,
+              withTrailingIcon: true,
+            },
+            {
+              key: 'hwVersion',
+              label: 'HW Version',
+              value: metadata.hwVersion,
+              span: 1,
+            },
+            {
+              key: 'fwVersion',
+              label: 'FW Version',
+              value: metadata.fwVersion,
+              span: 1,
+            },
+          ]}
+          scopeOfTesting={metadata.scopeOfTesting}
+          onFieldChange={handleMetadataFieldChange}
+          onScopeChange={(value) => handleMetadataFieldChange('scopeOfTesting', value)}
+        />
 
         <div className="summary-column">
           {summaryCards.map((card) => (

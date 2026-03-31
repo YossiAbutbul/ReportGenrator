@@ -6,7 +6,7 @@ import type {
 } from 'react';
 import { useRef, useState } from 'react';
 import { Download, FileSpreadsheet, Upload } from 'lucide-react';
-import { downloadReportTemplate } from '../services/downloadTemplate';
+import { downloadReportTemplate } from '../../services/downloadTemplate';
 
 type UploadSourceDataCardProps = {
   onFileSelected?: (file: File) => void;
