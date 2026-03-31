@@ -405,11 +405,6 @@ export function TrpDashboardPage(): ReactElement {
       </article>
 
       <div className="dashboard-footer">
-        <div className="validation-note">
-          <span className="validation-note__dot" aria-hidden="true" />
-          <span>All validation checks passed. Ready for export.</span>
-        </div>
-
         <div className="dashboard-footer__actions">
           <button className="button button--ghost dashboard-footer__button" type="button">
             <RotateCcw aria-hidden="true" />
