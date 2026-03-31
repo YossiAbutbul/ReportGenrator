@@ -14,9 +14,10 @@ import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard'
 import {
   metadataFields,
   resultRows,
-  summaryCards,
 } from '../data/trpDashboardMockData';
+import { parseReportWorkbook } from '../services/excel/parseReportWorkbook';
 import type {
+  ResultRow,
   ReportMetadataForm,
   SummaryCardData,
 } from '../types/trpDashboard';
@@ -137,6 +138,7 @@ export function ReportSetupPage({
   onGenerateReport,
   onMetadataChange,
 }: TrpDashboardPageProps): ReactElement {
+  const [tableRows, setTableRows] = useState<ResultRow[]>(resultRows);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -144,20 +146,33 @@ export function ReportSetupPage({
   const [selectedFrequencies, setSelectedFrequencies] = useState<string[]>([]);
   const [openFilterSection, setOpenFilterSection] = useState<string | null>(null);
   const [filterOptionQuery, setFilterOptionQuery] = useState('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const summaryCards = useMemo<SummaryCardData[]>(
+    () => [
+      { label: 'Total Units', value: String(new Set(tableRows.map((row) => row.unit)).size) },
+      {
+        label: 'Frequencies',
+        value: String(new Set(tableRows.map((row) => row.frequency)).size),
+      },
+      { label: 'Data Rows', value: String(tableRows.length) },
+    ],
+    [tableRows],
+  );
+
   const typeOptions = useMemo(
-    () => [...new Set(resultRows.map((row) => row.unitType))],
-    [],
+    () => [...new Set(tableRows.map((row) => row.unitType))],
+    [tableRows],
   );
   const idOptions = useMemo(
-    () => [...new Set(resultRows.map((row) => row.unit))],
-    [],
+    () => [...new Set(tableRows.map((row) => row.unit))],
+    [tableRows],
   );
   const frequencyOptions = useMemo(
-    () => [...new Set(resultRows.map((row) => row.frequency))],
-    [],
+    () => [...new Set(tableRows.map((row) => row.frequency))],
+    [tableRows],
   );
 
   const toggleFilterValue = (
@@ -179,7 +194,7 @@ export function ReportSetupPage({
   const filteredRows = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    return resultRows.filter((row) => {
+    return tableRows.filter((row) => {
       const matchesQuery =
         normalizedQuery.length === 0
         || [row.unit, row.frequency, row.unitType].some((value) =>
@@ -194,13 +209,33 @@ export function ReportSetupPage({
 
       return matchesQuery && matchesType && matchesId && matchesFrequency;
     });
-  }, [searchQuery, selectedFrequencies, selectedIds, selectedTypes]);
+  }, [searchQuery, selectedFrequencies, selectedIds, selectedTypes, tableRows]);
 
   const handleMetadataFieldChange = (key: string, value: string): void => {
     onMetadataChange((current) => ({
       ...current,
       [key]: value,
     }));
+  };
+
+  const handleFileSelected = async (file: File): Promise<void> => {
+    try {
+      const parsedRows = await parseReportWorkbook(file);
+      setTableRows(parsedRows);
+      setSearchQuery('');
+      setSelectedTypes([]);
+      setSelectedIds([]);
+      setSelectedFrequencies([]);
+      setOpenFilterSection(null);
+      setFilterOptionQuery('');
+      setUploadError(null);
+    } catch (error) {
+      setUploadError(
+        error instanceof Error
+          ? error.message
+          : 'We could not parse that workbook.',
+      );
+    }
   };
 
   useEffect(() => {
@@ -240,7 +275,8 @@ export function ReportSetupPage({
 
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
-      <UploadSourceDataCard />
+      <UploadSourceDataCard onFileSelected={handleFileSelected} />
+      {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
 
       <div className="dashboard-grid">
         <ReportMetadataSection

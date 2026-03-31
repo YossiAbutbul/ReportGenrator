@@ -4,6 +4,7 @@ import { CalendarDays } from 'lucide-react';
 
 type MetadataFieldProps = {
   label: string;
+  placeholder?: string;
   value: string;
   span?: 1 | 2 | 4;
   type?: 'text' | 'date-formatted';
@@ -53,6 +54,7 @@ type PickerCapableInput = HTMLInputElement & {
 
 export function MetadataField({
   label,
+  placeholder,
   value,
   span = 1,
   type = 'text',
@@ -91,6 +93,7 @@ export function MetadataField({
         {multiline ? (
           <textarea
             className="metadata-field__control metadata-field__control--textarea"
+            placeholder={placeholder}
             value={value}
             onChange={handleChange}
           />
@@ -101,7 +104,7 @@ export function MetadataField({
               type="text"
               value={value}
               inputMode={type === 'date-formatted' ? 'numeric' : undefined}
-              placeholder={type === 'date-formatted' ? 'dd/mm/yyyy' : undefined}
+              placeholder={type === 'date-formatted' ? 'dd/mm/yyyy' : placeholder}
               maxLength={type === 'date-formatted' ? 10 : undefined}
               onChange={handleChange}
             />

@@ -4,6 +4,7 @@ import { MetadataField } from './MetadataField';
 type MetadataFieldData = {
   key: string;
   label: string;
+  placeholder?: string;
   value: string;
   span?: 1 | 2 | 4;
   type?: 'text' | 'date-formatted';
@@ -37,6 +38,7 @@ export function ReportMetadataSection({
             <MetadataField
               key={field.key}
               label={field.label}
+              placeholder={field.placeholder}
               value={field.value}
               span={field.span}
               type={field.type}
@@ -47,6 +49,7 @@ export function ReportMetadataSection({
         <div className="metadata-scope-row">
           <MetadataField
             label="Scope of Testing"
+            placeholder="e.g. TRP test for LoRa, LTE and BLE bands."
             value={scopeOfTesting}
             span={4}
             multiline

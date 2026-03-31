@@ -330,6 +330,13 @@
   align-self: center;
 }
 
+.upload-card__error {
+  margin: -0.3rem 0 0;
+  color: #c25c5c;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .upload-card__button {
   min-width: 10rem;
   min-height: 2.25rem;
@@ -1194,6 +1201,7 @@
   height: 100%;
   min-height: 0;
   overflow: auto;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
 }

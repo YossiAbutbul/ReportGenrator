@@ -11,6 +11,7 @@ export type ReportMetadataField = {
   key: keyof ReportMetadataForm;
   label: string;
   span: 1 | 2 | 4;
+  placeholder?: string;
   type?: 'text' | 'date-formatted';
 };
 
