@@ -4,13 +4,17 @@
   min-height: 100dvh;
   padding: var(--space-md);
   background:
-    radial-gradient(circle at top left, var(--color-shell-glow), transparent 28%),
+    radial-gradient(
+      circle at top left,
+      var(--color-shell-glow),
+      transparent 28%
+    ),
     linear-gradient(180deg, #f6f8fc 0%, #eef3f9 100%);
   color: var(--color-text);
 }
 
 .app-shell::before {
-  content: '';
+  content: "";
   width: min(100%, var(--shell-max-width));
   height: var(--shell-frame-height);
   grid-area: 1 / 1;
@@ -79,8 +83,7 @@
   height: calc(100% - 3.5rem);
   background: var(--color-shell-bg);
   border: var(--border-thin) solid var(--color-border);
-  border-top: 0;
-  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  border-radius: var(--radius-xl);
   box-shadow: 0 1.125rem 3rem var(--color-shadow);
   overflow: hidden;
 }
@@ -263,7 +266,11 @@
 }
 
 .button--primary {
-  background: linear-gradient(180deg, #3566c6 0%, var(--color-primary-strong) 100%);
+  background: linear-gradient(
+    180deg,
+    #3566c6 0%,
+    var(--color-primary-strong) 100%
+  );
   color: var(--color-panel-bg);
 }
 
