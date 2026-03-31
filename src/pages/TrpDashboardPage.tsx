@@ -20,7 +20,10 @@ import type {
   SummaryCardData,
 } from '../types/trpDashboard';
 
-function SummaryCard({ label, value }: SummaryCardData): ReactElement {
+function SummaryCard({
+  label,
+  value,
+}: SummaryCardData): ReactElement {
   return (
     <article className="summary-card">
       <span className="summary-card__label">{label}</span>
@@ -65,7 +68,7 @@ export function TrpDashboardPage(): ReactElement {
 
         <div className="summary-column">
           {summaryCards.map((card) => (
-            <SummaryCard key={card.label} label={card.label} value={card.value} />
+            <SummaryCard key={card.label} {...card} />
           ))}
         </div>
       </div>
@@ -88,7 +91,7 @@ export function TrpDashboardPage(): ReactElement {
             <span>Frequency</span>
             <span>TRP (dBm)</span>
             <span>Max Peak (dBm)</span>
-            <span>Visual</span>
+            <span>3D Graph</span>
           </div>
 
           {resultRows.map((row) => (
