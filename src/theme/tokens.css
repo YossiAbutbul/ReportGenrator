@@ -16,8 +16,10 @@
   --color-panel-muted: #f9fbfd;
   --color-panel-soft: #eef4fd;
   --color-panel-accent: #edf4ff;
-  --color-input-bg: #f8fbff;
-  --color-input-border: #dde6f1;
+  --color-input-bg: #fbfbfb;
+  --color-input-border: #e1e6ec;
+  --color-input-text: #49627f;
+  --color-input-placeholder: #7f93ab;
   --color-badge-bg: #f4f8fd;
   --color-badge-text: #9aa8bb;
   --color-border: #dbe4f0;
@@ -26,8 +28,8 @@
   --color-text: #24324a;
   --color-text-muted: #6d7d95;
   --color-text-soft: #8a97aa;
-  --color-primary: #1A56AD;
-  --color-primary-strong: #1A56AD;
+  --color-primary: #1a56ad;
+  --color-primary-strong: #1a56ad;
   --color-primary-soft: #edf4ff;
   --color-primary-border: #cddcf4;
   --color-danger: #c25c5c;
@@ -37,6 +39,12 @@
   --color-shadow: rgba(36, 53, 84, 0.08);
   --color-shadow-soft: rgba(42, 64, 102, 0.06);
   --color-shell-glow: rgba(76, 118, 197, 0.12);
+  --color-scrollbar-track: #edf3fb;
+  --color-scrollbar-thumb: #c3d4ea;
+  --color-scrollbar-thumb-hover: #9fb9da;
+  --color-scrollbar-sidebar-track: #eef4fb;
+  --color-scrollbar-sidebar-thumb: #bfd1e8;
+  --color-scrollbar-sidebar-thumb-hover: #99b7da;
 
   --space-2xs: 0.375rem;
   --space-xs: 0.5rem;
@@ -64,5 +72,6 @@
   --font-size-lg: 0.95rem;
   --font-size-xl: 1rem;
   --font-size-2xl: 1.1rem;
+  --font-size-3xl: 1.6rem;
   --font-size-stat: 2.5rem;
 }
