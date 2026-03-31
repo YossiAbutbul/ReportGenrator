@@ -20,6 +20,7 @@ export type SummaryCardData = {
 };
 
 export type ResultRow = {
+  unitType: string;
   unit: string;
   frequency: string;
   trp: string;

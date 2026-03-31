@@ -41,8 +41,16 @@ export const summaryCards: SummaryCardData[] = [
 export const filterChips = ['Unit Type: All', 'Unit ID: All', 'Freq: All'] as const;
 
 export const resultRows: ResultRow[] = [
-  { unit: 'U001', frequency: '850 MHz', trp: '21.45', peak: '24.12' },
-  { unit: 'U001', frequency: '1900 MHz', trp: '19.82', peak: '22.05' },
-  { unit: 'U002', frequency: '850 MHz', trp: '22.01', peak: '24.55' },
-  { unit: 'U003', frequency: '2400 MHz', trp: '18.15', peak: '20.98' },
+  { unitType: 'Phone', unit: 'U001', frequency: '850 MHz', trp: '21.45', peak: '24.12' },
+  { unitType: 'Phone', unit: 'U001', frequency: '1900 MHz', trp: '19.82', peak: '22.05' },
+  { unitType: 'Router', unit: 'U002', frequency: '850 MHz', trp: '22.01', peak: '24.55' },
+  { unitType: 'Tablet', unit: 'U003', frequency: '2400 MHz', trp: '18.15', peak: '20.98' },
+  { unitType: 'Phone', unit: 'U004', frequency: '3500 MHz', trp: '20.72', peak: '23.44' },
+  { unitType: 'Router', unit: 'U005', frequency: '1900 MHz', trp: '21.08', peak: '23.81' },
+  { unitType: 'Sensor', unit: 'U006', frequency: '915 MHz', trp: '17.64', peak: '19.91' },
+  { unitType: 'Tablet', unit: 'U007', frequency: '2400 MHz', trp: '19.34', peak: '21.76' },
+  { unitType: 'Phone', unit: 'U008', frequency: '850 MHz', trp: '22.27', peak: '24.88' },
+  { unitType: 'Sensor', unit: 'U009', frequency: '433 MHz', trp: '16.95', peak: '18.47' },
+  { unitType: 'Router', unit: 'U010', frequency: '5800 MHz', trp: '18.72', peak: '21.33' },
+  { unitType: 'Tablet', unit: 'U011', frequency: '3500 MHz', trp: '20.11', peak: '22.59' },
 ];

@@ -1,15 +1,15 @@
 import type { ReactElement } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  ChevronDown,
   FileText,
+  Funnel,
   RotateCcw,
   ScanSearch,
+  Search,
 } from 'lucide-react';
 import { ReportMetadataSection } from '../components/reportMetadata/ReportMetadataSection';
 import { UploadSourceDataCard } from '../components/upload/UploadSourceDataCard';
 import {
-  filterChips,
   initialMetadata,
   metadataFields,
   resultRows,
@@ -35,17 +35,23 @@ function SummaryCard({
   );
 }
 
-function FilterChip({ label }: { label: string }): ReactElement {
-  return (
-    <button className="filter-chip" type="button">
-      <span>{label}</span>
-      <ChevronDown aria-hidden="true" />
-    </button>
-  );
-}
-
 export function TrpDashboardPage(): ReactElement {
   const [metadata, setMetadata] = useState(initialMetadata);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredRows = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return resultRows.filter((row) => {
+      const matchesQuery =
+        normalizedQuery.length === 0
+        || [row.unit, row.frequency, row.unitType].some((value) =>
+          value.toLowerCase().includes(normalizedQuery),
+        );
+
+      return matchesQuery;
+    });
+  }, [searchQuery]);
 
   const handleMetadataFieldChange = (key: string, value: string): void => {
     setMetadata((current) => ({
@@ -82,18 +88,27 @@ export function TrpDashboardPage(): ReactElement {
 
       <article className="panel-card table-card">
         <div className="table-card__toolbar">
-          <div className="table-card__filters">
-            {filterChips.map((chip) => (
-              <FilterChip key={chip} label={chip} />
-            ))}
+          <div className="table-card__toolbar-main">
+            <label className="table-search" htmlFor="results-search">
+              <Search aria-hidden="true" />
+              <input
+                id="results-search"
+                name="results-search"
+                type="search"
+                placeholder="Search by unit ID, frequency, or unit type"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+            </label>
           </div>
-          <button className="text-button" type="button">
-            Clear Filters
+          <button className="filter-icon-button" type="button" aria-label="Open filters">
+            <Funnel aria-hidden="true" />
           </button>
         </div>
 
         <div className="results-table" role="table" aria-label="Analysis results">
           <div className="results-table__header" role="row">
+            <span>Unit Type</span>
             <span>Unit ID</span>
             <span>Frequency</span>
             <span>TRP (dBm)</span>
@@ -101,18 +116,29 @@ export function TrpDashboardPage(): ReactElement {
             <span>3D Graph</span>
           </div>
 
-          {resultRows.map((row) => (
-            <div className="results-table__row" role="row" key={`${row.unit}-${row.frequency}`}>
-              <span>{row.unit}</span>
-              <span>{row.frequency}</span>
-              <span className="results-table__metric">{row.trp}</span>
-              <span>{row.peak}</span>
-              <button className="table-link" type="button">
-                <ScanSearch aria-hidden="true" />
-                <span>View 3D</span>
-              </button>
+          {filteredRows.length > 0 ? (
+            filteredRows.map((row) => (
+              <div
+                className="results-table__row"
+                role="row"
+                key={`${row.unitType}-${row.unit}-${row.frequency}`}
+              >
+                <span>{row.unitType}</span>
+                <span>{row.unit}</span>
+                <span>{row.frequency}</span>
+                <span className="results-table__metric">{row.trp}</span>
+                <span>{row.peak}</span>
+                <button className="table-link" type="button">
+                  <ScanSearch aria-hidden="true" />
+                  <span>View 3D</span>
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="results-table__empty" role="row">
+              No matching rows found. Try a different search or clear the filters.
             </div>
-          ))}
+          )}
         </div>
       </article>
 
