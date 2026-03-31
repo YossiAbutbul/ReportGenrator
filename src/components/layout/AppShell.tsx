@@ -10,7 +10,6 @@ export function AppShell({ children }: PropsWithChildren): ReactElement {
         <SidebarNav
           productName="TRP Clinical 1"
           versionLabel="v2.4.0 Stable"
-          actionLabel="New Analysis"
           items={defaultSidebarItems}
           footerLabel="Help Center"
         />

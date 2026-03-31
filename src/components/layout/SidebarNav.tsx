@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3,
-  CirclePlus,
   Database,
   FileCog,
   HelpCircle,
@@ -18,7 +17,6 @@ type NavItem = {
 type SidebarNavProps = {
   productName: string;
   versionLabel: string;
-  actionLabel: string;
   items: NavItem[];
   footerLabel: string;
 };
@@ -26,7 +24,6 @@ type SidebarNavProps = {
 export function SidebarNav({
   productName,
   versionLabel,
-  actionLabel,
   items,
   footerLabel,
 }: SidebarNavProps): ReactElement {
@@ -37,11 +34,6 @@ export function SidebarNav({
           <div className="sidebar-nav__product-name">{productName}</div>
           <div className="sidebar-nav__product-version">{versionLabel}</div>
         </div>
-
-        <button className="sidebar-nav__action" type="button">
-          <CirclePlus aria-hidden="true" />
-          <span>{actionLabel}</span>
-        </button>
 
         <nav className="sidebar-nav__items" aria-label="Primary navigation">
           {items.map((item) => (
