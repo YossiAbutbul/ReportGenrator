@@ -561,9 +561,6 @@
   border-radius: 999rem;
   background: #fdfefe;
   border: 1px solid rgba(205, 218, 236, 0.9);
-  box-shadow:
-    0 0.9rem 1.8rem rgba(58, 84, 126, 0.18),
-    0 0.18rem 0.5rem rgba(58, 84, 126, 0.12);
   transform: translateX(-50%);
   overflow: hidden;
 }
