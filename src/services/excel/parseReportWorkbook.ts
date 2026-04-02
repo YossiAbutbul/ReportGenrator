@@ -26,7 +26,11 @@ function formatFrequency(value: unknown): string {
   const primitiveValue = getCellPrimitive(value);
 
   if (typeof primitiveValue === 'number') {
-    return `${primitiveValue.toLocaleString('en-US', { maximumFractionDigits: 3 })} MHz`;
+    const formattedValue = Number.isInteger(primitiveValue)
+      ? String(primitiveValue)
+      : primitiveValue.toFixed(3).replace(/\.?0+$/, '');
+
+    return `${formattedValue} MHz`;
   }
 
   const normalized = String(primitiveValue ?? '').trim();
