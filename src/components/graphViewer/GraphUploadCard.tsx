@@ -8,7 +8,9 @@ import { useRef, useState } from 'react';
 import { ChartColumnBig, FileUp } from 'lucide-react';
 
 type GraphUploadCardProps = {
+  description?: string;
   onFileSelected: (file: File) => void | Promise<void>;
+  title?: string;
 };
 
 const acceptedGraphFileTypes = '.txt,text/plain';
@@ -18,7 +20,9 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 }
 
 export function GraphUploadCard({
+  description = 'Choose a TXT measurement export to generate a 3D graph preview',
   onFileSelected,
+  title = 'Upload Graph Data',
 }: GraphUploadCardProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -74,10 +78,10 @@ export function GraphUploadCard({
       </div>
 
       <div className="upload-card__copy">
-        <h1>Upload Graph Data</h1>
+        <h1>{title}</h1>
         <div className="upload-card__status">
           <p className={selectedFileName ? 'upload-card__file-text' : ''}>
-            {selectedFileName || 'Choose a TXT measurement export to generate a 3D graph preview'}
+            {selectedFileName || description}
           </p>
         </div>
       </div>

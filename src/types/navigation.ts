@@ -1,1 +1,1 @@
-export type AppPage = 'reportSetup' | 'reportArea' | 'graphViewer';
+export type AppPage = 'reportSetup' | 'reportArea' | 'graphViewer' | 'graphViewer2d';

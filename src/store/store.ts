@@ -21,12 +21,14 @@ type AppStoreValue = {
   activePage: AppPage;
   generatedReport: ReportPreview | null;
   graphData: ParsedGraphFile | null;
+  graphData2d: ParsedGraphFile | null;
   isGeneratingReport: boolean;
   isReportDirty: boolean;
   metadata: ReportMetadataForm;
   tableRows: ResultRow[];
   setGeneratedReport: Dispatch<SetStateAction<ReportPreview | null>>;
   setGraphData: Dispatch<SetStateAction<ParsedGraphFile | null>>;
+  setGraphData2d: Dispatch<SetStateAction<ParsedGraphFile | null>>;
   setIsGeneratingReport: Dispatch<SetStateAction<boolean>>;
   setIsReportDirty: Dispatch<SetStateAction<boolean>>;
   setActivePage: Dispatch<SetStateAction<AppPage>>;
@@ -42,6 +44,7 @@ export function AppStoreProvider({
   const [activePage, setActivePage] = useState<AppPage>('reportSetup');
   const [generatedReport, setGeneratedReport] = useState<ReportPreview | null>(null);
   const [graphData, setGraphData] = useState<ParsedGraphFile | null>(null);
+  const [graphData2d, setGraphData2d] = useState<ParsedGraphFile | null>(null);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isReportDirty, setIsReportDirty] = useState(false);
   const [metadata, setMetadata] = useState<ReportMetadataForm>(initialMetadata);
@@ -52,12 +55,14 @@ export function AppStoreProvider({
       activePage,
       generatedReport,
       graphData,
+      graphData2d,
       isGeneratingReport,
       isReportDirty,
       metadata,
       tableRows,
       setGeneratedReport,
       setGraphData,
+      setGraphData2d,
       setIsGeneratingReport,
       setIsReportDirty,
       setActivePage,
@@ -68,6 +73,7 @@ export function AppStoreProvider({
       activePage,
       generatedReport,
       graphData,
+      graphData2d,
       isGeneratingReport,
       isReportDirty,
       metadata,

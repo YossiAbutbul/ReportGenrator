@@ -97,9 +97,9 @@ export function GraphViewerPage(): ReactElement {
       <GraphUploadCard onFileSelected={handleGraphFileSelected} />
       {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
 
-      <article className="panel-card graph-viewer-card">
-        <div className="graph-viewer-card__header">
-          <div>
+      <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
+        <div className="graph-viewer-2d__hero">
+          <div className="graph-viewer-2d__hero-copy">
             <div className="report-area-card__eyebrow">3D Graph Viewer</div>
             <h1 className="graph-viewer-card__title">
               {graphData?.fileName || 'Upload a TXT graph file to start'}
@@ -155,70 +155,80 @@ export function GraphViewerPage(): ReactElement {
         </div>
 
         {graphData ? (
-          <div className="graph-viewer-card__plot-shell">
-            {isGraphLoading ? (
-              <div className="graph-viewer-card__loading" aria-live="polite">
-                <span className="graph-viewer-card__spinner" aria-hidden="true" />
-                <span>Loading 3D graph...</span>
+          <section className="graph-viewer-2d__analysis-card">
+            <div className="graph-viewer-2d__analysis-header">
+              <div>
+                <h2>{`${metricOptions.find((option) => option.key === metric)?.label ?? 'Both-Pols'} 3D Surface`}</h2>
               </div>
-            ) : null}
-            <div className="graph-viewer-card__controls">
-              <button
-                className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => handleViewControlChange('pan')}
-              >
-                <Move aria-hidden="true" />
-                <span>Pan</span>
-              </button>
-              <button
-                className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => handleViewControlChange('turntable')}
-              >
-                <RotateCw aria-hidden="true" />
-                <span>Rotate</span>
-              </button>
-              <button
-                className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => handleViewControlChange('zoom')}
-              >
-                <Search aria-hidden="true" />
-                <span>Zoom</span>
-              </button>
-              <button
-                className="graph-viewer-card__control-button"
-                type="button"
-                onClick={handleResetView}
-              >
-                <Home aria-hidden="true" />
-                <span>Reset</span>
-              </button>
             </div>
-            <div className="graph-viewer-card__plot-layout">
-              <div className="graph-legend" aria-hidden="true">
-                <div className="graph-legend__bar" />
-                <div className="graph-legend__ticks">
-                  {legendTicks.map((tick) => (
-                    <span
-                      className="graph-legend__tick"
-                      key={tick.key}
-                      style={{ top: `${tick.offset}%` }}
-                    >
-                      {tick.value}
-                    </span>
-                  ))}
+
+            <div className="graph-viewer-3d__analysis-body">
+              <div className="graph-viewer-card__plot-shell">
+                {isGraphLoading ? (
+                  <div className="graph-viewer-card__loading" aria-live="polite">
+                    <span className="graph-viewer-card__spinner" aria-hidden="true" />
+                    <span>Loading 3D graph...</span>
+                  </div>
+                ) : null}
+                <div className="graph-viewer-card__controls">
+                  <button
+                    className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
+                    type="button"
+                    onClick={() => handleViewControlChange('pan')}
+                  >
+                    <Move aria-hidden="true" />
+                    <span>Pan</span>
+                  </button>
+                  <button
+                    className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
+                    type="button"
+                    onClick={() => handleViewControlChange('turntable')}
+                  >
+                    <RotateCw aria-hidden="true" />
+                    <span>Rotate</span>
+                  </button>
+                  <button
+                    className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
+                    type="button"
+                    onClick={() => handleViewControlChange('zoom')}
+                  >
+                    <Search aria-hidden="true" />
+                    <span>Zoom</span>
+                  </button>
+                  <button
+                    className="graph-viewer-card__control-button"
+                    type="button"
+                    onClick={handleResetView}
+                  >
+                    <Home aria-hidden="true" />
+                    <span>Reset</span>
+                  </button>
+                </div>
+                <div className="graph-viewer-card__plot-layout">
+                  <div className="graph-legend" aria-hidden="true">
+                    <div className="graph-legend__bar" />
+                    <div className="graph-legend__ticks">
+                      {legendTicks.map((tick) => (
+                        <span
+                          className="graph-legend__tick"
+                          key={tick.key}
+                          style={{ top: `${tick.offset}%` }}
+                        >
+                          {tick.value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <GraphSurfacePlot
+                    graphData={graphData}
+                    metric={metric}
+                    onRenderStateChange={setIsGraphLoading}
+                    ref={graphPlotRef}
+                  />
                 </div>
               </div>
-              <GraphSurfacePlot
-                graphData={graphData}
-                metric={metric}
-                onRenderStateChange={setIsGraphLoading}
-                ref={graphPlotRef}
-              />
             </div>
-          </div>
+          </section>
         ) : (
           <div className="graph-viewer-card__empty">
             Upload a measurement TXT file to generate an interactive 3D surface plot.

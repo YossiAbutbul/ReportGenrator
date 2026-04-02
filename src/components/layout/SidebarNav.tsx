@@ -5,6 +5,7 @@ import {
   ChartColumnBig,
   FileText,
   HelpCircle,
+  Radar,
   Settings2,
 } from 'lucide-react';
 
@@ -29,6 +30,7 @@ export function SidebarNav({
     { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
     { key: 'reportArea', label: 'Report Area', icon: FileText },
     { key: 'graphViewer', label: '3D Graph Viewer', icon: ChartColumnBig },
+    { key: 'graphViewer2d', label: '2D Graph Viewer', icon: Radar },
   ];
   const activeIndex = items.findIndex((item) => item.key === activeItem);
 
