@@ -93,14 +93,14 @@ export function GraphViewerPage(): ReactElement {
   };
 
   return (
-    <section className="graph-viewer-page" aria-label="Graph viewer">
+    <section className="graph-viewer-page" aria-label="3D Graph Viewer">
       <GraphUploadCard onFileSelected={handleGraphFileSelected} />
       {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
 
       <article className="panel-card graph-viewer-card">
         <div className="graph-viewer-card__header">
           <div>
-            <div className="report-area-card__eyebrow">Graph Viewer</div>
+            <div className="report-area-card__eyebrow">3D Graph Viewer</div>
             <h1 className="graph-viewer-card__title">
               {graphData?.fileName || 'Upload a TXT graph file to start'}
             </h1>

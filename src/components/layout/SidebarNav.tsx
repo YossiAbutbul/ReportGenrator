@@ -28,7 +28,7 @@ export function SidebarNav({
   const items: NavItem[] = [
     { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
     { key: 'reportArea', label: 'Report Area', icon: FileText },
-    { key: 'graphViewer', label: 'Graph Viewer', icon: ChartColumnBig },
+    { key: 'graphViewer', label: '3D Graph Viewer', icon: ChartColumnBig },
   ];
   const activeIndex = items.findIndex((item) => item.key === activeItem);
 
