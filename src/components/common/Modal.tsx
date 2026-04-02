@@ -8,6 +8,7 @@ type ModalProps = {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 };
 
 export function Modal({
@@ -15,6 +16,7 @@ export function Modal({
   title,
   onClose,
   children,
+  className,
 }: ModalProps): ReactElement | null {
   useEffect(() => {
     if (!isOpen) {
@@ -51,7 +53,7 @@ export function Modal({
       <div
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="modal__dialog"
+        className={`modal__dialog${className ? ` ${className}` : ''}`}
         role="dialog"
       >
         <div className="modal__header">

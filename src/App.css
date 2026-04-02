@@ -670,6 +670,67 @@
   padding: 1.4rem;
 }
 
+.report-area-card--loading {
+  justify-items: start;
+  align-content: center;
+  min-height: 22rem;
+}
+
+.report-area-card__spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0.2rem solid #d7e3f3;
+  border-top-color: #2f68bf;
+  border-radius: 999rem;
+  animation: report-area-spin 900ms linear infinite;
+}
+
+.report-stale-modal {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.report-stale-modal__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.9rem;
+}
+
+.report-stale-modal p {
+  margin: 0;
+  color: #27405f;
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.report-stale-modal__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-top: 0.1rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(180deg, #fff4dd 0%, #ffe8bc 100%);
+  color: #c27b12;
+  flex-shrink: 0;
+}
+
+.report-stale-modal__icon svg {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2.2;
+}
+
+.report-stale-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 .report-area-card__eyebrow {
   color: #7c8faa;
   font-size: 0.72rem;
@@ -742,6 +803,16 @@
   stroke-width: 2.1;
   flex-shrink: 0;
   margin-top: 0;
+}
+
+@keyframes report-area-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .graph-viewer-card {
@@ -1841,6 +1912,7 @@
   padding: 1.5rem;
   background: rgba(19, 31, 52, 0.4);
   backdrop-filter: blur(0.25rem);
+  animation: modal-fade-in 180ms ease-out;
 }
 
 .modal__dialog {
@@ -1853,6 +1925,14 @@
   border-radius: 1rem;
   background: #ffffff;
   box-shadow: 0 1.25rem 3rem rgba(27, 43, 71, 0.22);
+  transform-origin: center;
+  animation: modal-pop-in 220ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.modal__dialog--compact {
+  width: min(30rem, 100%);
+  height: auto;
+  max-height: min(24rem, calc(100dvh - 3rem));
 }
 
 .modal__header {
@@ -1894,6 +1974,30 @@
   min-height: 0;
   overflow: hidden;
   padding: 1rem;
+}
+
+@keyframes modal-fade-in {
+  from {
+    background: rgba(19, 31, 52, 0);
+    backdrop-filter: blur(0);
+  }
+
+  to {
+    background: rgba(19, 31, 52, 0.4);
+    backdrop-filter: blur(0.25rem);
+  }
+}
+
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .graph-preview {

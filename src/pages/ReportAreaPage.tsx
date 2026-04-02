@@ -1,12 +1,13 @@
 import type { ReactElement } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  AlertTriangle,
   FileImage,
   Layers3,
   RadioTower,
   Ruler,
 } from 'lucide-react';
-import { buildReportPreview } from '../services/report/buildReportPreview';
+import { Modal } from '../components/common/Modal';
 import {
   exportReportAsWord,
 } from '../services/report/exportReport';
@@ -39,11 +40,47 @@ function WordDocumentIcon(): ReactElement {
 }
 
 export function ReportAreaPage(): ReactElement {
-  const { metadata, tableRows } = useAppStore();
-  const report = buildReportPreview(metadata, tableRows);
-  const hasRows = report.summary.totalRows > 0;
-  const previewRef = useRef<HTMLDivElement | null>(null);
+  const {
+    generatedReport,
+    isGeneratingReport,
+    isReportDirty,
+    setActivePage,
+  } = useAppStore();
   const [isExportingWord, setIsExportingWord] = useState(false);
+  const [isStaleModalOpen, setIsStaleModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (generatedReport && isReportDirty) {
+      setIsStaleModalOpen(true);
+    }
+  }, [generatedReport, isReportDirty]);
+
+  if (isGeneratingReport) {
+    return (
+      <section className="report-area-page" aria-label="Report area">
+        <article className="panel-card report-area-card report-area-card--loading">
+          <div className="report-area-card__spinner" aria-hidden="true" />
+          <h1>Generating report preview</h1>
+          <p>We're building the report pages from your latest setup and workbook data.</p>
+        </article>
+      </section>
+    );
+  }
+
+  if (!generatedReport) {
+    return (
+      <section className="report-area-page" aria-label="Report area">
+        <article className="panel-card report-area-card">
+          <div className="report-area-card__eyebrow">Report Area</div>
+          <h1>No generated report yet</h1>
+          <p>Go to Report Setup, complete your fields, then press Generate Report to create the preview.</p>
+        </article>
+      </section>
+    );
+  }
+
+  const report = generatedReport;
+  const hasRows = report.summary.totalRows > 0;
 
   const handleWordExport = async (): Promise<void> => {
     if (isExportingWord) {
@@ -61,7 +98,44 @@ export function ReportAreaPage(): ReactElement {
 
   return (
     <section className="report-area-page" aria-label="Report area">
-      <div className="report-preview" ref={previewRef}>
+      <Modal
+        isOpen={isStaleModalOpen}
+        title="Report Preview Is Out Of Date"
+        onClose={() => setIsStaleModalOpen(false)}
+        className="modal__dialog--compact"
+      >
+        <div className="report-stale-modal">
+          <div className="report-stale-modal__body">
+            <div className="report-stale-modal__icon" aria-hidden="true">
+              <AlertTriangle aria-hidden="true" />
+            </div>
+            <p>
+              Report Setup changed after this preview was generated. Generate again to refresh it.
+            </p>
+          </div>
+          <div className="report-stale-modal__actions">
+            <button
+              className="button button--ghost"
+              type="button"
+              onClick={() => setIsStaleModalOpen(false)}
+            >
+              Keep Preview
+            </button>
+            <button
+              className="button button--primary"
+              type="button"
+              onClick={() => {
+                setIsStaleModalOpen(false);
+                setActivePage('reportSetup');
+              }}
+            >
+              Go To Setup
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <div className="report-preview">
         <article className="panel-card report-page report-page--cover">
           <div className="report-page__cover-brand">
             <img alt="Arad Technologies" src="/report-template-assets/cover-header.jpg" />
@@ -97,7 +171,7 @@ export function ReportAreaPage(): ReactElement {
           <section className="report-page__section">
             <h3>Scope of Testing</h3>
             <p className="report-page__lead report-page__lead--ltr">
-              {metadata.scopeOfTesting.trim() || '1. TRP test'}
+              {report.metadata.scopeOfTesting.trim() || '1. TRP test'}
             </p>
           </section>
 
@@ -207,29 +281,27 @@ export function ReportAreaPage(): ReactElement {
                   </tr>
                 </thead>
                 <tbody>
-                  {section.rows.map((row, rowIndex) => {
-                    return (
-                      <tr key={row.rowKey}>
-                        <td>{row.unit}</td>
-                        <td>{row.frequency}</td>
-                        <td>{row.trp}</td>
-                        <td>{row.peak}</td>
-                        <td>
-                          {row.graphImageSrc ? (
-                            <img
-                              alt={`3D graph for ${row.unit} at ${row.frequency}`}
-                              className="report-result-table__graph-image"
-                              src={row.graphImageSrc}
-                            />
-                          ) : (
-                            <span className="report-result-table__graph-placeholder">
-                              No graph
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {section.rows.map((row) => (
+                    <tr key={row.rowKey}>
+                      <td>{row.unit}</td>
+                      <td>{row.frequency}</td>
+                      <td>{row.trp}</td>
+                      <td>{row.peak}</td>
+                      <td>
+                        {row.graphImageSrc ? (
+                          <img
+                            alt={`3D graph for ${row.unit} at ${row.frequency}`}
+                            className="report-result-table__graph-image"
+                            src={row.graphImageSrc}
+                          />
+                        ) : (
+                          <span className="report-result-table__graph-placeholder">
+                            No graph
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </section>
@@ -251,6 +323,12 @@ export function ReportAreaPage(): ReactElement {
 
       <div className="dashboard-footer report-page__footer">
         <div className="dashboard-footer__actions report-actions">
+          {isReportDirty ? (
+            <div className="validation-note">
+              <span className="validation-note__dot" aria-hidden="true" />
+              Report setup changed. Generate again to refresh this preview.
+            </div>
+          ) : null}
           <button
             className="button button--primary dashboard-footer__button"
             type="button"

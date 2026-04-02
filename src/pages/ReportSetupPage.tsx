@@ -16,6 +16,7 @@ import {
   metadataFields,
 } from '../data/trpDashboardMockData';
 import { parseReportWorkbook } from '../services/excel/parseReportWorkbook';
+import { buildReportPreview } from '../services/report/buildReportPreview';
 import { useAppStore } from '../store/store';
 import type {
   ResultRow,
@@ -130,6 +131,10 @@ function FilterSection({
 export function ReportSetupPage(): ReactElement {
   const {
     metadata,
+    setGeneratedReport,
+    isGeneratingReport,
+    setIsGeneratingReport,
+    setIsReportDirty,
     setActivePage,
     setMetadata,
     tableRows,
@@ -213,6 +218,7 @@ export function ReportSetupPage(): ReactElement {
       ...current,
       [key]: value,
     }));
+    setIsReportDirty(true);
   };
 
   const handleFileSelected = async (file: File): Promise<void> => {
@@ -227,6 +233,7 @@ export function ReportSetupPage(): ReactElement {
       setFilterOptionQuery('');
       setPreviewRow(null);
       setUploadError(null);
+      setIsReportDirty(true);
     } catch (error) {
       setUploadError(
         error instanceof Error
@@ -270,6 +277,26 @@ export function ReportSetupPage(): ReactElement {
       document.removeEventListener('mousedown', handlePointerDown);
     };
   }, [openFilterSection]);
+
+  const handleGenerateReport = async (): Promise<void> => {
+    if (isGeneratingReport) {
+      return;
+    }
+
+    setIsGeneratingReport(true);
+
+    try {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 450);
+      });
+
+      setGeneratedReport(buildReportPreview(metadata, tableRows));
+      setIsReportDirty(false);
+      setActivePage('reportArea');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
 
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
@@ -464,10 +491,12 @@ export function ReportSetupPage(): ReactElement {
           <button
             className="button button--primary dashboard-footer__button"
             type="button"
-            onClick={() => setActivePage('reportArea')}
+            onClick={() => {
+              void handleGenerateReport();
+            }}
           >
             <FileText aria-hidden="true" />
-            Generate Report
+            {isGeneratingReport ? 'Generating...' : 'Generate Report'}
           </button>
         </div>
       </div>
