@@ -1,3 +1,30 @@
+.app-shell *,
+.app-shell *::before,
+.app-shell *::after {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+
+.app-shell *::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.app-shell *::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track);
+  border-radius: 999rem;
+}
+
+.app-shell *::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border: 0.18rem solid var(--color-scrollbar-track);
+  border-radius: 999rem;
+}
+
+.app-shell *::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-thumb-hover);
+}
+
 .upload-card,
 .panel-card,
 .summary-card {

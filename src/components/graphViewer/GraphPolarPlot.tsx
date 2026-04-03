@@ -59,6 +59,11 @@ export function GraphPolarPlot({
   const plotlyRef = useRef<PlotlyLike | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const hasRenderedRef = useRef(false);
+  const lastRenderRef = useRef<{
+    config: Record<string, unknown>;
+    data: unknown[];
+    layout: Record<string, unknown>;
+  } | null>(null);
   const dataPoints = useMemo(
     () => points.filter((point) => Number.isFinite(point.value)),
     [points],
@@ -215,6 +220,12 @@ export function GraphPolarPlot({
         staticPlot: true,
       };
 
+      lastRenderRef.current = {
+        config,
+        data,
+        layout,
+      };
+
       if (hasRenderedRef.current && plotly.react) {
         await plotly.react(plotRef.current, data, layout, config);
       } else {
@@ -224,12 +235,29 @@ export function GraphPolarPlot({
 
       if (!resizeObserverRef.current) {
         resizeObserverRef.current = new ResizeObserver(() => {
+          if (
+            plotRef.current
+            && plotlyRef.current?.react
+            && lastRenderRef.current
+          ) {
+            void plotlyRef.current.react(
+              plotRef.current,
+              lastRenderRef.current.data,
+              lastRenderRef.current.layout,
+              lastRenderRef.current.config,
+            );
+            return;
+          }
+
           if (plotRef.current && plotlyRef.current?.Plots) {
             plotlyRef.current.Plots.resize(plotRef.current);
           }
         });
 
         resizeObserverRef.current.observe(plotRef.current);
+        if (plotRef.current.parentElement) {
+          resizeObserverRef.current.observe(plotRef.current.parentElement);
+        }
       }
 
       if (!isInteractiveUpdate) {
