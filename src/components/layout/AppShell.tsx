@@ -1,9 +1,11 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { AppNotification } from '../common/AppNotification';
 import { HelpCenterModal } from '../help/HelpCenterModal';
 import { ShellHeader } from './ShellHeader';
 import { SidebarNav } from './SidebarNav';
 import type { AppPage } from '../../types/navigation';
+import { useAppStore } from '../../store/store';
 
 type AppShellProps = PropsWithChildren<{
   activePage: AppPage;
@@ -16,6 +18,21 @@ export function AppShell({
   onNavigate,
 }: AppShellProps): ReactElement {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const { clearNotification, notification } = useAppStore();
+
+  useEffect(() => {
+    if (!notification) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      clearNotification();
+    }, 4200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [clearNotification, notification]);
 
   return (
     <div className="app-shell">
@@ -29,6 +46,12 @@ export function AppShell({
         />
         <main className="app-shell__content">{children}</main>
       </div>
+      {notification ? (
+        <AppNotification
+          message={notification.message}
+          onClose={clearNotification}
+        />
+      ) : null}
       <HelpCenterModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   );

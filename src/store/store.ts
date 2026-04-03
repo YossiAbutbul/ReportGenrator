@@ -25,8 +25,11 @@ type AppStoreValue = {
   isGeneratingReport: boolean;
   isReportDirty: boolean;
   metadata: ReportMetadataForm;
+  notification: { kind: 'error'; message: string } | null;
   tableRows: ResultRow[];
+  clearNotification: () => void;
   resetReportDraft: () => void;
+  showErrorNotification: (message: string) => void;
   setGeneratedReport: Dispatch<SetStateAction<ReportPreview | null>>;
   setGraphData: Dispatch<SetStateAction<ParsedGraphFile | null>>;
   setGraphData2d: Dispatch<SetStateAction<ParsedGraphFile | null>>;
@@ -57,9 +60,19 @@ export function AppStoreProvider({
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isReportDirty, setIsReportDirty] = useState(false);
   const [metadata, setMetadata] = useState<ReportMetadataForm>(cloneInitialMetadata);
+  const [notification, setNotification] = useState<{ kind: 'error'; message: string } | null>(null);
   const [tableRows, setTableRows] = useState<ResultRow[]>(cloneInitialRows);
 
+  const showErrorNotification = (message: string): void => {
+    setNotification({ kind: 'error', message });
+  };
+
+  const clearNotification = (): void => {
+    setNotification(null);
+  };
+
   const resetReportDraft = (): void => {
+    clearNotification();
     setGeneratedReport(null);
     setIsGeneratingReport(false);
     setIsReportDirty(false);
@@ -77,7 +90,10 @@ export function AppStoreProvider({
       isGeneratingReport,
       isReportDirty,
       metadata,
+      notification,
+      clearNotification,
       resetReportDraft,
+      showErrorNotification,
       tableRows,
       setGeneratedReport,
       setGraphData,
@@ -96,7 +112,10 @@ export function AppStoreProvider({
       isGeneratingReport,
       isReportDirty,
       metadata,
+      notification,
+      clearNotification,
       resetReportDraft,
+      showErrorNotification,
       tableRows,
     ],
   );

@@ -915,3 +915,86 @@
   background: var(--color-success);
   box-shadow: 0 0 0 0.1875rem rgba(54, 194, 109, 0.15);
 }
+
+.app-notification {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.85rem;
+  width: min(28rem, calc(100vw - 2rem));
+  padding: 0.95rem 1rem;
+  border: var(--border-thin) solid #f0d0d0;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffefe 0%, #fff7f7 100%);
+  box-shadow: 0 1rem 2.2rem rgba(58, 31, 31, 0.14);
+  animation: app-notification-in 180ms ease-out;
+}
+
+.app-notification__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(180deg, #fff1f1 0%, #ffe3e3 100%);
+  color: #cb4f4f;
+}
+
+.app-notification__icon svg,
+.app-notification__close svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  stroke-width: 2.2;
+}
+
+.app-notification__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.app-notification__copy strong {
+  color: #8f2f2f;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.app-notification__copy span {
+  color: #6f4545;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.app-notification__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #926666;
+}
+
+.app-notification__close:hover {
+  background: #fff1f1;
+  color: #7f4444;
+}
+
+@keyframes app-notification-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

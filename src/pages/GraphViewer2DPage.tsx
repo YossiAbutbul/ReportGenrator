@@ -91,7 +91,7 @@ function getAutoScale(values: number[]): {
 }
 
 export function GraphViewer2DPage(): ReactElement {
-  const { graphData2d, setGraphData2d } = useAppStore();
+  const { graphData2d, setGraphData2d, showErrorNotification } = useAppStore();
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [isColorUpdate, setIsColorUpdate] = useState(false);
   const [metric, setMetric] = useState<GraphMetric>('vPol');
@@ -102,7 +102,6 @@ export function GraphViewer2DPage(): ReactElement {
   const [appliedMinReference, setAppliedMinReference] = useState<string>('-10');
   const [draftMaxReference, setDraftMaxReference] = useState<string>('4');
   const [draftMinReference, setDraftMinReference] = useState<string>('-10');
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const thetaValue = selectedTheta ?? graphData2d?.thetaValues[0] ?? null;
 
@@ -151,19 +150,21 @@ export function GraphViewer2DPage(): ReactElement {
     setDraftMaxReference(nextMaxReference);
   }, [autoScale.max, autoScale.min, isReferenceManual]);
 
-  const handleGraphFileSelected = async (file: File): Promise<void> => {
+  const handleGraphFileSelected = async (file: File): Promise<boolean> => {
     try {
       setIsGraphLoading(true);
       setIsReferenceManual(false);
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData2d(parsedGraph);
       setSelectedTheta(parsedGraph.thetaValues[0] ?? null);
-      setUploadError(null);
+      return true;
     } catch (error) {
       setIsGraphLoading(false);
-      setUploadError(
-        error instanceof Error ? error.message : 'We could not parse that graph TXT file.',
-      );
+      const message = error instanceof Error
+        ? error.message
+        : 'We could not parse that graph TXT file.';
+      showErrorNotification(message);
+      return false;
     }
   };
 
@@ -230,7 +231,6 @@ export function GraphViewer2DPage(): ReactElement {
         title="Upload Graph Data"
         onFileSelected={handleGraphFileSelected}
       />
-      {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
 
       <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
         <div className="graph-viewer-2d__hero">

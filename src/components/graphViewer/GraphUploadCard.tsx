@@ -6,10 +6,11 @@ import type {
 } from 'react';
 import { useRef, useState } from 'react';
 import { ChartColumnBig, FileUp } from 'lucide-react';
+import { useAppStore } from '../../store/store';
 
 type GraphUploadCardProps = {
   description?: string;
-  onFileSelected: (file: File) => void | Promise<void>;
+  onFileSelected: (file: File) => boolean | Promise<boolean>;
   title?: string;
 };
 
@@ -24,21 +25,33 @@ export function GraphUploadCard({
   onFileSelected,
   title = 'Upload Graph Data',
 }: GraphUploadCardProps): ReactElement {
+  const { showErrorNotification } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState('');
 
-  const handleFile = (file: File | null): void => {
+  const handleFile = async (file: File | null): Promise<void> => {
     if (!file) {
       return;
     }
 
+    if (!/\.txt$/i.test(file.name)) {
+      showErrorNotification('Please upload a valid TXT measurement file.');
+      return;
+    }
+
+    const didAcceptFile = await onFileSelected(file);
+
+    if (didAcceptFile === false) {
+      return;
+    }
+
     setSelectedFileName(file.name);
-    void onFileSelected(file);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    handleFile(event.target.files?.[0] ?? null);
+    void handleFile(event.target.files?.[0] ?? null);
+    event.target.value = '';
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>): void => {
@@ -54,7 +67,7 @@ export function GraphUploadCard({
   const handleDrop = (event: DragEvent<HTMLDivElement>): void => {
     event.preventDefault();
     setIsDragActive(false);
-    handleFile(event.dataTransfer.files?.[0] ?? null);
+    void handleFile(event.dataTransfer.files?.[0] ?? null);
   };
 
   return (

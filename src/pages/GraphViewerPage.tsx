@@ -20,11 +20,10 @@ import { useAppStore } from '../store/store';
 import type { GraphMetric } from '../types/graphViewer';
 
 export function GraphViewerPage(): ReactElement {
-  const { graphData, setGraphData, tableRows } = useAppStore();
+  const { graphData, setGraphData, showErrorNotification, tableRows } = useAppStore();
   const [metric, setMetric] = useState<GraphMetric>('combined');
   const [activeViewControl, setActiveViewControl] = useState<'turntable' | 'pan' | 'zoom'>('turntable');
   const [isGraphLoading, setIsGraphLoading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const graphPlotRef = useRef<GraphSurfacePlotHandle | null>(null);
   const rowsWithGraphs = tableRows.filter((row) => row.graphImageSrc !== null).length;
   const metricOptions = useMemo(
@@ -57,17 +56,19 @@ export function GraphViewerPage(): ReactElement {
     });
   }, [graphData, metric]);
 
-  const handleGraphFileSelected = async (file: File): Promise<void> => {
+  const handleGraphFileSelected = async (file: File): Promise<boolean> => {
     try {
       setIsGraphLoading(true);
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData(parsedGraph);
-      setUploadError(null);
+      return true;
     } catch (error) {
       setIsGraphLoading(false);
-      setUploadError(
-        error instanceof Error ? error.message : 'We could not parse that graph TXT file.',
-      );
+      const message = error instanceof Error
+        ? error.message
+        : 'We could not parse that graph TXT file.';
+      showErrorNotification(message);
+      return false;
     }
   };
 
@@ -95,7 +96,6 @@ export function GraphViewerPage(): ReactElement {
   return (
     <section className="graph-viewer-page" aria-label="3D Graph Viewer">
       <GraphUploadCard onFileSelected={handleGraphFileSelected} />
-      {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
 
       <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
         <div className="graph-viewer-2d__hero">

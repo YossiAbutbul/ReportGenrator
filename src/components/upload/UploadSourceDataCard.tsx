@@ -4,12 +4,14 @@ import type {
   ReactElement,
   RefObject,
 } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download, FileSpreadsheet, Upload } from 'lucide-react';
 import { downloadReportTemplate } from '../../services/downloadTemplate';
+import { useAppStore } from '../../store/store';
 
 type UploadSourceDataCardProps = {
-  onFileSelected?: (file: File) => void;
+  onFileSelected?: (file: File) => boolean | Promise<boolean>;
+  resetSignal?: number;
 };
 
 const acceptedFileTypes =
@@ -21,23 +23,46 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 
 export function UploadSourceDataCard({
   onFileSelected,
+  resetSignal = 0,
 }: UploadSourceDataCardProps): ReactElement {
+  const { showErrorNotification } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFile = (file: File | null): void => {
+  useEffect(() => {
+    setSelectedFile(null);
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  }, [resetSignal]);
+
+  const handleFile = async (file: File | null): Promise<void> => {
     if (!file) {
       return;
     }
 
+    const isValidFile = /\.(xls|xlsx|csv)$/i.test(file.name);
+
+    if (!isValidFile) {
+      showErrorNotification('Please upload a valid Excel or CSV source file.');
+      return;
+    }
+
+    const didAcceptFile = await onFileSelected?.(file);
+
+    if (didAcceptFile === false) {
+      return;
+    }
+
     setSelectedFile(file);
-    onFileSelected?.(file);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0] ?? null;
-    handleFile(file);
+    void handleFile(file);
+    event.target.value = '';
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>): void => {
@@ -54,7 +79,7 @@ export function UploadSourceDataCard({
     event.preventDefault();
     setIsDragActive(false);
     const file = event.dataTransfer.files?.[0] ?? null;
-    handleFile(file);
+    void handleFile(file);
   };
 
   return (

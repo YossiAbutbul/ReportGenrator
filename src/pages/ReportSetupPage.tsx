@@ -138,6 +138,7 @@ export function ReportSetupPage(): ReactElement {
     setIsReportDirty,
     setActivePage,
     setMetadata,
+    showErrorNotification,
     tableRows,
     setTableRows,
   } = useAppStore();
@@ -148,8 +149,8 @@ export function ReportSetupPage(): ReactElement {
   const [selectedFrequencies, setSelectedFrequencies] = useState<string[]>([]);
   const [openFilterSection, setOpenFilterSection] = useState<string | null>(null);
   const [filterOptionQuery, setFilterOptionQuery] = useState('');
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewRow, setPreviewRow] = useState<ResultRow | null>(null);
+  const [uploadResetSignal, setUploadResetSignal] = useState(0);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -222,7 +223,7 @@ export function ReportSetupPage(): ReactElement {
     setIsReportDirty(true);
   };
 
-  const handleFileSelected = async (file: File): Promise<void> => {
+  const handleFileSelected = async (file: File): Promise<boolean> => {
     try {
       const parsedRows = await parseReportWorkbook(file);
       setTableRows(parsedRows);
@@ -233,14 +234,14 @@ export function ReportSetupPage(): ReactElement {
       setOpenFilterSection(null);
       setFilterOptionQuery('');
       setPreviewRow(null);
-      setUploadError(null);
       setIsReportDirty(true);
+      return true;
     } catch (error) {
-      setUploadError(
-        error instanceof Error
-          ? error.message
-          : 'We could not parse that workbook.',
-      );
+      const message = error instanceof Error
+        ? error.message
+        : 'We could not parse that workbook.';
+      showErrorNotification(message);
+      return false;
     }
   };
 
@@ -308,14 +309,16 @@ export function ReportSetupPage(): ReactElement {
     setSelectedFrequencies([]);
     setOpenFilterSection(null);
     setFilterOptionQuery('');
-    setUploadError(null);
     setPreviewRow(null);
+    setUploadResetSignal((current) => current + 1);
   };
 
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
-      <UploadSourceDataCard onFileSelected={handleFileSelected} />
-      {uploadError ? <p className="upload-card__error">{uploadError}</p> : null}
+      <UploadSourceDataCard
+        onFileSelected={handleFileSelected}
+        resetSignal={uploadResetSignal}
+      />
 
       <div className="dashboard-grid">
         <ReportMetadataSection
