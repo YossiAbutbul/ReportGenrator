@@ -28,14 +28,6 @@
 </p>
 
 <p align="center">
-  <a href="#core-experience">Core Experience</a>
-  ·
-  <a href="#local-development">Local Development</a>
-  ·
-  <a href="#vision">Vision</a>
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/Vite-7.x-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/React-19.x-149ECA?style=for-the-badge&logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-2F74C0?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
