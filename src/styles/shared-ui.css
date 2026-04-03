@@ -916,6 +916,20 @@
   box-shadow: 0 0 0 0.1875rem rgba(54, 194, 109, 0.15);
 }
 
+.tooltip-card {
+  position: absolute;
+  z-index: 4;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid rgba(208, 219, 235, 0.4);
+  border-radius: 0.8rem;
+  background: rgba(33, 43, 61, 0.74);
+  box-shadow: 0 0.45rem 1rem rgba(18, 26, 39, 0.14);
+  color: #f7fbff;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
 .app-notification {
   position: fixed;
   top: 1.25rem;

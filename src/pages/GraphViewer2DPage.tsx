@@ -50,6 +50,13 @@ const elevationVariantOptions: Array<{
   { key: 'elevation2', label: 'Elvation 2' },
 ];
 
+function combineDbmValues(firstDbm: number, secondDbm: number): number {
+  const firstMilliwatts = 10 ** (firstDbm / 10);
+  const secondMilliwatts = 10 ** (secondDbm / 10);
+
+  return 10 * Math.log10(firstMilliwatts + secondMilliwatts);
+}
+
 function getMetricValue(sample: GraphSample, metric: GraphMetric): number {
   if (metric === 'hPol') {
     return sample.hPol;
@@ -59,7 +66,7 @@ function getMetricValue(sample: GraphSample, metric: GraphMetric): number {
     return sample.vPol;
   }
 
-  return Math.max(sample.hPol, sample.vPol);
+  return combineDbmValues(sample.hPol, sample.vPol);
 }
 
 function parseCalibrationFactor(value: string | undefined): number {
@@ -83,7 +90,7 @@ function getElevationMetricValue(row: string[], metric: GraphMetric): number {
     return vPol;
   }
 
-  return Math.max(hPol, vPol);
+  return combineDbmValues(hPol, vPol);
 }
 
 function getLegacySortNumber(value: string): number {

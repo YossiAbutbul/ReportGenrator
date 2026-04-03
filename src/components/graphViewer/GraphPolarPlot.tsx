@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
-import { useEffect, useMemo, useRef } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TooltipCard } from '../common/TooltipCard';
 import type { GraphMetric } from '../../types/graphViewer';
 
 type PlotlyLike = {
@@ -21,6 +22,11 @@ type PlotlyLike = {
   };
 };
 
+type PlotlyGraphDiv = HTMLDivElement & {
+  on?: (eventName: string, handler: (event: unknown) => void) => void;
+  removeListener?: (eventName: string, handler: (event: unknown) => void) => void;
+};
+
 type PolarPoint = {
   angle: number;
   value: number;
@@ -38,11 +44,25 @@ type GraphPolarPlotProps = {
   radialStep?: number;
 };
 
+type TooltipState = {
+  angle: number;
+  power: number;
+  x: number;
+  y: number;
+} | null;
+
 const metricLabels: Record<GraphMetric, string> = {
   combined: 'Combined Max',
   hPol: 'H-Pol',
   vPol: 'V-Pol',
 };
+
+function formatTooltipAngle(angle: number): number {
+  const normalizedAngle = ((angle % 360) + 360) % 360;
+  const snappedAngle = Math.round(normalizedAngle / 15) * 15;
+
+  return snappedAngle === 360 ? 0 : snappedAngle;
+}
 
 export function GraphPolarPlot({
   color,
@@ -55,19 +75,61 @@ export function GraphPolarPlot({
   radialRange,
   radialStep = 2,
 }: GraphPolarPlotProps): ReactElement {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const plotRef = useRef<HTMLDivElement | null>(null);
   const plotlyRef = useRef<PlotlyLike | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const hasRenderedRef = useRef(false);
+  const pointerPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const lastRenderRef = useRef<{
     config: Record<string, unknown>;
     data: unknown[];
     layout: Record<string, unknown>;
   } | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipState>(null);
   const dataPoints = useMemo(
     () => points.filter((point) => Number.isFinite(point.value)),
     [points],
   );
+
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>): void => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    const bounds = containerRef.current.getBoundingClientRect();
+    const nextPosition = {
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top,
+    };
+
+    pointerPositionRef.current = nextPosition;
+
+    setTooltip((current) => (current ? { ...current, ...nextPosition } : current));
+  };
+
+  const handlePlotlyHover = useCallback((event: unknown): void => {
+    const point = (event as {
+      points?: Array<{
+        r?: number;
+        theta?: number;
+      }>;
+    }).points?.[0];
+
+    if (!point || typeof point.r !== 'number' || typeof point.theta !== 'number') {
+      return;
+    }
+
+    setTooltip({
+      angle: formatTooltipAngle(point.theta),
+      power: point.r,
+      ...pointerPositionRef.current,
+    });
+  }, []);
+
+  const handlePlotlyUnhover = useCallback((): void => {
+    setTooltip(null);
+  }, []);
 
   useEffect(() => () => {
     resizeObserverRef.current?.disconnect();
@@ -160,7 +222,8 @@ export function GraphPolarPlot({
           ],
           fill: 'toself',
           fillcolor: `${color}22`,
-          hovertemplate: '%{theta} deg<br>%{r:.2f} dBm<extra></extra>',
+          hoveron: 'points',
+          hoverinfo: 'none',
           line: {
             color,
             width: 3,
@@ -175,6 +238,8 @@ export function GraphPolarPlot({
 
       const layout = {
         autosize: true,
+        dragmode: false,
+        hovermode: 'closest',
         margin: {
           b: 26,
           l: 62,
@@ -217,7 +282,11 @@ export function GraphPolarPlot({
         displaylogo: false,
         displayModeBar: false,
         responsive: true,
-        staticPlot: true,
+        scrollZoom: false,
+        doubleClick: false,
+        showAxisDragHandles: false,
+        showTips: false,
+        staticPlot: false,
       };
 
       lastRenderRef.current = {
@@ -231,6 +300,18 @@ export function GraphPolarPlot({
       } else {
         await plotly.newPlot(plotRef.current, data, layout, config);
         hasRenderedRef.current = true;
+      }
+
+      const plotElement = plotRef.current as PlotlyGraphDiv;
+
+      if (plotElement.removeListener) {
+        plotElement.removeListener('plotly_hover', handlePlotlyHover);
+        plotElement.removeListener('plotly_unhover', handlePlotlyUnhover);
+      }
+
+      if (plotElement.on) {
+        plotElement.on('plotly_hover', handlePlotlyHover);
+        plotElement.on('plotly_unhover', handlePlotlyUnhover);
       }
 
       if (!resizeObserverRef.current) {
@@ -276,5 +357,28 @@ export function GraphPolarPlot({
     };
   }, [color, dataPoints, isInteractiveUpdate, maxReferenceLabel, metric, minReferenceLabel, onRenderStateChange, radialRange, radialStep]);
 
-  return <div className="graph-polar-plot" ref={plotRef} />;
+  return (
+    <div
+      className="graph-polar-plot-shell"
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handlePlotlyUnhover}
+    >
+      <div className="graph-polar-plot" ref={plotRef} />
+      {tooltip ? (
+        <TooltipCard
+          className="graph-polar-plot__tooltip"
+          style={{
+            left: `${tooltip.x + 12}px`,
+            top: `${tooltip.y - 10}px`,
+          }}
+        >
+          <div className="graph-polar-plot__tooltip-line">Angle: {tooltip.angle}°</div>
+          <div className="graph-polar-plot__tooltip-line">
+            Power: {tooltip.power.toFixed(2)} [dBm]
+          </div>
+        </TooltipCard>
+      ) : null}
+    </div>
+  );
 }
