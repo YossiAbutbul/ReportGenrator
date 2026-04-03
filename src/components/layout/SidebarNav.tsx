@@ -18,12 +18,14 @@ type NavItem = {
 type SidebarNavProps = {
   activeItem: AppPage;
   onNavigate: (item: AppPage) => void;
+  onOpenHelp: () => void;
   footerLabel: string;
 };
 
 export function SidebarNav({
   activeItem,
   onNavigate,
+  onOpenHelp,
   footerLabel,
 }: SidebarNavProps): ReactElement {
   const items: NavItem[] = [
@@ -59,7 +61,7 @@ export function SidebarNav({
         </nav>
       </div>
 
-      <button className="sidebar-nav__footer" type="button">
+      <button className="sidebar-nav__footer" type="button" onClick={onOpenHelp}>
         <span className="sidebar-nav__item-icon" aria-hidden="true">
           <HelpCircle aria-hidden="true" />
         </span>
