@@ -194,6 +194,7 @@ export function ReportSetupPage(): ReactElement {
     selectedTypes.length > 0 || selectedIds.length > 0 || selectedFrequencies.length > 0;
   const activeFilterCount =
     selectedTypes.length + selectedIds.length + selectedFrequencies.length;
+  const isFilterAvailable = tableRows.length > 0;
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -244,6 +245,16 @@ export function ReportSetupPage(): ReactElement {
       return false;
     }
   };
+
+  useEffect(() => {
+    if (isFilterAvailable) {
+      return;
+    }
+
+    setIsFilterPanelOpen(false);
+    setOpenFilterSection(null);
+    setFilterOptionQuery('');
+  }, [isFilterAvailable]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent): void => {
@@ -371,10 +382,17 @@ export function ReportSetupPage(): ReactElement {
             <button
               aria-expanded={isFilterPanelOpen}
               className={`filter-icon-button${isFilterPanelOpen || hasActiveFilters ? ' is-active' : ''}`}
+              disabled={!isFilterAvailable}
               type="button"
               aria-label="Open filters"
               ref={filterButtonRef}
-              onClick={() => setIsFilterPanelOpen((current) => !current)}
+              onClick={() => {
+                if (!isFilterAvailable) {
+                  return;
+                }
+
+                setIsFilterPanelOpen((current) => !current);
+              }}
             >
               <Funnel aria-hidden="true" />
               <span className="filter-icon-button__label">Filter</span>
