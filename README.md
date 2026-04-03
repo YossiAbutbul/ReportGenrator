@@ -5,6 +5,13 @@
 </p>
 
 <p align="center">
+  <img
+    src="https://readme-typing-svg.demolab.com?font=Segoe+UI&weight=700&size=24&duration=2800&pause=900&color=138D96&center=true&vCenter=true&width=760&lines=RF+reporting+workspace;3D+and+2D+measurement+inspection;Word-ready+report+generation"
+    alt="Animated project banner"
+  />
+</p>
+
+<p align="center">
   A focused RF reporting workspace for turning measurement files into a clean report workflow,
   interactive 3D inspection, and precise 2D azimuth/elevation analysis.
 </p>
@@ -18,6 +25,14 @@
 <p align="center">
   <strong>Deploy URL:</strong>
   <a href="https://yossiabutbul.github.io/ReportGenrator/">https://yossiabutbul.github.io/ReportGenrator/</a>
+</p>
+
+<p align="center">
+  <a href="#core-experience">Core Experience</a>
+  ·
+  <a href="#local-development">Local Development</a>
+  ·
+  <a href="#vision">Vision</a>
 </p>
 
 <p align="center">
@@ -83,7 +98,6 @@ npm run test
 npm run build
 ```
 
----
 ---
 
 ## Vision
