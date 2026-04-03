@@ -13,6 +13,7 @@ export type ParsedGraphFile = {
   frequency: string;
   maxPeak: string;
   maxPeakWithVPolFactor: string;
+  measurementRows: string[][];
   phiGrid: number[][];
   sampleCount: number;
   samples: GraphSample[];

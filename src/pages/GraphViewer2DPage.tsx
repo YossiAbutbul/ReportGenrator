@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ChartColumnBig,
   Crosshair,
+  MoveVertical,
   RadioTower,
   Radar,
 } from 'lucide-react';
@@ -20,6 +21,33 @@ const metricOptions: Array<{
   { key: 'combined', label: 'Both-Pols', color: '#2f68bf' },
   { key: 'hPol', label: 'H-Pol', color: '#2f68bf' },
   { key: 'vPol', label: 'V-Pol', color: '#2f68bf' },
+];
+
+type SliceMode = 'azimuth' | 'elevation';
+type ElevationVariant = 'elevation1' | 'elevation2';
+type ReferenceRangeState = {
+  appliedMax: string;
+  appliedMin: string;
+  draftMax: string;
+  draftMin: string;
+  isManual: boolean;
+};
+
+const sliceModeOptions: Array<{
+  key: SliceMode;
+  label: string;
+}> = [
+  { key: 'azimuth', label: 'Azimuth' },
+  { key: 'elevation', label: 'Elvation' },
+];
+
+const ELEVATION_THETA_DEGREES = 90;
+const elevationVariantOptions: Array<{
+  key: ElevationVariant;
+  label: string;
+}> = [
+  { key: 'elevation1', label: 'Elvation 1' },
+  { key: 'elevation2', label: 'Elvation 2' },
 ];
 
 function getMetricValue(sample: GraphSample, metric: GraphMetric): number {
@@ -41,6 +69,112 @@ function parseCalibrationFactor(value: string | undefined): number {
 
   const match = value.match(/-?\d+(?:\.\d+)?/);
   return match ? Number(match[0]) : 0;
+}
+
+function getElevationMetricValue(row: string[], metric: GraphMetric): number {
+  const hPol = Number(row[2] ?? 0);
+  const vPol = Number(row[3] ?? 0);
+
+  if (metric === 'hPol') {
+    return hPol;
+  }
+
+  if (metric === 'vPol') {
+    return vPol;
+  }
+
+  return Math.max(hPol, vPol);
+}
+
+function getLegacySortNumber(value: string): number {
+  return Math.trunc(Number.parseFloat(value));
+}
+
+function normalizeElevationPoints(
+  measurementRows: string[][],
+  variant: ElevationVariant,
+  metric: GraphMetric,
+  calibrationFactor: number,
+): Array<{ angle: number; value: number }> {
+  return buildElevationRows(measurementRows, variant)
+    .map((row, index) => ({
+      angle: index * 15,
+      value: getElevationMetricValue(row, metric) + calibrationFactor,
+    }))
+    .filter((point) => Number.isFinite(point.value));
+}
+
+function buildElevationRows(
+  measurementRows: string[][],
+  variant: ElevationVariant,
+): string[][] {
+  const firstRow = measurementRows[0];
+  const startsFromZero = firstRow
+    ? Number(firstRow[0]) === 0 && Number(firstRow[1]) === 0
+    : false;
+  const zeroStartOffset = variant === 'elevation2' ? 30 : 24;
+  const fifteenStartOffset = variant === 'elevation2' ? 6 : 0;
+
+  if (startsFromZero && measurementRows.length >= 277) {
+    const elevation = [measurementRows[0]];
+    let offset = 0;
+
+    for (let index = 0; index < 22; index += 1) {
+      const row = measurementRows[zeroStartOffset + offset];
+
+      if (row) {
+        elevation.push(row);
+      }
+
+      offset += 12;
+    }
+
+    const sortedData = [...elevation].sort(
+      (first, second) => getLegacySortNumber(first[1]) - getLegacySortNumber(second[1]),
+    );
+    const firstHalfSorted = [...sortedData.slice(0, 12)].sort(
+      (first, second) => getLegacySortNumber(second[0]) - getLegacySortNumber(first[0]),
+    );
+
+    return [
+      ['180', '180', '-70', '-70'],
+      ...firstHalfSorted,
+      ...sortedData.slice(12, 24),
+    ];
+  }
+
+  if (measurementRows.length >= 253) {
+    const elevation: string[][] = [];
+    let offset = fifteenStartOffset;
+
+    for (let index = 0; index < 22; index += 1) {
+      const row = measurementRows[offset];
+
+      if (row) {
+        elevation.push(row);
+      }
+
+      offset += 12;
+    }
+
+    const sortedData = [...elevation].sort(
+      (first, second) => getLegacySortNumber(first[1]) - getLegacySortNumber(second[1]),
+    );
+    const firstHalfSorted = [...sortedData.slice(0, 12)].sort(
+      (first, second) => getLegacySortNumber(second[0]) - getLegacySortNumber(first[0]),
+    );
+    const finalElevationData = [
+      ['180', '180', '-70', '-70'],
+      ...firstHalfSorted,
+      ...sortedData.slice(12, 24),
+    ];
+
+    finalElevationData.splice(12, 0, ['0', '0', '-70', '-70']);
+
+    return finalElevationData;
+  }
+
+  return [];
 }
 
 function formatDbm(value: number | null): string {
@@ -95,13 +229,26 @@ export function GraphViewer2DPage(): ReactElement {
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [isColorUpdate, setIsColorUpdate] = useState(false);
   const [metric, setMetric] = useState<GraphMetric>('vPol');
-  const [isReferenceManual, setIsReferenceManual] = useState(false);
+  const [sliceMode, setSliceMode] = useState<SliceMode>('azimuth');
+  const [elevationVariant, setElevationVariant] = useState<ElevationVariant>('elevation1');
   const [selectedTheta, setSelectedTheta] = useState<number | null>(null);
   const [graphColor, setGraphColor] = useState('#138d96');
-  const [appliedMaxReference, setAppliedMaxReference] = useState<string>('4');
-  const [appliedMinReference, setAppliedMinReference] = useState<string>('-10');
-  const [draftMaxReference, setDraftMaxReference] = useState<string>('4');
-  const [draftMinReference, setDraftMinReference] = useState<string>('-10');
+  const [referenceRanges, setReferenceRanges] = useState<Record<SliceMode, ReferenceRangeState>>({
+    azimuth: {
+      appliedMax: '4',
+      appliedMin: '-10',
+      draftMax: '4',
+      draftMin: '-10',
+      isManual: false,
+    },
+    elevation: {
+      appliedMax: '4',
+      appliedMin: '-10',
+      draftMax: '4',
+      draftMin: '-10',
+      isManual: false,
+    },
+  });
 
   const thetaValue = selectedTheta ?? graphData2d?.thetaValues[0] ?? null;
 
@@ -116,13 +263,25 @@ export function GraphViewer2DPage(): ReactElement {
   }, [graphData2d, thetaValue]);
 
   const calibrationFactor = parseCalibrationFactor(graphData2d?.vPolFactor);
-  const polarPoints = useMemo(
+  const azimuthPoints = useMemo(
     () => selectedSlice.map((sample) => ({
       angle: sample.phi,
       value: getMetricValue(sample, metric) + calibrationFactor,
     })),
     [calibrationFactor, metric, selectedSlice],
   );
+
+  const elevationPoints = useMemo(
+    () => normalizeElevationPoints(
+      graphData2d?.measurementRows ?? [],
+      elevationVariant,
+      metric,
+      calibrationFactor,
+    ),
+    [calibrationFactor, elevationVariant, graphData2d?.measurementRows, metric],
+  );
+
+  const polarPoints = sliceMode === 'elevation' ? elevationPoints : azimuthPoints;
 
   const sliceValues = polarPoints.map((point) => point.value);
   const selectedMetric = metricOptions.find((option) => option.key === metric) ?? metricOptions[0];
@@ -136,6 +295,14 @@ export function GraphViewer2DPage(): ReactElement {
   const averageSliceValue = averageSliceValueRaw;
 
   const autoScale = useMemo(() => getAutoScale(sliceValues), [sliceValues]);
+  const currentReferenceRange = referenceRanges[sliceMode];
+  const {
+    appliedMax: appliedMaxReference,
+    appliedMin: appliedMinReference,
+    draftMax: draftMaxReference,
+    draftMin: draftMinReference,
+    isManual: isReferenceManual,
+  } = currentReferenceRange;
 
   useEffect(() => {
     if (isReferenceManual) {
@@ -144,18 +311,40 @@ export function GraphViewer2DPage(): ReactElement {
 
     const nextMinReference = String(autoScale.min);
     const nextMaxReference = String(autoScale.max);
-    setAppliedMinReference(nextMinReference);
-    setAppliedMaxReference(nextMaxReference);
-    setDraftMinReference(nextMinReference);
-    setDraftMaxReference(nextMaxReference);
-  }, [autoScale.max, autoScale.min, isReferenceManual]);
+    setReferenceRanges((current) => ({
+      ...current,
+      [sliceMode]: {
+        ...current[sliceMode],
+        appliedMin: nextMinReference,
+        appliedMax: nextMaxReference,
+        draftMin: nextMinReference,
+        draftMax: nextMaxReference,
+      },
+    }));
+  }, [autoScale.max, autoScale.min, isReferenceManual, sliceMode]);
 
   const handleGraphFileSelected = async (file: File): Promise<boolean> => {
     try {
       setIsGraphLoading(true);
-      setIsReferenceManual(false);
+      setReferenceRanges({
+        azimuth: {
+          appliedMax: '4',
+          appliedMin: '-10',
+          draftMax: '4',
+          draftMin: '-10',
+          isManual: false,
+        },
+        elevation: {
+          appliedMax: '4',
+          appliedMin: '-10',
+          draftMax: '4',
+          draftMin: '-10',
+          isManual: false,
+        },
+      });
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData2d(parsedGraph);
+      setSliceMode('azimuth');
       setSelectedTheta(parsedGraph.thetaValues[0] ?? null);
       return true;
     } catch (error) {
@@ -169,11 +358,18 @@ export function GraphViewer2DPage(): ReactElement {
   };
 
   const handleReferenceChange = (
-    setter: (value: string) => void,
+    key: 'draftMax' | 'draftMin',
     event: ChangeEvent<HTMLInputElement>,
   ): void => {
-    setIsReferenceManual(true);
-    setter(event.target.value);
+    const nextValue = event.target.value;
+    setReferenceRanges((current) => ({
+      ...current,
+      [sliceMode]: {
+        ...current[sliceMode],
+        isManual: true,
+        [key]: nextValue,
+      },
+    }));
   };
 
   const applyReferenceRange = (): void => {
@@ -188,8 +384,15 @@ export function GraphViewer2DPage(): ReactElement {
       return;
     }
 
-    setAppliedMinReference(draftMinReference);
-    setAppliedMaxReference(draftMaxReference);
+    setReferenceRanges((current) => ({
+      ...current,
+      [sliceMode]: {
+        ...current[sliceMode],
+        appliedMin: draftMinReference,
+        appliedMax: draftMaxReference,
+        isManual: true,
+      },
+    }));
   };
 
   const handleReferenceKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -242,6 +445,19 @@ export function GraphViewer2DPage(): ReactElement {
           </div>
 
           <div className="graph-viewer-card__toolbar">
+            {sliceModeOptions.map((option) => (
+              <button
+                key={option.key}
+                className={`graph-viewer-card__metric-button${sliceMode === option.key ? ' is-active' : ''}`}
+                type="button"
+                onClick={() => {
+                  setIsGraphLoading(true);
+                  setSliceMode(option.key);
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
             {metricOptions.map((option) => (
               <button
                 key={option.key}
@@ -267,10 +483,16 @@ export function GraphViewer2DPage(): ReactElement {
             </div>
           </div>
           <div className="report-area-card__action">
-            <Crosshair aria-hidden="true" />
+            {sliceMode === 'elevation' ? <MoveVertical aria-hidden="true" /> : <Crosshair aria-hidden="true" />}
             <div className="report-area-card__action-copy">
               <small>Theta Slice</small>
-              <span>{thetaValue !== null ? `${thetaValue} deg` : 'Slice pending'}</span>
+              <span>
+                {sliceMode === 'elevation'
+                  ? `${ELEVATION_THETA_DEGREES} deg`
+                  : thetaValue !== null
+                    ? `${thetaValue} deg`
+                    : 'Slice pending'}
+              </span>
             </div>
           </div>
           <div className="report-area-card__action">
@@ -289,11 +511,15 @@ export function GraphViewer2DPage(): ReactElement {
           </div>
         </div>
 
-        {graphData2d && thetaValue !== null && selectedSlice.length > 0 ? (
+        {graphData2d && polarPoints.length > 0 && (sliceMode === 'elevation' || thetaValue !== null && selectedSlice.length > 0) ? (
           <section className="graph-viewer-2d__analysis-card">
             <div className="graph-viewer-2d__analysis-header">
               <div>
-                <h2>{`${selectedMetric.label} at theta ${thetaValue} deg`}</h2>
+                <h2>
+                  {sliceMode === 'elevation'
+                    ? `${selectedMetric.label} ${elevationVariant === 'elevation2' ? 'Elvation 2' : 'Elvation 1'} at theta ${ELEVATION_THETA_DEGREES} deg`
+                    : `${selectedMetric.label} Azimuth at theta ${thetaValue} deg`}
+                </h2>
               </div>
             </div>
 
@@ -313,28 +539,53 @@ export function GraphViewer2DPage(): ReactElement {
               </div>
 
               <aside className="graph-viewer-2d__aside">
-                <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                  <div className="panel-card__header panel-card__header--metadata">
-                    <span>Theta Angle</span>
+                {sliceMode === 'azimuth' ? (
+                  <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
+                    <div className="panel-card__header panel-card__header--metadata">
+                      <span>Theta Angle</span>
+                    </div>
+                    <div className="graph-viewer-2d__side-body">
+                      <label className="graph-viewer-2d__select-group">
+                        <select
+                          value={thetaValue ?? ''}
+                          onChange={(event) => {
+                            setIsGraphLoading(true);
+                            setSelectedTheta(Number(event.target.value));
+                          }}
+                        >
+                          {(graphData2d?.thetaValues ?? []).map((theta) => (
+                            <option key={theta} value={theta}>
+                              {theta} deg
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                   </div>
-                  <div className="graph-viewer-2d__side-body">
-                    <label className="graph-viewer-2d__select-group">
-                      <select
-                        value={thetaValue ?? ''}
-                        onChange={(event) => {
-                          setIsGraphLoading(true);
-                          setSelectedTheta(Number(event.target.value));
-                        }}
-                      >
-                        {(graphData2d?.thetaValues ?? []).map((theta) => (
-                          <option key={theta} value={theta}>
-                            {theta} deg
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                ) : (
+                  <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
+                    <div className="panel-card__header panel-card__header--metadata">
+                      <span>Elvation</span>
+                    </div>
+                    <div className="graph-viewer-2d__side-body">
+                      <label className="graph-viewer-2d__select-group">
+                        <select
+                          value={elevationVariant}
+                          onChange={(event) => {
+                            setIsGraphLoading(true);
+                            setElevationVariant(event.target.value as ElevationVariant);
+                          }}
+                        >
+                          {elevationVariantOptions.map((option) => (
+                            <option key={option.key} value={option.key}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
                   <div className="panel-card__header panel-card__header--metadata">
@@ -347,7 +598,7 @@ export function GraphViewer2DPage(): ReactElement {
                         <input
                           type="number"
                           value={draftMaxReference}
-                          onChange={(event) => handleReferenceChange(setDraftMaxReference, event)}
+                          onChange={(event) => handleReferenceChange('draftMax', event)}
                           onKeyDown={handleReferenceKeyDown}
                         />
                       </label>
@@ -356,7 +607,7 @@ export function GraphViewer2DPage(): ReactElement {
                         <input
                           type="number"
                           value={draftMinReference}
-                          onChange={(event) => handleReferenceChange(setDraftMinReference, event)}
+                          onChange={(event) => handleReferenceChange('draftMin', event)}
                           onKeyDown={handleReferenceKeyDown}
                         />
                       </label>
@@ -414,6 +665,12 @@ export function GraphViewer2DPage(): ReactElement {
               </aside>
             </div>
           </section>
+        ) : graphData2d ? (
+          <div className="graph-viewer-card__empty">
+            {sliceMode === 'elevation'
+              ? `Elevation view at theta ${ELEVATION_THETA_DEGREES} deg is not available for this file format yet.`
+              : 'No azimuth slice data is available for the selected theta angle.'}
+          </div>
         ) : (
           <div className="graph-viewer-card__empty">
             Upload a measurement TXT file to generate a 2D theta/polarity slice.

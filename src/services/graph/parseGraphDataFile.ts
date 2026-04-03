@@ -83,7 +83,7 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
     throw new Error('Could not find the "Test Data Results" section in that file.');
   }
 
-  const samples: GraphSample[] = lines
+  const measurementRows = lines
     .slice(resultsStartIndex + 3)
     .map((line) => {
       const match = line.match(
@@ -94,14 +94,19 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
         return null;
       }
 
-      return {
-        theta: Number(match[1]),
-        phi: Number(match[2]),
-        hPol: Number(match[3]),
-        vPol: Number(match[4]),
-      };
+      return [match[1], match[2], match[3], match[4]];
     })
-    .filter((sample): sample is GraphSample => sample !== null);
+    .filter((sample): sample is string[] => sample !== null);
+
+  const samples: GraphSample[] = measurementRows
+    .map((row) => {
+      return {
+        theta: Number(row[0]),
+        phi: Number(row[1]),
+        hPol: Number(row[2]),
+        vPol: Number(row[3]),
+      };
+    });
 
   if (samples.length === 0) {
     throw new Error('No graph samples were found in that TXT file.');
@@ -139,6 +144,7 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
     frequency: formatFrequency(frequencyValue),
     maxPeak: formatMetric(maxPeak),
     maxPeakWithVPolFactor: formatMetric(maxPeakWithVPolFactor),
+    measurementRows,
     phiGrid,
     sampleCount: samples.length,
     samples,

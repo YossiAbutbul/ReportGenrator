@@ -177,8 +177,8 @@ export function GraphPolarPlot({
         autosize: true,
         margin: {
           b: 26,
-          l: 44,
-          r: 44,
+          l: 62,
+          r: 62,
           t: 12,
         },
         paper_bgcolor: 'transparent',
