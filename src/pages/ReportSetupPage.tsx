@@ -131,6 +131,7 @@ function FilterSection({
 export function ReportSetupPage(): ReactElement {
   const {
     metadata,
+    resetReportDraft,
     setGeneratedReport,
     isGeneratingReport,
     setIsGeneratingReport,
@@ -296,6 +297,19 @@ export function ReportSetupPage(): ReactElement {
     } finally {
       setIsGeneratingReport(false);
     }
+  };
+
+  const handleDiscardDraft = (): void => {
+    resetReportDraft();
+    setSearchQuery('');
+    setIsFilterPanelOpen(false);
+    setSelectedTypes([]);
+    setSelectedIds([]);
+    setSelectedFrequencies([]);
+    setOpenFilterSection(null);
+    setFilterOptionQuery('');
+    setUploadError(null);
+    setPreviewRow(null);
   };
 
   return (
@@ -484,7 +498,11 @@ export function ReportSetupPage(): ReactElement {
 
       <div className="dashboard-footer">
         <div className="dashboard-footer__actions">
-          <button className="button button--ghost dashboard-footer__button" type="button">
+          <button
+            className="button button--ghost dashboard-footer__button"
+            type="button"
+            onClick={handleDiscardDraft}
+          >
             <RotateCcw aria-hidden="true" />
             Discard Draft
           </button>

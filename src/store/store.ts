@@ -26,6 +26,7 @@ type AppStoreValue = {
   isReportDirty: boolean;
   metadata: ReportMetadataForm;
   tableRows: ResultRow[];
+  resetReportDraft: () => void;
   setGeneratedReport: Dispatch<SetStateAction<ReportPreview | null>>;
   setGraphData: Dispatch<SetStateAction<ParsedGraphFile | null>>;
   setGraphData2d: Dispatch<SetStateAction<ParsedGraphFile | null>>;
@@ -38,6 +39,14 @@ type AppStoreValue = {
 
 const AppStoreContext = createContext<AppStoreValue | null>(null);
 
+function cloneInitialMetadata(): ReportMetadataForm {
+  return { ...initialMetadata };
+}
+
+function cloneInitialRows(): ResultRow[] {
+  return resultRows.map((row) => ({ ...row }));
+}
+
 export function AppStoreProvider({
   children,
 }: PropsWithChildren): ReactElement {
@@ -47,8 +56,17 @@ export function AppStoreProvider({
   const [graphData2d, setGraphData2d] = useState<ParsedGraphFile | null>(null);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isReportDirty, setIsReportDirty] = useState(false);
-  const [metadata, setMetadata] = useState<ReportMetadataForm>(initialMetadata);
-  const [tableRows, setTableRows] = useState<ResultRow[]>(resultRows);
+  const [metadata, setMetadata] = useState<ReportMetadataForm>(cloneInitialMetadata);
+  const [tableRows, setTableRows] = useState<ResultRow[]>(cloneInitialRows);
+
+  const resetReportDraft = (): void => {
+    setGeneratedReport(null);
+    setIsGeneratingReport(false);
+    setIsReportDirty(false);
+    setMetadata(cloneInitialMetadata());
+    setTableRows(cloneInitialRows());
+    setActivePage('reportSetup');
+  };
 
   const value = useMemo<AppStoreValue>(
     () => ({
@@ -59,6 +77,7 @@ export function AppStoreProvider({
       isGeneratingReport,
       isReportDirty,
       metadata,
+      resetReportDraft,
       tableRows,
       setGeneratedReport,
       setGraphData,
@@ -77,6 +96,7 @@ export function AppStoreProvider({
       isGeneratingReport,
       isReportDirty,
       metadata,
+      resetReportDraft,
       tableRows,
     ],
   );
