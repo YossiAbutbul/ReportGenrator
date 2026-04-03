@@ -6,7 +6,7 @@
 
 <p align="center">
   <img
-    src="https://readme-typing-svg.demolab.com?font=Segoe+UI&weight=700&size=24&duration=2800&pause=900&color=138D96&center=true&vCenter=true&width=760&lines=RF+reporting+workspace;3D+and+2D+measurement+inspection;Word-ready+report+generation"
+    src="https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=28&duration=2800&pause=900&color=138D96&center=true&vCenter=true&width=820&lines=RF+reporting+workspace;3D+and+2D+measurement+inspection;Word-ready+report+generation"
     alt="Animated project banner"
   />
 </p>
@@ -20,11 +20,6 @@
   <a href="https://yossiabutbul.github.io/ReportGenrator/">
     <img src="https://img.shields.io/badge/Live%20App-Open%20ReportGenrator-138D96?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open live app" />
   </a>
-</p>
-
-<p align="center">
-  <strong>Deploy URL:</strong>
-  <a href="https://yossiabutbul.github.io/ReportGenrator/">https://yossiabutbul.github.io/ReportGenrator/</a>
 </p>
 
 <p align="center">
