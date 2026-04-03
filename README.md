@@ -10,30 +10,23 @@
 </p>
 
 <p align="center">
+  <a href="https://yossiabutbul.github.io/ReportGenrator/">
+    <img src="https://img.shields.io/badge/Live%20App-Open%20ReportGenrator-138D96?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open live app" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Deploy URL:</strong>
+  <a href="https://yossiabutbul.github.io/ReportGenrator/">https://yossiabutbul.github.io/ReportGenrator/</a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Vite-7.x-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/React-19.x-149ECA?style=for-the-badge&logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-2F74C0?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Plotly-3D%20%2B%202D-2C3E50?style=for-the-badge" alt="Plotly" />
   <img src="https://img.shields.io/badge/GitHub%20Pages-Auto%20Deploy-1F6FEB?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Pages" />
 </p>
-
----
-
-## Why This App Exists
-
-RF test data usually lives in multiple places at once:
-
-- Excel workbooks for report rows
-- TXT exports for chamber graph data
-- Word-based report structure
-- Manual review before release
-
-This app pulls those steps into one workflow so you can:
-
-1. prepare report metadata and source rows
-2. inspect measurements visually in 3D and 2D
-3. generate a report preview
-4. export a Word report from the same working session
 
 ---
 
@@ -91,7 +84,6 @@ npm run build
 ```
 
 ---
-
 ---
 
 ## Vision
