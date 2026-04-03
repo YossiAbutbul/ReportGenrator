@@ -49,12 +49,21 @@ const elevationVariantOptions: Array<{
   { key: 'elevation1', label: 'Elvation 1' },
   { key: 'elevation2', label: 'Elvation 2' },
 ];
+const DEFAULT_AZIMUTH_THETA = 90;
 
 function combineDbmValues(firstDbm: number, secondDbm: number): number {
   const firstMilliwatts = 10 ** (firstDbm / 10);
   const secondMilliwatts = 10 ** (secondDbm / 10);
 
   return 10 * Math.log10(firstMilliwatts + secondMilliwatts);
+}
+
+function getDefaultTheta(thetaValues: number[]): number | null {
+  if (thetaValues.includes(DEFAULT_AZIMUTH_THETA)) {
+    return DEFAULT_AZIMUTH_THETA;
+  }
+
+  return thetaValues[0] ?? null;
 }
 
 function getMetricValue(sample: GraphSample, metric: GraphMetric): number {
@@ -257,7 +266,7 @@ export function GraphViewer2DPage(): ReactElement {
     },
   });
 
-  const thetaValue = selectedTheta ?? graphData2d?.thetaValues[0] ?? null;
+  const thetaValue = selectedTheta ?? getDefaultTheta(graphData2d?.thetaValues ?? []);
 
   const selectedSlice = useMemo(() => {
     if (!graphData2d || thetaValue === null) {
@@ -352,7 +361,7 @@ export function GraphViewer2DPage(): ReactElement {
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData2d(parsedGraph);
       setSliceMode('azimuth');
-      setSelectedTheta(parsedGraph.thetaValues[0] ?? null);
+      setSelectedTheta(getDefaultTheta(parsedGraph.thetaValues));
       return true;
     } catch (error) {
       setIsGraphLoading(false);
