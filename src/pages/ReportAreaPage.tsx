@@ -13,6 +13,8 @@ import {
 } from '../services/report/exportReport';
 import { useAppStore } from '../store/store';
 
+const TEMPLATE_ASSET_BASE = `${import.meta.env.BASE_URL}report-template-assets/`;
+
 function WordDocumentIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
@@ -138,7 +140,7 @@ export function ReportAreaPage(): ReactElement {
       <div className="report-preview">
         <article className="panel-card report-page report-page--cover">
           <div className="report-page__cover-brand">
-            <img alt="Arad Technologies" src="/report-template-assets/cover-header.jpg" />
+            <img alt="Arad Technologies" src={`${TEMPLATE_ASSET_BASE}cover-header.jpg`} />
           </div>
           <div className="report-page__cover-copy">
             <h1>{report.title}</h1>
@@ -158,7 +160,7 @@ export function ReportAreaPage(): ReactElement {
             <img
               alt="RF anechoic chamber test setup"
               className="report-page__setup-image"
-              src="/report-template-assets/test-setup.png"
+              src={`${TEMPLATE_ASSET_BASE}test-setup.png`}
             />
           </div>
         </article>

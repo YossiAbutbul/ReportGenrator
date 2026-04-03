@@ -212,7 +212,7 @@ const REPORT_EXPORT_STYLES = `
   }
 `;
 
-const TEMPLATE_DOCX_PATH = '/report-template-assets/report-template-base.docx';
+const TEMPLATE_DOCX_PATH = `${import.meta.env.BASE_URL}report-template-assets/report-template-base.docx`;
 const EMUS_PER_INCH = 914400;
 const COVER_IMAGE_RELATIONSHIP_ID = 'rId11';
 const SETUP_IMAGE_RELATIONSHIP_ID = 'rId13';
