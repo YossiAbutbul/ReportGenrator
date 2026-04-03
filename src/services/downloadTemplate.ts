@@ -1,4 +1,4 @@
-const TEMPLATE_PATH = '/templates/report-generator-template.xlsx';
+const TEMPLATE_PATH = `${import.meta.env.BASE_URL}templates/report-generator-template.xlsx`;
 const TEMPLATE_FILE_NAME = 'report-generator-template.xlsx';
 
 export function downloadReportTemplate(): void {
