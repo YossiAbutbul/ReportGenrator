@@ -383,10 +383,9 @@
   .graph-viewer-card__controls {
     position: static;
     transform: none;
-    width: 100%;
-    max-width: 16rem;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 16rem);
     margin-bottom: 0.6rem;
     border-radius: 1rem;
     margin-inline: auto;
@@ -404,7 +403,12 @@
     display: none;
   }
 
-  .graph-surface-plot,
+  .graph-surface-plot {
+    width: 100%;
+    min-width: 100%;
+    min-height: 18rem;
+  }
+
   .graph-polar-plot-shell,
   .graph-polar-plot {
     min-width: 22rem;
@@ -535,7 +539,7 @@
   }
 
   .graph-viewer-card__control-button {
-    flex: 1 1 calc(50% - 0.35rem);
+    width: 100%;
     justify-content: center;
     min-width: 0;
     padding: 0 0.65rem;
@@ -543,6 +547,8 @@
 
   .graph-surface-plot {
     margin-inline: auto;
+    width: 100%;
+    min-width: 100%;
   }
 
   .report-preview {
