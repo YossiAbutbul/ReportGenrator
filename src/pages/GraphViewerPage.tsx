@@ -20,10 +20,21 @@ import { useAppStore } from '../store/store';
 import type { GraphMetric } from '../types/graphViewer';
 
 export function GraphViewerPage(): ReactElement {
-  const { graphData, setGraphData, showErrorNotification, tableRows } = useAppStore();
-  const [metric, setMetric] = useState<GraphMetric>('combined');
-  const [activeViewControl, setActiveViewControl] = useState<'turntable' | 'pan' | 'zoom'>('turntable');
-  const [isGraphLoading, setIsGraphLoading] = useState(false);
+  const {
+    notifications: { showErrorNotification },
+    report: { tableRows },
+    graph3d: {
+      graphData,
+      metric,
+      activeViewControl,
+      isLoading: isGraphLoading,
+      setGraphData,
+      setSelectedFileName,
+      setMetric,
+      setActiveViewControl,
+      setIsLoading: setIsGraphLoading,
+    },
+  } = useAppStore();
   const graphPlotRef = useRef<GraphSurfacePlotHandle | null>(null);
   const rowsWithGraphs = tableRows.filter((row) => row.graphImageSrc !== null).length;
   const metricOptions = useMemo(
@@ -61,6 +72,7 @@ export function GraphViewerPage(): ReactElement {
       setIsGraphLoading(true);
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData(parsedGraph);
+      setSelectedFileName(file.name);
       return true;
     } catch (error) {
       setIsGraphLoading(false);
@@ -95,7 +107,7 @@ export function GraphViewerPage(): ReactElement {
 
   return (
     <section className="graph-viewer-page" aria-label="3D Graph Viewer">
-      <GraphUploadCard onFileSelected={handleGraphFileSelected} />
+      <GraphUploadCard mode="graph3d" onFileSelected={handleGraphFileSelected} />
 
       <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
         <div className="graph-viewer-2d__hero">

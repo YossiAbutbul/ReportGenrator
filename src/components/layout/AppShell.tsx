@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AppNotification } from '../common/AppNotification';
 import { HelpCenterModal } from '../help/HelpCenterModal';
 import { ShellHeader } from './ShellHeader';
@@ -17,8 +17,10 @@ export function AppShell({
   activePage,
   onNavigate,
 }: AppShellProps): ReactElement {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const { clearNotification, notification } = useAppStore();
+  const {
+    help: { isHelpOpen, setIsHelpOpen },
+    notifications: { clearNotification, notification },
+  } = useAppStore();
 
   useEffect(() => {
     if (!notification) {

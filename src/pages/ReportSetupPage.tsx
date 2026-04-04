@@ -130,27 +130,40 @@ function FilterSection({
 
 export function ReportSetupPage(): ReactElement {
   const {
-    metadata,
-    resetReportDraft,
-    setGeneratedReport,
-    isGeneratingReport,
-    setIsGeneratingReport,
-    setIsReportDirty,
-    setActivePage,
-    setMetadata,
-    showErrorNotification,
-    tableRows,
-    setTableRows,
+    navigation: { setActivePage },
+    notifications: { showErrorNotification },
+    report: {
+      metadata,
+      resetReportDraft,
+      setGeneratedReport,
+      isGeneratingReport,
+      setIsGeneratingReport,
+      setIsReportDirty,
+      setMetadata,
+      tableRows,
+      setTableRows,
+    },
+    reportSetupUi: {
+      searchQuery,
+      isFilterPanelOpen,
+      selectedTypes,
+      selectedIds,
+      selectedFrequencies,
+      openFilterSection,
+      filterOptionQuery,
+      previewRow,
+      setSourceDataFileName,
+      setSearchQuery,
+      setIsFilterPanelOpen,
+      setSelectedTypes,
+      setSelectedIds,
+      setSelectedFrequencies,
+      setOpenFilterSection,
+      setFilterOptionQuery,
+      setPreviewRow,
+      resetReportSetupUi,
+    },
   } = useAppStore();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [selectedFrequencies, setSelectedFrequencies] = useState<string[]>([]);
-  const [openFilterSection, setOpenFilterSection] = useState<string | null>(null);
-  const [filterOptionQuery, setFilterOptionQuery] = useState('');
-  const [previewRow, setPreviewRow] = useState<ResultRow | null>(null);
-  const [uploadResetSignal, setUploadResetSignal] = useState(0);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -228,6 +241,7 @@ export function ReportSetupPage(): ReactElement {
     try {
       const parsedRows = await parseReportWorkbook(file);
       setTableRows(parsedRows);
+      setSourceDataFileName(file.name);
       setSearchQuery('');
       setSelectedTypes([]);
       setSelectedIds([]);
@@ -313,22 +327,13 @@ export function ReportSetupPage(): ReactElement {
 
   const handleDiscardDraft = (): void => {
     resetReportDraft();
-    setSearchQuery('');
-    setIsFilterPanelOpen(false);
-    setSelectedTypes([]);
-    setSelectedIds([]);
-    setSelectedFrequencies([]);
-    setOpenFilterSection(null);
-    setFilterOptionQuery('');
-    setPreviewRow(null);
-    setUploadResetSignal((current) => current + 1);
+    resetReportSetupUi();
   };
 
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
       <UploadSourceDataCard
         onFileSelected={handleFileSelected}
-        resetSignal={uploadResetSignal}
       />
 
       <div className="dashboard-grid">

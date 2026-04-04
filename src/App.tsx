@@ -8,7 +8,9 @@ import { ReportSetupPage } from './pages/ReportSetupPage';
 import { AppStoreProvider, useAppStore } from './store/store';
 
 function AppContent(): ReactElement {
-  const { activePage, setActivePage } = useAppStore();
+  const {
+    navigation: { activePage, setActivePage },
+  } = useAppStore();
 
   return (
     <AppShell

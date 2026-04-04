@@ -241,30 +241,30 @@ function getAutoScale(values: number[]): {
 }
 
 export function GraphViewer2DPage(): ReactElement {
-  const { graphData2d, setGraphData2d, showErrorNotification } = useAppStore();
-  const [isGraphLoading, setIsGraphLoading] = useState(false);
-  const [isColorUpdate, setIsColorUpdate] = useState(false);
-  const [metric, setMetric] = useState<GraphMetric>('vPol');
-  const [sliceMode, setSliceMode] = useState<SliceMode>('azimuth');
-  const [elevationVariant, setElevationVariant] = useState<ElevationVariant>('elevation1');
-  const [selectedTheta, setSelectedTheta] = useState<number | null>(null);
-  const [graphColor, setGraphColor] = useState('#138d96');
-  const [referenceRanges, setReferenceRanges] = useState<Record<SliceMode, ReferenceRangeState>>({
-    azimuth: {
-      appliedMax: '4',
-      appliedMin: '-10',
-      draftMax: '4',
-      draftMin: '-10',
-      isManual: false,
+  const {
+    notifications: { showErrorNotification },
+    graph2d: {
+      graphData: graphData2d,
+      isLoading: isGraphLoading,
+      isColorUpdate,
+      metric,
+      sliceMode,
+      elevationVariant,
+      selectedTheta,
+      graphColor,
+      referenceRanges,
+      setGraphData: setGraphData2d,
+      setSelectedFileName,
+      setIsLoading: setIsGraphLoading,
+      setIsColorUpdate,
+      setMetric,
+      setSliceMode,
+      setElevationVariant,
+      setSelectedTheta,
+      setGraphColor,
+      setReferenceRanges,
     },
-    elevation: {
-      appliedMax: '4',
-      appliedMin: '-10',
-      draftMax: '4',
-      draftMin: '-10',
-      isManual: false,
-    },
-  });
+  } = useAppStore();
 
   const thetaValue = selectedTheta ?? getDefaultTheta(graphData2d?.thetaValues ?? []);
 
@@ -360,6 +360,7 @@ export function GraphViewer2DPage(): ReactElement {
       });
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData2d(parsedGraph);
+      setSelectedFileName(file.name);
       setSliceMode('azimuth');
       setSelectedTheta(getDefaultTheta(parsedGraph.thetaValues));
       return true;
@@ -447,6 +448,7 @@ export function GraphViewer2DPage(): ReactElement {
     <section className="graph-viewer-page" aria-label="2D Graph Viewer">
       <GraphUploadCard
         description="Choose a TXT measurement export to generate a 2D theta slice."
+        mode="graph2d"
         title="Upload Graph Data"
         onFileSelected={handleGraphFileSelected}
       />

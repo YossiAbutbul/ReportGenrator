@@ -43,13 +43,19 @@ function WordDocumentIcon(): ReactElement {
 
 export function ReportAreaPage(): ReactElement {
   const {
-    generatedReport,
-    isGeneratingReport,
-    isReportDirty,
-    setActivePage,
+    navigation: { setActivePage },
+    report: {
+      generatedReport,
+      isGeneratingReport,
+      isReportDirty,
+    },
+    reportAreaUi: {
+      isExportingWord,
+      isStaleModalOpen,
+      setIsExportingWord,
+      setIsStaleModalOpen,
+    },
   } = useAppStore();
-  const [isExportingWord, setIsExportingWord] = useState(false);
-  const [isStaleModalOpen, setIsStaleModalOpen] = useState(false);
 
   useEffect(() => {
     if (generatedReport && isReportDirty) {

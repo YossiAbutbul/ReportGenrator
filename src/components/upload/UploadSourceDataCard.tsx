@@ -4,14 +4,13 @@ import type {
   ReactElement,
   RefObject,
 } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Download, FileSpreadsheet, Upload } from 'lucide-react';
 import { downloadReportTemplate } from '../../services/downloadTemplate';
 import { useAppStore } from '../../store/store';
 
 type UploadSourceDataCardProps = {
   onFileSelected?: (file: File) => boolean | Promise<boolean>;
-  resetSignal?: number;
 };
 
 const acceptedFileTypes =
@@ -23,20 +22,13 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 
 export function UploadSourceDataCard({
   onFileSelected,
-  resetSignal = 0,
 }: UploadSourceDataCardProps): ReactElement {
-  const { showErrorNotification } = useAppStore();
+  const {
+    notifications: { showErrorNotification },
+    reportSetupUi: { sourceDataFileName },
+  } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    setSelectedFile(null);
-
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
-  }, [resetSignal]);
 
   const handleFile = async (file: File | null): Promise<void> => {
     if (!file) {
@@ -55,8 +47,6 @@ export function UploadSourceDataCard({
     if (didAcceptFile === false) {
       return;
     }
-
-    setSelectedFile(file);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -105,9 +95,9 @@ export function UploadSourceDataCard({
       <div className="upload-card__copy">
         <h1>Upload Source Data</h1>
         <div className="upload-card__status">
-          <p className={selectedFile ? 'upload-card__file-text' : ''}>
-            {selectedFile
-              ? selectedFile.name
+          <p className={sourceDataFileName ? 'upload-card__file-text' : ''}>
+            {sourceDataFileName
+              ? sourceDataFileName
               : 'Drag and drop your Excel report files for automated analysis'}
           </p>
         </div>

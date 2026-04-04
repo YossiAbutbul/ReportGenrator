@@ -10,6 +10,7 @@ import { useAppStore } from '../../store/store';
 
 type GraphUploadCardProps = {
   description?: string;
+  mode?: 'graph3d' | 'graph2d';
   onFileSelected: (file: File) => boolean | Promise<boolean>;
   title?: string;
 };
@@ -22,13 +23,20 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 
 export function GraphUploadCard({
   description = 'Choose a TXT measurement export to generate a 3D graph preview',
+  mode = 'graph3d',
   onFileSelected,
   title = 'Upload Graph Data',
 }: GraphUploadCardProps): ReactElement {
-  const { showErrorNotification } = useAppStore();
+  const {
+    graph3d,
+    graph2d,
+    notifications: { showErrorNotification },
+  } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const [selectedFileName, setSelectedFileName] = useState('');
+  const selectedFileName = mode === 'graph2d'
+    ? graph2d.selectedFileName
+    : graph3d.selectedFileName;
 
   const handleFile = async (file: File | null): Promise<void> => {
     if (!file) {
@@ -45,8 +53,6 @@ export function GraphUploadCard({
     if (didAcceptFile === false) {
       return;
     }
-
-    setSelectedFileName(file.name);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
