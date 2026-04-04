@@ -42,15 +42,31 @@ const DEFAULT_CAMERA = {
   eye: { x: 1.08, y: 0.9, z: 0.7 },
 };
 
-function getDefaultCamera(plotWidth: number): typeof DEFAULT_CAMERA {
-  if (plotWidth <= 480) {
-    return {
-      center: { x: -0.08, y: 0, z: 0 },
-      eye: { x: 1.24, y: 1.08, z: 0.98 },
-    };
-  }
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
 
-  return DEFAULT_CAMERA;
+function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAULT_CAMERA {
+  const safeWidth = Math.max(plotWidth, 1);
+  const safeHeight = Math.max(plotHeight, 1);
+  const widthRatio = clamp(safeWidth / 960, 0.55, 1.2);
+  const heightRatio = clamp(safeHeight / 720, 0.55, 1.2);
+  const compactness = 1 / Math.min(widthRatio, heightRatio);
+  const distanceScale = clamp(compactness, 0.92, 1.45);
+  const horizontalCenterOffset = safeWidth <= 480
+    ? -0.06
+    : safeWidth <= 640
+      ? -0.03
+      : 0;
+
+  return {
+    center: { x: horizontalCenterOffset, y: 0, z: 0 },
+    eye: {
+      x: DEFAULT_CAMERA.eye.x * distanceScale,
+      y: DEFAULT_CAMERA.eye.y * distanceScale,
+      z: DEFAULT_CAMERA.eye.z * distanceScale,
+    },
+  };
 }
 
 export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(function GraphSurfacePlot({
@@ -108,6 +124,14 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
     };
   }, [graphData.phiGrid, graphData.thetaGrid, metricGrid]);
 
+  const getCurrentCamera = (): typeof DEFAULT_CAMERA => {
+    if (!plotRef.current) {
+      return DEFAULT_CAMERA;
+    }
+
+    return getAdaptiveCamera(plotRef.current.clientWidth, plotRef.current.clientHeight);
+  };
+
   useEffect(() => {
     let isCancelled = false;
     let plotly: PlotlyLike | null = null;
@@ -143,7 +167,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
 
       plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
       plotlyRef.current = plotly;
-      const defaultCamera = getDefaultCamera(plotRef.current.clientWidth);
+      const defaultCamera = getCurrentCamera();
 
       await plotly.newPlot(
         plotRef.current,
@@ -264,6 +288,9 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       resizeObserver = new ResizeObserver(() => {
         if (plotRef.current && plotly?.Plots) {
           plotly.Plots.resize(plotRef.current);
+          void plotly.relayout(plotRef.current, {
+            'scene.camera': getCurrentCamera(),
+          });
         }
       });
 
@@ -293,7 +320,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         return;
       }
 
-      const defaultCamera = getDefaultCamera(plotRef.current.clientWidth);
+      const defaultCamera = getCurrentCamera();
 
       void plotlyRef.current.relayout(plotRef.current, {
         'scene.camera': defaultCamera,
