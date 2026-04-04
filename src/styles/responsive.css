@@ -384,6 +384,7 @@
     position: static;
     transform: none;
     width: 100%;
+    max-width: 16rem;
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 0.6rem;
@@ -538,6 +539,10 @@
     justify-content: center;
     min-width: 0;
     padding: 0 0.65rem;
+  }
+
+  .graph-surface-plot {
+    margin-inline: auto;
   }
 
   .report-preview {

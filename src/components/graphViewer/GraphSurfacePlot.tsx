@@ -45,8 +45,8 @@ const DEFAULT_CAMERA = {
 function getDefaultCamera(plotWidth: number): typeof DEFAULT_CAMERA {
   if (plotWidth <= 480) {
     return {
-      center: { x: 0, y: 0, z: 0 },
-      eye: { x: 0.84, y: 0.78, z: 0.68 },
+      center: { x: -0.12, y: 0, z: 0 },
+      eye: { x: 0.82, y: 0.76, z: 0.66 },
     };
   }
 
