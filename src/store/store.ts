@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { createElement, createContext, useContext, useState } from 'react';
+import { createElement, createContext, useContext, useEffect, useState } from 'react';
 import {
   cloneInitialMetadata,
   cloneInitialRows,
@@ -19,11 +19,31 @@ import type { ReportPreview } from '../types/report';
 import type { ReportMetadataForm, ResultRow } from '../types/trpDashboard';
 
 const AppStoreContext = createContext<AppStoreValue | null>(null);
+const ACTIVE_PAGE_STORAGE_KEY = 'report-generator-active-page';
+
+function getInitialActivePage(): AppPage {
+  if (typeof window === 'undefined') {
+    return 'reportSetup';
+  }
+
+  const storedPage = window.localStorage.getItem(ACTIVE_PAGE_STORAGE_KEY);
+
+  if (
+    storedPage === 'reportSetup'
+    || storedPage === 'reportArea'
+    || storedPage === 'graphViewer'
+    || storedPage === 'graphViewer2d'
+  ) {
+    return storedPage;
+  }
+
+  return 'reportSetup';
+}
 
 export function AppStoreProvider({
   children,
 }: PropsWithChildren): ReactElement {
-  const [activePage, setActivePage] = useState<AppPage>('reportSetup');
+  const [activePage, setActivePage] = useState<AppPage>(getInitialActivePage);
   const [notification, setNotification] = useState<NotificationState>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [generatedReport, setGeneratedReport] = useState<ReportPreview | null>(null);
@@ -65,6 +85,10 @@ export function AppStoreProvider({
   const clearNotification = (): void => {
     setNotification(null);
   };
+
+  useEffect(() => {
+    window.localStorage.setItem(ACTIVE_PAGE_STORAGE_KEY, activePage);
+  }, [activePage]);
 
   const resetReportSetupUi = (): void => {
     setSourceDataFileName('');
