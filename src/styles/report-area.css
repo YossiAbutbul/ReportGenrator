@@ -15,6 +15,7 @@
   margin: 0 auto;
   padding-right: 0.25rem;
   overflow: auto;
+  min-width: 0;
 }
 
 .report-page {
@@ -24,6 +25,7 @@
   background: #ffffff;
   border: 1px solid #dce6f3;
   box-shadow: 0 0.8rem 2.2rem rgba(54, 84, 126, 0.09);
+  min-width: 0;
 }
 
 .report-page--cover {

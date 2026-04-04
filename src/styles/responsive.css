@@ -4,6 +4,18 @@
   }
 }
 
+@media (max-width: 85rem) {
+  .app-shell {
+    width: min(calc(100vw - (var(--space-sm) * 2)), var(--shell-max-width));
+    height: calc(100dvh - (var(--space-sm) * 2));
+    padding: var(--space-sm);
+  }
+
+  .app-shell__content {
+    padding: var(--space-xl);
+  }
+}
+
 @media (max-width: 73.75rem) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -11,23 +23,105 @@
 
   .summary-column {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  .report-preview {
+    width: 100%;
   }
 }
 
 @media (max-width: 61.25rem) {
+  .app-shell__mobile-backdrop {
+    position: absolute;
+    inset: calc(3.5rem + var(--space-sm)) 0 0;
+    z-index: 8;
+    display: block;
+    border: 0;
+    background: rgba(21, 33, 51, 0.16);
+  }
+
   .app-shell__body {
     grid-template-columns: 1fr;
     height: auto;
+    position: relative;
   }
 
   .sidebar-nav {
-    gap: var(--space-xl);
+    display: none;
+    position: absolute;
+    top: 0.65rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    z-index: 9;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding: 0.7rem;
     border-right: 0;
-    border-bottom: var(--border-thin) solid #e4eaf3;
+    border: var(--border-thin) solid #dbe5f2;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #fbfcff 0%, #f6f8fc 100%);
+    box-shadow: 0 1rem 2.4rem rgba(42, 64, 102, 0.14);
+  }
+
+  .sidebar-nav.is-mobile-open {
+    display: flex;
   }
 
   .sidebar-nav__items {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    margin-inline: 0;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .sidebar-nav__item,
+  .sidebar-nav__footer {
+    min-height: 3.1rem;
+    padding: 0 1rem;
+    border-radius: 0.8rem;
+    justify-content: flex-start;
+    text-align: left;
+    white-space: normal;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .sidebar-nav__item {
+    gap: var(--space-sm);
+  }
+
+  .sidebar-nav__item.is-active {
+    background: #f4f8ff;
+    color: #2f5fe0;
+  }
+
+  .sidebar-nav__footer {
+    min-height: 3rem;
+  }
+
+  .sidebar-nav__item span:last-child,
+  .sidebar-nav__footer span:last-child {
+    font-size: 0.82rem;
+    line-height: 1.2;
+  }
+
+  .sidebar-nav__active-indicator {
+    display: none;
+  }
+
+  .sidebar-nav__footer {
+    display: none;
+  }
+
+  .shell-header__menu-button {
+    display: inline-flex;
   }
 
   .table-card__toolbar,
@@ -42,7 +136,7 @@
   }
 
   .table-card__actions {
-    align-self: flex-end;
+    align-self: stretch;
   }
 
   .filter-panel {
@@ -55,7 +149,18 @@
   }
 
   .upload-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    justify-items: start;
+    gap: 0.85rem;
+  }
+
+  .upload-card__copy {
+    min-width: 0;
+  }
+
+  .upload-card__actions {
+    grid-column: auto;
+    width: auto;
   }
 
   .graph-viewer-card__header {
@@ -72,8 +177,13 @@
     display: grid;
   }
 
+  .graph-viewer-2d__hero {
+    justify-items: start;
+  }
+
   .graph-viewer-3d__analysis-body {
     display: grid;
+    min-height: 24rem;
   }
 
   .graph-viewer-2d__stats-grid {
@@ -140,24 +250,263 @@
   }
 }
 
-@media (max-width: 40rem) {
+@media (max-width: 48rem) {
   .app-shell {
-    width: 100%;
-    height: 100dvh;
-    padding: var(--space-sm);
+    height: auto;
+    min-height: 100dvh;
   }
 
-  .app-shell {
+  .app-shell__body,
+  .app-shell__content,
+  .trp-dashboard,
+  .graph-viewer-page,
+  .graph-viewer-card,
+  .graph-viewer-card--2d-dashboard,
+  .graph-viewer-2d__analysis-card,
+  .report-area-page {
+    height: auto;
+    min-height: 0;
+  }
+
+  .app-shell__content {
+    overflow: visible;
+  }
+
+  .app-shell__body,
+  .sidebar-nav,
+  .sidebar-nav__top,
+  .sidebar-nav__items {
+    overflow: visible;
+  }
+
+  .shell-header {
+    height: auto;
+    min-height: 3.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .app-shell__mobile-backdrop {
+    inset: calc(3.5rem + 0.75rem) 0 0;
+  }
+
+  .shell-header__brand {
+    padding: 0;
+    font-size: clamp(1.15rem, 4.8vw, 1.7rem);
+    line-height: 1.15;
+  }
+
+  .sidebar-nav__item,
+  .sidebar-nav__footer {
+    min-height: 2.7rem;
+    padding: 0 1.1rem;
+  }
+
+  .sidebar-nav__item span:last-child,
+  .sidebar-nav__footer span:last-child {
+    font-size: 0.8rem;
+  }
+
+  .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metadata-field--span-4,
+  .metadata-field--span-2,
+  .metadata-field--span-1 {
+    grid-column: span 1;
+  }
+
+  .summary-column {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .summary-card {
+    min-height: 7rem;
+    padding: 0.9rem 0.85rem;
+  }
+
+  .summary-card__label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+
+  .summary-card__value {
+    font-size: 2rem;
+  }
+
+  .table-card__toolbar {
+    padding: 0.9rem;
+  }
+
+  .filter-panel {
+    position: static;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .table-card__actions {
+    width: 100%;
+  }
+
+  .filter-icon-button {
+    width: 100%;
+  }
+
+  .graph-viewer-card__toolbar,
+  .graph-viewer-2d__controls,
+  .report-page__stats,
+  .report-area-card__actions {
+    width: 100%;
+  }
+
+  .graph-viewer-2d__analysis-body {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+    height: auto;
+  }
+
+  .graph-viewer-card__plot-shell,
+  .graph-viewer-2d__plot-shell {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: auto;
+  }
+
+  .graph-viewer-card__metric-button,
+  .graph-viewer-card__control-button,
+  .upload-card__button,
+  .dashboard-footer__button {
+    flex: 1 1 10rem;
+  }
+
+  .graph-viewer-card__controls {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .graph-viewer-card__plot-layout {
+    grid-template-columns: 1fr;
+    min-width: 24rem;
+    width: max-content;
+  }
+
+  .graph-legend {
+    display: none;
+  }
+
+  .graph-surface-plot,
+  .graph-polar-plot-shell,
+  .graph-polar-plot {
+    min-width: 22rem;
+    min-height: 18rem;
+  }
+
+  .graph-viewer-2d__analysis-card {
+    padding: 0.85rem;
+  }
+
+  .graph-viewer-2d__analysis-header {
+    padding-bottom: 0.2rem;
+  }
+
+  .report-area-page {
+    grid-template-rows: auto auto;
     overflow: auto;
   }
 
+  .report-preview,
+  .dashboard-grid,
   .summary-column,
-  .sidebar-nav__items {
-    grid-template-columns: 1fr;
+  .table-card,
+  .upload-card,
+  .panel-card,
+  .graph-viewer-2d__aside {
+    width: 100%;
+  }
+
+  .report-page--cover {
+    min-height: auto;
+  }
+
+  .report-page__cover-copy {
+    padding-top: 2rem;
+  }
+
+  .report-page__cover-copy h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .report-stale-modal__actions {
+    flex-direction: column;
+  }
+
+  .report-stale-modal__actions .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 40rem) {
+  .app-shell {
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    padding: 0.5rem;
+  }
+
+  .app-shell,
+  .app-shell__body,
+  .app-shell__content {
+    overflow: visible;
   }
 
   .app-shell__content {
     padding: var(--space-md);
+  }
+
+  .shell-header {
+    padding: 0.7rem 0.9rem;
+  }
+
+  .sidebar-nav {
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    padding: 0.65rem;
+  }
+
+  .app-shell__mobile-backdrop {
+    inset: calc(3.4rem + 0.5rem) 0 0;
+  }
+
+  .panel-card,
+  .upload-card,
+  .summary-card {
+    border-radius: 1rem;
+  }
+
+  .upload-card {
+    padding: 0.8rem;
+  }
+
+  .upload-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .upload-card__actions {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .upload-card__copy h1 {
+    font-size: 1rem;
+  }
+
+  .upload-card__copy p {
+    font-size: 0.78rem;
   }
 
   .graph-viewer-card__stats {
@@ -168,11 +517,98 @@
     grid-template-columns: 1fr;
   }
 
+  .graph-viewer-card__plot-layout {
+    min-width: 100%;
+    width: 100%;
+  }
+
   .report-preview {
     width: 100%;
   }
 
   .report-page {
     padding: 1rem;
+  }
+
+  .panel-card {
+    padding: 0.9rem;
+  }
+
+  .upload-card,
+  .panel-card,
+  .table-card,
+  .graph-viewer-card,
+  .graph-viewer-card--2d-dashboard,
+  .graph-viewer-2d__analysis-card,
+  .report-page {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .panel-card--metadata,
+  .table-card,
+  .graph-viewer-2d__side-card {
+    padding: 0;
+  }
+
+  .metadata-layout {
+    padding: 0.8rem 0.9rem 0.9rem;
+  }
+
+  .summary-column {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    min-height: 6rem;
+  }
+
+  .summary-card__value {
+    font-size: 2.25rem;
+  }
+
+  .table-search {
+    width: 100%;
+  }
+
+  .upload-card__actions,
+  .dashboard-footer__actions {
+    width: 100%;
+  }
+
+  .upload-card__button,
+  .dashboard-footer__button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .app-notification {
+    top: 0.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 30rem) {
+  .shell-header__brand {
+    font-size: 1.05rem;
+  }
+
+  .sidebar-nav__item,
+  .sidebar-nav__footer {
+    min-height: 2.55rem;
+    padding: 0 0.7rem;
+  }
+
+  .graph-polar-plot-shell,
+  .graph-polar-plot {
+    min-width: 18rem;
+    min-height: 15.5rem;
+  }
+
+  .report-page__setup-image {
+    width: 100%;
+    height: auto;
   }
 }

@@ -17,15 +17,19 @@ type NavItem = {
 
 type SidebarNavProps = {
   activeItem: AppPage;
+  isMobileOpen?: boolean;
   onNavigate: (item: AppPage) => void;
   onOpenHelp: () => void;
+  onRequestCloseMobile?: () => void;
   footerLabel: string;
 };
 
 export function SidebarNav({
   activeItem,
+  isMobileOpen = false,
   onNavigate,
   onOpenHelp,
+  onRequestCloseMobile,
   footerLabel,
 }: SidebarNavProps): ReactElement {
   const items: NavItem[] = [
@@ -37,7 +41,7 @@ export function SidebarNav({
   const activeIndex = items.findIndex((item) => item.key === activeItem);
 
   return (
-    <aside className="sidebar-nav">
+    <aside className={`sidebar-nav${isMobileOpen ? ' is-mobile-open' : ''}`}>
       <div className="sidebar-nav__top">
         <nav
           className="sidebar-nav__items"
@@ -50,7 +54,10 @@ export function SidebarNav({
               key={item.key}
               className={`sidebar-nav__item${activeItem === item.key ? ' is-active' : ''}`}
               type="button"
-              onClick={() => onNavigate(item.key)}
+              onClick={() => {
+                onNavigate(item.key);
+                onRequestCloseMobile?.();
+              }}
             >
               <span className="sidebar-nav__item-icon" aria-hidden="true">
                 <item.icon aria-hidden="true" />
@@ -61,7 +68,14 @@ export function SidebarNav({
         </nav>
       </div>
 
-      <button className="sidebar-nav__footer" type="button" onClick={onOpenHelp}>
+      <button
+        className="sidebar-nav__footer"
+        type="button"
+        onClick={() => {
+          onOpenHelp();
+          onRequestCloseMobile?.();
+        }}
+      >
         <span className="sidebar-nav__item-icon" aria-hidden="true">
           <HelpCircle aria-hidden="true" />
         </span>

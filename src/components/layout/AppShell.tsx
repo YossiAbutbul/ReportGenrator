@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppNotification } from '../common/AppNotification';
 import { HelpCenterModal } from '../help/HelpCenterModal';
 import { ShellHeader } from './ShellHeader';
@@ -17,6 +17,7 @@ export function AppShell({
   activePage,
   onNavigate,
 }: AppShellProps): ReactElement {
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const {
     help: { isHelpOpen, setIsHelpOpen },
     notifications: { clearNotification, notification },
@@ -36,14 +37,31 @@ export function AppShell({
     };
   }, [clearNotification, notification]);
 
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [activePage]);
+
   return (
     <div className="app-shell">
-      <ShellHeader />
+      <ShellHeader
+        isMobileNavOpen={isMobileNavOpen}
+        onToggleMobileNav={() => setIsMobileNavOpen((current) => !current)}
+      />
+      {isMobileNavOpen ? (
+        <button
+          aria-label="Close navigation menu"
+          className="app-shell__mobile-backdrop"
+          type="button"
+          onClick={() => setIsMobileNavOpen(false)}
+        />
+      ) : null}
       <div className="app-shell__body">
         <SidebarNav
           activeItem={activePage}
+          isMobileOpen={isMobileNavOpen}
           onNavigate={onNavigate}
           onOpenHelp={() => setIsHelpOpen(true)}
+          onRequestCloseMobile={() => setIsMobileNavOpen(false)}
           footerLabel="Help Center"
         />
         <main className="app-shell__content">{children}</main>
