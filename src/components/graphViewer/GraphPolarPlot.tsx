@@ -183,32 +183,19 @@ export function GraphPolarPlot({
       radialTickValueSet.add(Number(computedRange[0].toFixed(6)));
 
       const radialTickValues = [...radialTickValueSet].sort((first, second) => first - second);
-      const annotationRadius = 0.46;
-      const radialAnnotations = radialTickValues.map((tickValue) => {
-        const ratio = (tickValue - computedRange[0]) / (computedRange[1] - computedRange[0] || 1);
+      const radialTickText = radialTickValues.map((tickValue) => {
         const isMaxTick = Math.abs(tickValue - computedRange[1]) < 0.000001;
         const isMinTick = Math.abs(tickValue - computedRange[0]) < 0.000001;
-        const annotationText = isMaxTick && maxReferenceLabel
-          ? maxReferenceLabel
-          : isMinTick && minReferenceLabel
-            ? minReferenceLabel
-            : String(tickValue);
 
-        return {
-          font: {
-            color: '#6f83a0',
-            size: 10,
-          },
-          showarrow: false,
-          text: annotationText,
-          textangle: 0,
-          x: 0.508,
-          xanchor: 'left',
-          xref: 'paper',
-          y: 0.5 + (annotationRadius * ratio),
-          yanchor: 'middle',
-          yref: 'paper',
-        };
+        if (isMaxTick && maxReferenceLabel) {
+          return maxReferenceLabel;
+        }
+
+        if (isMinTick && minReferenceLabel) {
+          return minReferenceLabel;
+        }
+
+        return String(tickValue);
       });
 
       const data = [
@@ -249,7 +236,6 @@ export function GraphPolarPlot({
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         showlegend: false,
-        annotations: radialAnnotations,
         polar: {
           angularaxis: {
             direction: 'clockwise',
@@ -268,12 +254,17 @@ export function GraphPolarPlot({
           gridshape: 'linear',
           radialaxis: {
             angle: 90,
-            dtick: radialStep,
             gridcolor: '#d9e5f3',
             linecolor: '#d9e5f3',
             range: computedRange,
-            tick0: computedRange[1],
-            showticklabels: false,
+            showticklabels: true,
+            tickfont: {
+              color: '#6f83a0',
+              size: 10,
+            },
+            tickmode: 'array',
+            ticktext: radialTickText,
+            tickvals: radialTickValues,
           },
         },
       };
