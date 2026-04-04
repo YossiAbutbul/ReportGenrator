@@ -42,6 +42,17 @@ const DEFAULT_CAMERA = {
   eye: { x: 1.08, y: 0.9, z: 0.7 },
 };
 
+function getDefaultCamera(plotWidth: number): typeof DEFAULT_CAMERA {
+  if (plotWidth <= 480) {
+    return {
+      center: { x: 0, y: 0, z: 0 },
+      eye: { x: 0.84, y: 0.78, z: 0.68 },
+    };
+  }
+
+  return DEFAULT_CAMERA;
+}
+
 export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(function GraphSurfacePlot({
   graphData,
   metric,
@@ -132,6 +143,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
 
       plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
       plotlyRef.current = plotly;
+      const defaultCamera = getDefaultCamera(plotRef.current.clientWidth);
 
       await plotly.newPlot(
         plotRef.current,
@@ -201,7 +213,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
             aspectmode: 'cube',
             bgcolor: 'rgba(255,255,255,0)',
             camera: {
-              ...DEFAULT_CAMERA,
+              ...defaultCamera,
             },
             xaxis: {
               backgroundcolor: 'rgba(255,255,255,0)',
@@ -281,8 +293,10 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         return;
       }
 
+      const defaultCamera = getDefaultCamera(plotRef.current.clientWidth);
+
       void plotlyRef.current.relayout(plotRef.current, {
-        'scene.camera': DEFAULT_CAMERA,
+        'scene.camera': defaultCamera,
       });
     },
     setDragMode: (mode) => {
