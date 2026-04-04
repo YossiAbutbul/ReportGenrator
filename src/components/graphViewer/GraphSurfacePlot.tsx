@@ -59,10 +59,10 @@ function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAUL
       ? -0.03
       : 0;
   const verticalTightness = clamp((720 - safeHeight) / 720, 0, 0.4);
-  const verticalCenterOffset = clamp(verticalTightness * 0.14, 0, 0.06);
+  const verticalCenterOffset = clamp(verticalTightness * 0.18, 0, 0.08);
 
   return {
-    center: { x: horizontalCenterOffset, y: 0, z: verticalCenterOffset },
+    center: { x: horizontalCenterOffset, y: verticalCenterOffset, z: 0 },
     eye: {
       x: DEFAULT_CAMERA.eye.x * distanceScale,
       y: DEFAULT_CAMERA.eye.y * distanceScale,
