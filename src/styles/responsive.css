@@ -384,8 +384,10 @@
     position: static;
     transform: none;
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     margin-bottom: 0.6rem;
+    border-radius: 1rem;
   }
 
   .graph-viewer-card__plot-layout {
@@ -520,6 +522,18 @@
   .graph-viewer-card__plot-layout {
     min-width: 100%;
     width: 100%;
+  }
+
+  .graph-viewer-card__controls {
+    gap: 0.35rem;
+    padding: 0.4rem;
+  }
+
+  .graph-viewer-card__control-button {
+    flex: 1 1 calc(50% - 0.35rem);
+    justify-content: center;
+    min-width: 0;
+    padding: 0 0.65rem;
   }
 
   .report-preview {
