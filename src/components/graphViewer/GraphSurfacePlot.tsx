@@ -58,16 +58,25 @@ function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAUL
     : safeWidth <= 640
       ? -0.03
       : 0;
-  const verticalTightness = clamp((720 - safeHeight) / 720, 0, 0.4);
-  const verticalCenterOffset = clamp(verticalTightness * 0.18, 0, 0.08);
 
   return {
-    center: { x: horizontalCenterOffset, y: verticalCenterOffset, z: 0 },
+    center: { x: horizontalCenterOffset, y: 0, z: 0 },
     eye: {
       x: DEFAULT_CAMERA.eye.x * distanceScale,
       y: DEFAULT_CAMERA.eye.y * distanceScale,
       z: DEFAULT_CAMERA.eye.z * distanceScale,
     },
+  };
+}
+
+function getAdaptiveSceneDomain(plotHeight: number): { x: [number, number]; y: [number, number] } {
+  const safeHeight = Math.max(plotHeight, 1);
+  const verticalTightness = clamp((720 - safeHeight) / 720, 0, 0.4);
+  const upwardShift = clamp(verticalTightness * 0.52, 0, 0.24);
+
+  return {
+    x: [0, 1],
+    y: [upwardShift, 1],
   };
 }
 
@@ -170,6 +179,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
       plotlyRef.current = plotly;
       const defaultCamera = getCurrentCamera();
+      const sceneDomain = getAdaptiveSceneDomain(plotRef.current.clientHeight);
 
       await plotly.newPlot(
         plotRef.current,
@@ -241,6 +251,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
             camera: {
               ...defaultCamera,
             },
+            domain: sceneDomain,
             xaxis: {
               backgroundcolor: 'rgba(255,255,255,0)',
               gridcolor: 'rgba(0, 0, 0, 0)',
@@ -292,6 +303,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
           plotly.Plots.resize(plotRef.current);
           void plotly.relayout(plotRef.current, {
             'scene.camera': getCurrentCamera(),
+            'scene.domain': getAdaptiveSceneDomain(plotRef.current.clientHeight),
           });
         }
       });
@@ -326,6 +338,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
 
       void plotlyRef.current.relayout(plotRef.current, {
         'scene.camera': defaultCamera,
+        'scene.domain': getAdaptiveSceneDomain(plotRef.current.clientHeight),
       });
     },
     setDragMode: (mode) => {
