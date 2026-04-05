@@ -1,38 +1,44 @@
 @media (max-height: 60rem) {
-  .app-shell {
+  .trp-dashboard {
+    display: block;
     height: auto;
-    min-height: calc(100dvh - (var(--space-md) * 2));
   }
 
-  .app-shell__content,
-  .trp-dashboard,
-  .report-area-page,
-  .graph-viewer-page,
-  .graph-viewer-card,
-  .graph-viewer-card--2d-dashboard,
-  .graph-viewer-2d__analysis-card {
-    height: auto;
-    min-height: 0;
-  }
-
-  .app-shell__content {
-    overflow: visible;
+  .trp-dashboard > * + * {
+    margin-top: var(--space-md);
   }
 
   .setup-section--results {
     grid-template-rows: auto auto;
     align-content: start;
+    gap: var(--space-md);
   }
 
   .table-card {
+    grid-template-rows: auto auto;
     height: auto;
     min-height: 16rem;
-    max-height: min(30rem, 52dvh);
+    max-height: min(30rem, 48dvh);
+    overflow: hidden;
   }
 
   .results-table {
     min-height: 12rem;
-    max-height: calc(min(30rem, 52dvh) - 4.75rem);
+    max-height: calc(min(30rem, 48dvh) - 4.75rem);
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  .dashboard-footer {
+    display: block;
+    margin-top: var(--space-lg);
+    padding-top: 0.75rem;
+    border-top: var(--border-thin) solid #e7edf5;
+  }
+
+  .dashboard-footer__actions {
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .filter-panel__options {
@@ -74,8 +80,9 @@
 
 @media (max-width: 61.25rem) {
   .app-shell {
-    height: auto;
+    height: auto !important;
     min-height: 100dvh;
+    overflow: visible !important;
   }
 
   .app-shell__mobile-backdrop {
@@ -91,12 +98,14 @@
     grid-template-columns: 1fr;
     height: auto;
     position: relative;
+    overflow: visible !important;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   }
 
   .app-shell,
   .app-shell__body,
   .app-shell__content {
-    overflow: visible;
+    overflow: visible !important;
   }
 
   .app-shell__content,
@@ -108,6 +117,10 @@
   .graph-viewer-2d__analysis-card {
     height: auto;
     min-height: 0;
+  }
+
+  .app-shell__content {
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   }
 
   .sidebar-nav {

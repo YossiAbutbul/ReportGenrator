@@ -36,20 +36,8 @@ body {
   }
 
   body {
-    overflow: auto;
-  }
-}
-
-@media (max-height: 60rem) {
-  html,
-  body,
-  #root {
-    height: auto;
-    min-height: 100%;
-  }
-
-  body {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 

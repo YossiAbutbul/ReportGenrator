@@ -975,6 +975,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-md);
+  width: 100%;
+  padding-bottom: var(--space-lg);
 }
 
 .validation-note {
