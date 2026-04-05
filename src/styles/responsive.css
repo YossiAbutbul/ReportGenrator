@@ -295,6 +295,11 @@
     line-height: 1.15;
   }
 
+  .shell-header__menu-button {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   .sidebar-nav__item,
   .sidebar-nav__footer {
     min-height: 2.7rem;
