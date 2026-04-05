@@ -1,4 +1,40 @@
-@media (max-height: 52rem) {
+@media (max-height: 60rem) {
+  .app-shell {
+    height: auto;
+    min-height: calc(100dvh - (var(--space-md) * 2));
+  }
+
+  .app-shell__content,
+  .trp-dashboard,
+  .report-area-page,
+  .graph-viewer-page,
+  .graph-viewer-card,
+  .graph-viewer-card--2d-dashboard,
+  .graph-viewer-2d__analysis-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  .app-shell__content {
+    overflow: visible;
+  }
+
+  .setup-section--results {
+    grid-template-rows: auto auto;
+    align-content: start;
+  }
+
+  .table-card {
+    height: auto;
+    min-height: 16rem;
+    max-height: min(30rem, 52dvh);
+  }
+
+  .results-table {
+    min-height: 12rem;
+    max-height: calc(min(30rem, 52dvh) - 4.75rem);
+  }
+
   .filter-panel__options {
     max-height: calc(2.5rem + (1.95rem * 2) + (0.55rem * 2) + 1.3rem);
   }
@@ -26,12 +62,22 @@
     grid-template-rows: none;
   }
 
+  .trp-dashboard {
+    grid-template-rows: auto auto auto auto auto;
+    height: auto;
+  }
+
   .report-preview {
     width: 100%;
   }
 }
 
 @media (max-width: 61.25rem) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+
   .app-shell__mobile-backdrop {
     position: absolute;
     inset: calc(3.5rem + var(--space-sm)) 0 0;
@@ -45,6 +91,23 @@
     grid-template-columns: 1fr;
     height: auto;
     position: relative;
+  }
+
+  .app-shell,
+  .app-shell__body,
+  .app-shell__content {
+    overflow: visible;
+  }
+
+  .app-shell__content,
+  .trp-dashboard,
+  .report-area-page,
+  .graph-viewer-page,
+  .graph-viewer-card,
+  .graph-viewer-card--2d-dashboard,
+  .graph-viewer-2d__analysis-card {
+    height: auto;
+    min-height: 0;
   }
 
   .sidebar-nav {
@@ -122,21 +185,27 @@
 
   .shell-header__menu-button {
     display: inline-flex;
+    border-color: transparent;
+    box-shadow: none;
   }
 
-  .table-card__toolbar,
-  .dashboard-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .setup-section--results {
+    grid-template-rows: auto auto;
+    align-content: start;
   }
 
-  .table-card__toolbar-main {
-    width: 100%;
+  .table-card {
+    height: auto;
+    min-height: 15rem;
+    max-height: min(26rem, 40dvh);
+    overflow: hidden;
   }
 
-  .table-card__actions {
-    align-self: stretch;
+  .results-table {
+    min-height: 11rem;
+    max-height: calc(min(26rem, 40dvh) - 4.75rem);
+    overflow-x: auto;
+    overflow-y: auto;
   }
 
   .filter-panel {
@@ -146,6 +215,15 @@
 
   .filter-panel__section--frequency {
     grid-column: auto;
+  }
+
+  .filter-panel__options {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    max-height: none;
+    margin-top: 0.2rem;
   }
 
   .upload-card {
@@ -315,6 +393,18 @@
     grid-template-columns: 1fr;
   }
 
+  .setup-hero {
+    padding: 1rem;
+  }
+
+  .setup-hero__copy h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .setup-section__intro h2 {
+    font-size: 1.18rem;
+  }
+
   .metadata-field--span-4,
   .metadata-field--span-2,
   .metadata-field--span-1 {
@@ -341,7 +431,14 @@
   }
 
   .table-card__toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
     padding: 0.9rem;
+  }
+
+  .table-card__toolbar-main {
+    width: 100%;
   }
 
   .filter-panel {
@@ -351,6 +448,7 @@
   }
 
   .table-card__actions {
+    align-self: stretch;
     width: 100%;
   }
 
@@ -383,6 +481,12 @@
   .upload-card__button,
   .dashboard-footer__button {
     flex: 1 1 10rem;
+  }
+
+  .dashboard-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .graph-viewer-card__controls {
@@ -503,6 +607,10 @@
     border-radius: 1rem;
   }
 
+  .setup-hero {
+    padding-inline: 0;
+  }
+
   .upload-card {
     padding: 0.8rem;
   }
@@ -595,6 +703,7 @@
 
   .summary-card {
     min-height: 6rem;
+    opacity: 1;
   }
 
   .summary-card__value {

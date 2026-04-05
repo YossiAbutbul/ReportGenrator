@@ -72,7 +72,7 @@ function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAUL
 function getAdaptiveSceneDomain(plotHeight: number): { x: [number, number]; y: [number, number] } {
   const safeHeight = Math.max(plotHeight, 1);
   const verticalTightness = clamp((720 - safeHeight) / 720, 0, 0.4);
-  const upwardShift = clamp(verticalTightness * 0.52, 0, 0.24);
+  const upwardShift = clamp(verticalTightness * 0.78, 0, 0.32);
 
   return {
     x: [0, 1],

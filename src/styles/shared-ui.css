@@ -90,6 +90,74 @@
   min-width: 0;
 }
 
+.setup-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 1.05rem 1.25rem;
+  border-color: #d7e3f4;
+  background:
+    radial-gradient(circle at top right, rgba(182, 215, 255, 0.32), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 0.75rem 2rem rgba(75, 105, 148, 0.08);
+}
+
+.setup-hero__copy {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.setup-hero__eyebrow,
+.setup-section__eyebrow {
+  color: #6982a5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.setup-hero__copy h1,
+.setup-section__intro h2 {
+  margin: 0;
+  color: #27405f;
+}
+
+.setup-hero__copy h1 {
+  font-size: clamp(1.55rem, 2.2vw, 2.15rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+
+.setup-hero__copy p,
+.setup-section__intro p {
+  margin: 0;
+  color: #667b98;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.setup-section {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.setup-section--results {
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  min-height: 0;
+}
+
+.setup-section__intro {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.setup-section__intro h2 {
+  font-size: 1.15rem;
+  line-height: 1.1;
+}
+
 .panel-card {
   padding: var(--space-lg);
 }
@@ -430,11 +498,13 @@
   grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   min-height: 0;
 }
 
 .table-card__toolbar {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -451,7 +521,6 @@
 }
 
 .table-card__actions {
-  position: relative;
   flex-shrink: 0;
   align-self: center;
 }
@@ -603,6 +672,14 @@
   min-width: 0;
 }
 
+.filter-panel__section--id {
+  grid-column: 1 / -1;
+}
+
+.filter-panel__section--id .filter-panel__options {
+  max-height: calc(2.5rem + (1.95rem * 3) + (0.55rem * 4) + 1.3rem);
+}
+
 .filter-panel__field-label {
   color: #6d87a7;
   font-size: 0.74rem;
@@ -694,10 +771,6 @@
   background: var(--color-scrollbar-thumb-hover);
 }
 
-.filter-panel__section--frequency {
-  grid-column: 1 / -1;
-}
-
 .filter-panel__option-search {
   display: inline-flex;
   align-items: center;
@@ -786,15 +859,17 @@
 .filter-panel__clear {
   min-height: 2.6rem;
   padding: 0 1.1rem;
-  border: var(--border-thin) solid #d5e1f0;
-  border-radius: 999rem;
+  border-color: #d7e2f1;
+  border-radius: 0.75rem;
   background: #ffffff;
-  color: #2d68bf;
+  color: #5e7190;
   font-size: 0.94rem;
   font-weight: 700;
 }
 
 .results-table {
+  position: relative;
+  z-index: 1;
   display: block;
   height: 100%;
   min-height: 0;
