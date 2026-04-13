@@ -71,8 +71,12 @@ export type AppStoreValue = {
   reportAreaUi: {
     isExportingWord: boolean;
     isStaleModalOpen: boolean;
+    zoomLevel: number;
+    unitPlacementImage: string | null;
     setIsExportingWord: Dispatch<SetStateAction<boolean>>;
     setIsStaleModalOpen: Dispatch<SetStateAction<boolean>>;
+    setZoomLevel: Dispatch<SetStateAction<number>>;
+    setUnitPlacementImage: Dispatch<SetStateAction<string | null>>;
   };
   graph3d: {
     graphData: ParsedGraphFile | null;

@@ -124,15 +124,15 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .shell-header__help-button {
-  align-items: center;
   display: inline-flex;
-  gap: 0.45rem;
-  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
   padding: 0 0.95rem;
-  border: var(--border-thin) solid #d4dfed;
-  border-radius: 999rem;
+  border: 1px solid #d1d9e6;
+  border-radius: 0.35rem;
   background: #ffffff;
-  color: #5d7290;
+  color: #475569;
   font-size: 0.82rem;
   font-weight: 700;
   transition: background 150ms ease, border-color 150ms ease;
@@ -140,8 +140,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .shell-header__help-button:hover {
-  background: var(--color-panel-muted);
-  border-color: var(--color-border);
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 .shell-header__actions {
@@ -301,41 +301,10 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .upload-card__button {
-  min-height: 2.05rem;
-  padding-inline: 0.65rem;
-  border-radius: 0.65rem;
-  font-size: 0.8rem;
   box-shadow: none;
   min-width: 0;
 }
 
 .dashboard-footer__button {
-  min-width: 10rem;
-  min-height: 2.25rem;
-  padding-inline: 0.95rem;
-  border-radius: 0.75rem;
   box-shadow: none;
-  font-size: 0.82rem;
-}
-
-.upload-card__button.button--ghost {
-  border-color: #d7e2f1;
-  background: #ffffff;
-  color: #5e7190;
-}
-
-.upload-card__button.button--primary {
-  background: var(--color-primary);
-  color: #ffffff;
-}
-
-.dashboard-footer__button.button--ghost {
-  border-color: #d7e2f1;
-  background: #ffffff;
-  color: #5e7190;
-}
-
-.dashboard-footer__button.button--primary {
-  background: var(--color-primary);
-  color: #ffffff;
 }

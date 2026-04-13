@@ -646,6 +646,7 @@ function buildResultsTableXml(
 function buildDocumentXml(
   report: ReportPreview,
   imagePartsByRowKey: Map<string, DocxImagePart>,
+  unitPlacementImagePart: DocxImagePart | null,
 ): string {
   const measurementTable = createTable(
     [
@@ -737,6 +738,12 @@ function buildDocumentXml(
       Math.round(3.1 * EMUS_PER_INCH),
       { align: 'center', spacingAfter: 220 },
     )}
+    ${unitPlacementImagePart ? createImageParagraph(
+      unitPlacementImagePart.relationshipId,
+      unitPlacementImagePart.widthEmu,
+      unitPlacementImagePart.heightEmu,
+      { align: 'center', spacingAfter: 0 },
+    ) : ''}
     `)}
     ${createPageBreak()}
     ${appendEditableParagraphBeforePageBreak(`
@@ -838,7 +845,44 @@ function buildDocumentRelationshipsXml(imageParts: DocxImagePart[]): string {
 </Relationships>`;
 }
 
-export async function exportReportAsWord(report: ReportPreview): Promise<void> {
+async function buildUnitPlacementImagePart(
+  dataUrl: string,
+): Promise<DocxImagePart> {
+  const response = await fetch(dataUrl);
+  const blob = await response.blob();
+  const { width, height } = await getImageDimensions(blob);
+  const maxWidthInches = 3;
+  const maxHeightInches = 5;
+  let widthEmu = Math.round((width / 96) * EMUS_PER_INCH);
+  let heightEmu = Math.round((height / 96) * EMUS_PER_INCH);
+  const maxWidthEmu = Math.round(maxWidthInches * EMUS_PER_INCH);
+  const maxHeightEmu = Math.round(maxHeightInches * EMUS_PER_INCH);
+
+  if (widthEmu > maxWidthEmu) {
+    const ratio = maxWidthEmu / widthEmu;
+    widthEmu = maxWidthEmu;
+    heightEmu = Math.round(heightEmu * ratio);
+  }
+
+  if (heightEmu > maxHeightEmu) {
+    const ratio = maxHeightEmu / heightEmu;
+    heightEmu = maxHeightEmu;
+    widthEmu = Math.round(widthEmu * ratio);
+  }
+
+  return {
+    relationshipId: 'rId100',
+    target: 'media/unit-placement.png',
+    data: await blobToArrayBuffer(blob),
+    widthEmu,
+    heightEmu,
+  };
+}
+
+export async function exportReportAsWord(
+  report: ReportPreview,
+  unitPlacementDataUrl: string | null = null,
+): Promise<void> {
   const response = await fetch(TEMPLATE_DOCX_PATH);
 
   if (!response.ok) {
@@ -865,7 +909,14 @@ export async function exportReportAsWord(report: ReportPreview): Promise<void> {
     });
   });
 
-  zip.file('word/document.xml', buildDocumentXml(report, imagePartsByRowKey));
+  let unitPlacementImagePart: DocxImagePart | null = null;
+
+  if (unitPlacementDataUrl) {
+    unitPlacementImagePart = await buildUnitPlacementImagePart(unitPlacementDataUrl);
+    imageParts.push(unitPlacementImagePart);
+  }
+
+  zip.file('word/document.xml', buildDocumentXml(report, imagePartsByRowKey, unitPlacementImagePart));
   zip.file('word/_rels/document.xml.rels', buildDocumentRelationshipsXml(imageParts));
 
   imageParts.forEach((imagePart) => {

@@ -64,7 +64,7 @@ export function buildReportPreview(
   );
 
   return {
-    title: getDisplayValue(metadata.reportTitle, 'RF Test'),
+    title: metadata.reportTitle.trim() || `RF Test ${getDisplayValue(metadata.date, new Date().toLocaleDateString())}`,
     author: getDisplayValue(metadata.author, 'RF Team'),
     date: getDisplayValue(metadata.date, 'TBD'),
     metadata,

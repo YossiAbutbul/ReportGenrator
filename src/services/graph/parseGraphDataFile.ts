@@ -69,6 +69,10 @@ function createGrid(
   return rows.map((rowSamples) => rowSamples.map((sample) => selector(sample)));
 }
 
+function combineDbmPower(hPolDbm: number, vPolDbm: number): number {
+  return 10 * Math.log10(10 ** (hPolDbm / 10) + 10 ** (vPolDbm / 10));
+}
+
 export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
   const fileText = await file.text();
   const lines = fileText.split(/\r?\n/);
@@ -122,7 +126,7 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
 
   const zValues: Record<GraphMetric, number[][]> = {
     combined: createGrid(groupedRows, (sample) =>
-      Math.max(sample.hPol, sample.vPol),
+      combineDbmPower(sample.hPol, sample.vPol),
     ),
     hPol: createGrid(groupedRows, (sample) => sample.hPol),
     vPol: createGrid(groupedRows, (sample) => sample.vPol),

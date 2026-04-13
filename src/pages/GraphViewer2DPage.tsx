@@ -450,6 +450,11 @@ export function GraphViewer2DPage(): ReactElement {
               description="Drag & drop or click to upload"
               mode="graph2d"
               onFileSelected={handleGraphFileSelected}
+              onClear={() => {
+                setGraphData2d(null);
+                setSelectedFileName('');
+                setIsGraphLoading(false);
+              }}
             />
           </section>
 
@@ -585,11 +590,16 @@ export function GraphViewer2DPage(): ReactElement {
                     radialStep={azimuthRadialStep}
                   />
                 ) : (
-                  <div className="graph-viewer-card__empty">
-                    {graphData2d
-                      ? 'No azimuth slice data for the selected theta angle.'
-                      : 'Upload a measurement TXT file to generate plots.'}
-                  </div>
+                  <GraphPolarPlot
+                    color={graphColor}
+                    isInteractiveUpdate={false}
+                    metric={metric}
+                    maxReferenceLabel={azimuthRange.appliedMax}
+                    minReferenceLabel={azimuthRange.appliedMin}
+                    points={[]}
+                    radialRange={[-10, 4]}
+                    radialStep={2}
+                  />
                 )}
               </div>
 
@@ -662,11 +672,16 @@ export function GraphViewer2DPage(): ReactElement {
                     radialStep={elevationRadialStep}
                   />
                 ) : (
-                  <div className="graph-viewer-card__empty">
-                    {graphData2d
-                      ? `${elevationLabel} data is not available for this file format.`
-                      : 'Upload a measurement TXT file to generate plots.'}
-                  </div>
+                  <GraphPolarPlot
+                    color={elevationGraphColor}
+                    isInteractiveUpdate={false}
+                    metric={metric}
+                    maxReferenceLabel={elevationRange.appliedMax}
+                    minReferenceLabel={elevationRange.appliedMin}
+                    points={[]}
+                    radialRange={[-10, 4]}
+                    radialStep={2}
+                  />
                 )}
               </div>
 

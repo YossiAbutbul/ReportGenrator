@@ -52,7 +52,7 @@ type TooltipState = {
 } | null;
 
 const metricLabels: Record<GraphMetric, string> = {
-  combined: 'Combined Max',
+  combined: 'TRP (H+V)',
   hPol: 'H-Pol',
   vPol: 'V-Pol',
 };
@@ -198,15 +198,19 @@ export function GraphPolarPlot({
         return String(tickValue);
       });
 
+      const closedR = dataPoints.length > 0
+        ? [...radialValues, radialValues[0]]
+        : [];
+      const closedTheta = dataPoints.length > 0
+        ? [...dataPoints.map((point) => point.angle), dataPoints[0].angle]
+        : [];
+
       const data = [
         {
           type: 'scatterpolar',
           mode: 'lines+markers',
-          r: [...radialValues, radialValues[0] ?? 0],
-          theta: [
-            ...dataPoints.map((point) => point.angle),
-            dataPoints[0]?.angle ?? 0,
-          ],
+          r: closedR,
+          theta: closedTheta,
           fill: 'toself',
           fillcolor: `${color}22`,
           hoveron: 'points',

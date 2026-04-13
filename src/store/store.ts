@@ -62,6 +62,8 @@ export function AppStoreProvider({
   const [previewRow, setPreviewRow] = useState<ResultRow | null>(null);
   const [isExportingWord, setIsExportingWord] = useState(false);
   const [isStaleModalOpen, setIsStaleModalOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [unitPlacementImage, setUnitPlacementImage] = useState<string | null>(null);
   const [graphData, setGraphData] = useState<ParsedGraphFile | null>(null);
   const [graph3dSelectedFileName, setGraph3dSelectedFileName] = useState('');
   const [graph3dMetric, setGraph3dMetric] = useState<GraphMetric>('combined');
@@ -187,8 +189,12 @@ export function AppStoreProvider({
     reportAreaUi: {
       isExportingWord,
       isStaleModalOpen,
+      zoomLevel,
+      unitPlacementImage,
       setIsExportingWord,
       setIsStaleModalOpen,
+      setZoomLevel,
+      setUnitPlacementImage,
     },
     graph3d: {
       graphData,

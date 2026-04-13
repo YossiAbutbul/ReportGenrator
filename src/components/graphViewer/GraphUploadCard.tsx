@@ -5,12 +5,13 @@ import type {
   RefObject,
 } from 'react';
 import { useRef, useState } from 'react';
-import { FileText, Upload } from 'lucide-react';
+import { FileText, Upload, X } from 'lucide-react';
 import { useAppStore } from '../../store/store';
 
 type GraphUploadCardProps = {
   description?: string;
   mode?: 'graph3d' | 'graph2d';
+  onClear?: () => void;
   onFileSelected: (file: File) => boolean | Promise<boolean>;
   title?: string;
 };
@@ -24,6 +25,7 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 export function GraphUploadCard({
   description = 'Drag & drop or click to upload',
   mode = 'graph3d',
+  onClear,
   onFileSelected,
 }: GraphUploadCardProps): ReactElement {
   const {
@@ -111,6 +113,17 @@ export function GraphUploadCard({
       </button>
 
       <div className="upload-card__actions">
+        {onClear ? (
+          <button
+            className="button button--ghost upload-card__button"
+            type="button"
+            onClick={onClear}
+            disabled={!selectedFileName}
+          >
+            <X aria-hidden="true" />
+            <span>Discard</span>
+          </button>
+        ) : null}
         <button
           className="button button--primary upload-card__button"
           type="button"

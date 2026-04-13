@@ -11,6 +11,7 @@ type PlotlyLike = {
   ) => Promise<unknown>;
   purge: (root: HTMLDivElement) => void;
   relayout: (root: HTMLDivElement, update: Record<string, unknown>) => Promise<unknown>;
+  toImage: (root: HTMLDivElement, opts: Record<string, unknown>) => Promise<string>;
   Plots?: {
     resize: (root: HTMLDivElement) => void;
   };
@@ -19,6 +20,7 @@ type PlotlyLike = {
 export type GraphSurfacePlotHandle = {
   resetView: () => void;
   setDragMode: (mode: 'turntable' | 'pan' | 'zoom') => void;
+  downloadImage: () => Promise<void>;
 };
 
 type GraphSurfacePlotProps = {
@@ -28,7 +30,7 @@ type GraphSurfacePlotProps = {
 };
 
 const metricLabels: Record<GraphMetric, string> = {
-  combined: 'Combined Max',
+  combined: 'TRP (H+V)',
   hPol: 'H-Pol',
   vPol: 'V-Pol',
 };
@@ -402,6 +404,25 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       void plotlyRef.current.relayout(plotRef.current, {
         dragmode: mode,
       });
+    },
+    downloadImage: async () => {
+      if (!plotRef.current || !plotlyRef.current) {
+        return;
+      }
+
+      const dataUrl = await plotlyRef.current.toImage(plotRef.current, {
+        format: 'png',
+        width: 1600,
+        height: 1200,
+        scale: 2,
+      });
+
+      const anchor = document.createElement('a');
+      anchor.href = dataUrl;
+      anchor.download = '3d-radiation-pattern.png';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
     },
   }), []);
 
