@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import { FileText, Radar, Settings2, ChartColumnBig, Lightbulb } from 'lucide-react';
+import {
+  ChartColumnBig,
+  FileText,
+  Lightbulb,
+  Radar,
+  Settings2,
+} from 'lucide-react';
 import { Modal } from '../common/Modal';
 
 type HelpCenterModalProps = {
@@ -7,33 +13,42 @@ type HelpCenterModalProps = {
   onClose: () => void;
 };
 
-const guideSections = [
+const workflows = [
   {
-    description: 'Upload the Excel workbook, fill in the metadata fields, and press Generate Report when the setup is ready.',
+    step: '01',
     icon: Settings2,
     title: 'Report Setup',
+    description: 'Upload Excel workbook, fill metadata fields, press Generate Report.',
+    accent: '#2563eb',
   },
   {
-    description: 'Review the generated preview and download the Word report once everything looks correct.',
+    step: '02',
     icon: FileText,
     title: 'Report Area',
+    description: 'Review document preview, add unit placement photo, export as Word.',
+    accent: '#059669',
   },
   {
-    description: 'Upload a TXT measurement file to inspect the 3D surface view and compare the live graph results.',
+    step: '03',
     icon: ChartColumnBig,
     title: '3D Graph Viewer',
+    description: 'Upload TXT measurement file, inspect 3D radiation pattern surface.',
+    accent: '#d97706',
   },
   {
-    description: 'Upload a TXT file, choose theta and polarization, then press Enter in the reference inputs to update the graph range.',
+    step: '04',
     icon: Radar,
     title: '2D Graph Viewer',
+    description: 'Analyze azimuth/elevation slices, adjust reference range, compare polarizations.',
+    accent: '#dc2626',
   },
 ] as const;
 
-const quickTips = [
-  'Generate the report again after changing metadata so the preview stays up to date.',
+const tips = [
+  'Regenerate report after changing metadata to keep the preview current.',
   'Theta angle and graph color update instantly in the 2D viewer.',
-  'Reference changes in the 2D viewer apply when you press Enter.',
+  'Use the Discard button to clear loaded graph data and start fresh.',
+  'The 3D viewer supports Both-Pols (H+V power sum), H-Pol, and V-Pol views.',
 ];
 
 export function HelpCenterModal({
@@ -48,36 +63,50 @@ export function HelpCenterModal({
       onClose={onClose}
     >
       <div className="help-center">
+        {/* Workflow Steps */}
         <section className="help-center__section">
-          <h3 className="help-center__heading">Quick Guide</h3>
-          <div className="help-center__grid">
-            {guideSections.map((section) => (
-              <article key={section.title} className="help-center__card">
-                <div className="help-center__card-title">
-                  <span className="help-center__icon" aria-hidden="true">
-                    <section.icon aria-hidden="true" />
-                  </span>
-                  <h4>{section.title}</h4>
+          <div className="help-center__section-header">
+            <h3 className="help-center__heading">Workflow</h3>
+            <p className="help-center__subheading">Follow these steps to generate your report</p>
+          </div>
+          <div className="help-center__steps">
+            {workflows.map((item) => (
+              <article key={item.title} className="help-center__step">
+                <div className="help-center__step-number" style={{ color: item.accent }}>{item.step}</div>
+                <div className="help-center__step-body">
+                  <div className="help-center__step-title">
+                    <item.icon aria-hidden="true" className="help-center__step-icon" style={{ color: item.accent }} />
+                    <h4>{item.title}</h4>
+                  </div>
+                  <p>{item.description}</p>
                 </div>
-                <p>{section.description}</p>
               </article>
             ))}
           </div>
         </section>
 
         <section className="help-center__section">
-          <div className="help-center__tips-header">
-            <span className="help-center__icon help-center__icon--tip" aria-hidden="true">
-              <Lightbulb aria-hidden="true" />
-            </span>
-            <h3 className="help-center__heading">Quick Tips</h3>
+          <div className="help-center__section-header">
+            <div className="help-center__heading-row">
+              <Lightbulb aria-hidden="true" className="help-center__heading-icon help-center__heading-icon--tip" />
+              <h3 className="help-center__heading">Tips</h3>
+            </div>
           </div>
-          <ul className="help-center__tips">
-            {quickTips.map((tip) => (
-              <li key={tip}>{tip}</li>
+          <ul className="help-center__tip-list">
+            {tips.map((tip) => (
+              <li key={tip} className="help-center__tip">{tip}</li>
             ))}
           </ul>
         </section>
+
+        {/* Footer */}
+        <div className="help-center__footer">
+          <span>Test Report Generator v1.0</span>
+          <span>&middot;</span>
+          <a href="https://github.com/YossiAbutbul" target="_blank" rel="noopener noreferrer">
+            Yossi Abutbul
+          </a>
+        </div>
       </div>
     </Modal>
   );
