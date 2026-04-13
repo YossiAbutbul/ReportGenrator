@@ -97,6 +97,8 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
   const currentDragModeRef = useRef<'turntable' | 'pan' | 'zoom'>('turntable');
   const resizeFrameRef = useRef<number | null>(null);
   const lastResizeRef = useRef<{ width: number; height: number } | null>(null);
+  const onRenderStateChangeRef = useRef(onRenderStateChange);
+  onRenderStateChangeRef.current = onRenderStateChange;
   const metricGrid = graphData.zValues[metric];
   const cartesianGeometry = useMemo(() => {
     const numericValues = metricGrid.flat().filter((value) => Number.isFinite(value));
@@ -156,7 +158,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
     let isCancelled = false;
     let plotly: PlotlyLike | null = null;
     const originalGetContext = HTMLCanvasElement.prototype.getContext;
-    onRenderStateChange?.(true);
+    onRenderStateChangeRef.current?.(true);
 
     HTMLCanvasElement.prototype.getContext = (function patchedGetContext(
       this: HTMLCanvasElement,
@@ -343,7 +345,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       };
 
       window.addEventListener('resize', handleWindowResize);
-      onRenderStateChange?.(false);
+      onRenderStateChangeRef.current?.(false);
 
       return () => {
         window.removeEventListener('resize', handleWindowResize);
@@ -367,7 +369,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       }
       lastResizeRef.current = null;
       HTMLCanvasElement.prototype.getContext = originalGetContext;
-      onRenderStateChange?.(false);
+      onRenderStateChangeRef.current?.(false);
 
       if (plotRef.current && plotly) {
         plotly.purge(plotRef.current);
@@ -375,7 +377,8 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
 
       plotlyRef.current = null;
     };
-  }, [cartesianGeometry, metric, onRenderStateChange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartesianGeometry, metric]);
 
   useImperativeHandle(ref, () => ({
     resetView: () => {
