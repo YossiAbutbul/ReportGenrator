@@ -88,20 +88,24 @@ export function UploadSourceDataCard({
         aria-label="Upload source data file"
       />
 
-      <div className="upload-card__icon" aria-hidden="true">
-        <Upload aria-hidden="true" />
-      </div>
-
-      <div className="upload-card__copy">
-        <h1>Upload Source Data</h1>
-        <div className="upload-card__status">
-          <p className={sourceDataFileName ? 'upload-card__file-text' : ''}>
-            {sourceDataFileName
-              ? sourceDataFileName
-              : 'Drag and drop your Excel report files for automated analysis'}
-          </p>
-        </div>
-      </div>
+      <button
+        className="upload-card__drop-zone"
+        type="button"
+        aria-label="Click or drag to upload a file"
+        onClick={() => openFileDialog(inputRef)}
+      >
+        {sourceDataFileName ? (
+          <>
+            <FileSpreadsheet className="upload-card__drop-icon upload-card__drop-icon--file" aria-hidden="true" />
+            <span className="upload-card__file-name">{sourceDataFileName}</span>
+          </>
+        ) : (
+          <>
+            <Upload className="upload-card__drop-icon" aria-hidden="true" />
+            <span className="upload-card__drop-hint">Drag &amp; drop or click to upload</span>
+          </>
+        )}
+      </button>
 
       <div className="upload-card__actions">
         <button
@@ -110,7 +114,7 @@ export function UploadSourceDataCard({
           onClick={downloadReportTemplate}
         >
           <Download aria-hidden="true" />
-          <span>Download Template</span>
+          <span>Template</span>
         </button>
         <button
           className="button button--primary upload-card__button"

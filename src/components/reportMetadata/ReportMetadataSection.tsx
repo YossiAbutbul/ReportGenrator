@@ -24,39 +24,29 @@ export function ReportMetadataSection({
   onScopeChange,
 }: ReportMetadataSectionProps): ReactElement {
   return (
-    <article className="panel-card panel-card--metadata">
-      <div className="panel-card__header panel-card__header--metadata">
-        <span>Report Metadata</span>
-        <span className="panel-card__badge panel-card__badge--metadata">
-          Draft Auto-Saved
-        </span>
-      </div>
-
-      <div className="metadata-layout">
-        <div className="metadata-grid">
-          {fields.map((field) => (
-            <MetadataField
-              key={field.key}
-              label={field.label}
-              placeholder={field.placeholder}
-              value={field.value}
-              span={field.span}
-              type={field.type}
-              onChange={(value) => onFieldChange(field.key, value)}
-            />
-          ))}
-        </div>
-        <div className="metadata-scope-row">
+    <div className="sidebar-metadata">
+      <div className="sidebar-metadata__fields">
+        {fields.map((field) => (
           <MetadataField
-            label="Scope of Testing"
-            placeholder="e.g. TRP test for LoRa, LTE and BLE bands."
-            value={scopeOfTesting}
-            span={4}
-            multiline
-            onChange={onScopeChange}
+            key={field.key}
+            label={field.label}
+            placeholder={field.placeholder}
+            value={field.value}
+            span={field.span}
+            type={field.type}
+            onChange={(value) => onFieldChange(field.key, value)}
           />
-        </div>
+        ))}
+
+        <MetadataField
+          label="Scope of Testing"
+          placeholder="e.g. TRP test for LoRa, LTE and BLE bands."
+          value={scopeOfTesting}
+          span={4}
+          multiline
+          onChange={onScopeChange}
+        />
       </div>
-    </article>
+    </div>
   );
 }

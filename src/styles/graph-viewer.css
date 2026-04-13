@@ -1,10 +1,9 @@
 .graph-viewer-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  display: grid;
   width: 100%;
   height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .graph-viewer-card {
@@ -24,10 +23,24 @@
 
 .graph-viewer-card--2d-dashboard {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(20rem, 1fr);
   gap: 1rem;
   padding: 1rem;
-  overflow: auto;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.graph-viewer-card--left-rail {
+  grid-template-rows: auto auto auto;
+  gap: 0.9rem;
+  height: auto;
+  padding: 1rem;
+}
+
+.graph-viewer-card--canvas {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 1rem;
 }
 
 .graph-viewer-card__header {
@@ -72,10 +85,15 @@
   gap: 0.85rem;
 }
 
+.graph-viewer-card__stats--rail,
+.graph-viewer-2d__stats-grid--rail {
+  grid-template-columns: 1fr;
+}
+
 .graph-viewer-card__plot-shell,
 .graph-viewer-card__empty {
   min-height: 0;
-  border: var(--border-thin) solid #dbe5f2;
+  /* border: var(--border-thin) solid #dbe5f2; */
   border-radius: 1rem;
   background: #ffffff;
 }
@@ -83,7 +101,7 @@
 .graph-viewer-card__plot-shell {
   position: relative;
   height: 100%;
-  overflow: visible;
+  overflow: hidden;
   padding: 0.35rem;
   min-width: 0;
 }
@@ -143,6 +161,7 @@
   min-height: 0;
   overflow: hidden;
   border-radius: 1rem;
+  align-items: stretch;
 }
 
 .graph-legend {
@@ -232,10 +251,8 @@
 }
 
 .graph-viewer-2d__hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  gap: 0.85rem;
 }
 
 .graph-viewer-2d__hero-copy {
@@ -257,7 +274,7 @@
 
 .graph-viewer-2d__analysis-card {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(20rem, 1fr);
   align-content: start;
   gap: 0.45rem;
   min-height: 0;
@@ -267,7 +284,7 @@
   border-radius: 1.1rem;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  overflow: auto;
+  overflow: hidden;
 }
 
 .graph-viewer-2d__analysis-header {
@@ -276,7 +293,7 @@
   justify-content: space-between;
   gap: 1rem;
   min-height: 0;
-  padding: 0 0.1rem 0.5rem;
+  padding: 0 0.1rem 0.2rem;
 }
 
 .graph-viewer-2d__analysis-header h2,
@@ -303,7 +320,9 @@
 
 .graph-viewer-3d__analysis-body {
   display: grid;
-  min-height: 32rem;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
 }
 
 .graph-viewer-2d__select-group {
@@ -333,6 +352,7 @@
   color: var(--color-input-text);
   font-size: var(--font-size-md);
   font-weight: 600;
+  cursor: pointer;
 }
 
 .graph-viewer-2d__select-group select::-ms-expand {
@@ -341,13 +361,18 @@
 
 .graph-viewer-2d__plot-shell {
   position: relative;
+  container-type: size;
   min-height: 0;
   height: 100%;
   min-width: 0;
-  padding: 0.75rem;
-  border-radius: 1rem;
+  border: 0;
   background: transparent;
-  overflow: visible;
+  overflow: hidden;
+}
+
+.graph-viewer-2d__plot-shell--workspace {
+  display: grid;
+  place-items: center;
 }
 
 .graph-viewer-2d__aside {
@@ -355,6 +380,10 @@
   align-content: start;
   gap: 1rem;
   min-width: 0;
+}
+
+.graph-viewer-2d__aside--rail {
+  grid-template-columns: 1fr;
 }
 
 .graph-viewer-2d__side-card {
@@ -406,7 +435,8 @@
   flex-shrink: 0;
 }
 
-.graph-viewer-2d__color-field input[type="color"]::-webkit-color-swatch-wrapper {
+.graph-viewer-2d__color-field
+  input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 
@@ -454,48 +484,76 @@
 .graph-viewer-2d__power-table {
   width: 100%;
   border-collapse: collapse;
-  border: var(--border-thin) solid var(--color-input-border);
+  border: var(--border-thin) solid #dbe5f2;
   border-radius: var(--radius-sm);
-  background: var(--color-input-bg);
+  background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 0.25rem 0.75rem rgba(51, 77, 117, 0.06);
+}
+
+.graph-viewer-2d__power-table thead tr {
+  border-bottom: var(--border-thin) solid #dbe5f2;
+}
+
+.graph-viewer-2d__power-table thead th {
+  padding: 0.7rem 1.1rem;
+  border: 0;
+  color: #52575d;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.graph-viewer-2d__power-table thead th:first-child {
+  text-align: left;
+}
+
+.graph-viewer-2d__power-table tbody tr {
+  border-top: var(--border-thin) solid #edf2f9;
+}
+
+.graph-viewer-2d__power-table tbody tr:first-child {
+  border-top: 0;
 }
 
 .graph-viewer-2d__power-table th,
 .graph-viewer-2d__power-table td {
-  padding: 0.8rem 1rem;
-  border-top: var(--border-thin) solid #e7edf5;
-  color: var(--color-input-text);
+  padding: 0.85rem 1.1rem;
+  border: 0;
   font-size: 0.9rem;
-  font-weight: 600;
+  text-align: center;
+}
+.graph-viewer-2d__power-table th {
   text-align: left;
 }
 
-.graph-viewer-2d__power-table tr:first-child th,
-.graph-viewer-2d__power-table tr:first-child td {
-  border-top: 0;
-}
-
-.graph-viewer-2d__power-table th {
-  color: #27405f;
-  font-weight: 700;
+.graph-viewer-2d__power-table tbody th {
+  color: #3d5272;
+  font-weight: 600;
 }
 
 .graph-viewer-2d__power-table td {
-  text-align: right;
+  color: #595e65;
+  font-weight: 700;
+  text-align: center;
 }
 
 .graph-polar-plot-shell {
   position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 22rem;
+  width: min(100%, 100cqh);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
   min-width: 0;
+  margin: 0 auto;
 }
 
 .graph-polar-plot {
   width: 100%;
   height: 100%;
-  min-height: 22rem;
+  min-height: 0;
   min-width: 0;
 }
 
@@ -511,6 +569,11 @@
 
 .graph-surface-plot {
   width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.graph-viewer-3d__analysis-body--workspace {
   height: 100%;
   min-height: 0;
 }
@@ -574,6 +637,143 @@
   justify-self: center;
   align-self: center;
   box-shadow: 0 0.6rem 1.5rem rgba(51, 77, 117, 0.12);
+}
+
+/* ── Reference row below each plot ──────────────────────────── */
+
+.graph-viewer-2d__ref-row {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.graph-viewer-2d__ref-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.graph-viewer-2d__ref-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.graph-viewer-2d__ref-input-group {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.graph-viewer-2d__ref-item-label {
+  color: #6d87a8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.graph-viewer-2d__ref-input {
+  width: 100%;
+  min-height: 2.1rem;
+  padding: 0 0.75rem;
+  border: var(--border-thin) solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.graph-viewer-2d__ref-input:focus {
+  border-color: #2f68bf;
+}
+
+.graph-viewer-2d__ref-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.65rem;
+  padding: 0 0.6rem;
+  border: var(--border-thin) solid #c8d9f0;
+  border-radius: 999rem;
+  background: #eef5ff;
+  color: #2f68bf;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.graph-viewer-2d__ref-reset svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  stroke-width: 2.2;
+}
+
+.graph-viewer-2d__ref-reset:hover {
+  background: #ddeeff;
+}
+
+.graph-viewer-2d__ref-hint {
+  margin: 0;
+  color: #8fa5c4;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* ── Dual-plot layout ─────────────────────────────────────────── */
+
+.graph-viewer-2d__dual-plots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  height: 100%;
+  min-height: 0;
+  padding: 0 1.2rem;
+}
+
+.graph-viewer-2d__plot-column {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 0.65rem;
+  min-height: 0;
+  padding: 1rem 2rem 0 2rem;
+}
+
+.graph-viewer-2d__plot-header {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.graph-viewer-2d__plot-header h2 {
+  margin: 0;
+  color: #27405f;
+  font-size: clamp(0.95rem, 1.5vw, 1.3rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* ── Sidebar extras ──────────────────────────────────────────── */
+
+.graph-viewer-2d__colors-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.graph-viewer-2d__ref-section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.graph-viewer-2d__ref-label {
+  margin: 0;
+  color: #5c7292;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 @keyframes graph-viewer-spin {

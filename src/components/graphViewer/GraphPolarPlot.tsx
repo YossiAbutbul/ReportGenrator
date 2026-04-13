@@ -243,7 +243,7 @@ export function GraphPolarPlot({
             linecolor: '#d9e5f3',
             rotation: 90,
             tickmode: 'array',
-            ticktext: angleTicks.map((value) => `${value} deg`),
+            ticktext: angleTicks.map((value) => `${value}°`),
             tickvals: angleTicks,
             tickfont: {
               color: '#5f7290',

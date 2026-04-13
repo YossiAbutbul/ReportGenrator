@@ -82,33 +82,151 @@
   color: #607089;
 }
 
+.workspace-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.workspace-rail,
+.workspace-main {
+  min-height: 0;
+  min-width: 0;
+}
+
+.workspace-rail {
+  display: grid;
+  align-content: start;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--color-panel-bg);
+  border-right: var(--border-thin) solid var(--color-border-subtle);
+}
+
+/* Each direct section child gets its own padded row */
+.workspace-rail > .setup-section {
+  padding: 1.1rem 1.2rem;
+  gap: 0.8rem;
+}
+
+/* First section: flush with top edge */
+.workspace-rail > .setup-section:first-child {
+  padding-top: 0.85rem;
+}
+
+/* Separator between sections */
+.workspace-rail > .setup-section + .setup-section {
+  border-top: var(--border-thin) solid var(--color-border-subtle);
+}
+
+.workspace-main {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  overflow: auto;
+}
+
+.workspace-main--table {
+  grid-template-columns: minmax(0, 1fr) 9.5rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.workspace-main--table > .setup-section--results {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.workspace-main--table > .summary-column {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.workspace-main--table > .dashboard-footer {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.workspace-main--visual {
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--summary-width);
-  gap: var(--space-lg);
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
   align-items: stretch;
   min-width: 0;
 }
 
-.setup-hero {
+/* ── Sidebar metadata (flat, no card) ───────────────── */
+.sidebar-metadata {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.sidebar-metadata__header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.45rem;
+  border-bottom: var(--border-thin) solid var(--color-border-subtle);
+}
+
+.sidebar-metadata__label {
+  color: #8097b5;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sidebar-metadata__fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: start;
-  padding: 1.05rem 1.25rem;
-  border-color: #d7e3f4;
-  background:
-    radial-gradient(circle at top right, rgba(182, 215, 255, 0.32), transparent 28%),
-    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  box-shadow: 0 0.75rem 2rem rgba(75, 105, 148, 0.08);
+  gap: 0.55rem;
 }
 
-.setup-hero__copy {
-  display: grid;
-  gap: 0.5rem;
+/* All span variants resolve to full width in the single-column sidebar */
+.sidebar-metadata__fields .metadata-field {
+  grid-column: 1;
 }
 
-.setup-hero__eyebrow,
+/* Textarea in sidebar context: auto height */
+.sidebar-metadata__fields .metadata-field__control--textarea {
+  height: auto;
+  min-height: 8rem;
+}
+
+/* Compact field inputs in the rail */
+.sidebar-metadata__fields .metadata-field__label {
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  gap: 0.3rem;
+  color: #8fa5be;
+}
+
+.sidebar-metadata__fields .metadata-field__value {
+  min-height: 1.85rem;
+  padding-inline: 0.65rem;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-metadata__fields .metadata-field__control {
+  font-size: 0.84rem;
+}
+
+.sidebar-metadata__fields .metadata-field__control--textarea {
+  padding: 0.6rem 0.65rem;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+/* ── /Sidebar metadata ───────────────────────────────── */
+
 .setup-section__eyebrow {
   color: #6982a5;
   font-size: 0.72rem;
@@ -117,19 +235,11 @@
   text-transform: uppercase;
 }
 
-.setup-hero__copy h1,
 .setup-section__intro h2 {
   margin: 0;
   color: #27405f;
 }
 
-.setup-hero__copy h1 {
-  font-size: clamp(1.55rem, 2.2vw, 2.15rem);
-  line-height: 1.04;
-  letter-spacing: -0.04em;
-}
-
-.setup-hero__copy p,
 .setup-section__intro p {
   margin: 0;
   color: #667b98;
@@ -140,11 +250,37 @@
 .setup-section {
   display: grid;
   gap: 0.65rem;
+  min-width: 0;
+}
+
+/* Tighter text in the narrow sidebar rail */
+.workspace-rail .setup-section__intro {
+  gap: 0.2rem;
+}
+
+.workspace-rail .setup-section__intro h2 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #2d3f58;
+  letter-spacing: -0.01em;
+}
+
+.workspace-rail .setup-section__intro p {
+  font-size: 0.78rem;
+  color: #8097b5;
+  line-height: 1.4;
 }
 
 .setup-section--results {
+  display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  align-content: stretch;
+  align-content: start;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.setup-section--results > .table-card {
   min-height: 0;
 }
 
@@ -348,10 +484,9 @@
 }
 
 .summary-column {
-  display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: var(--space-md);
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .summary-card {
@@ -359,9 +494,9 @@
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: 0.6rem;
+  gap: 0.45rem;
   min-height: 0;
-  padding: 1.15rem 1.25rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   overflow: hidden;
   border: 0;
@@ -371,7 +506,7 @@
     var(--color-summary-card-bg) 100%
   );
   box-shadow: none;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   isolation: isolate;
   transition:
     transform 180ms ease,
@@ -484,7 +619,7 @@
 
 .summary-card__value {
   padding-left: 0;
-  font-size: 2.8rem;
+  font-size: 2.2rem;
   line-height: 0.9;
   color: var(--color-summary-card-value);
   font-weight: 800;
@@ -497,9 +632,11 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
+  min-width: 0;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   min-height: 0;
+  isolation: isolate;
 }
 
 .table-card__toolbar {
@@ -511,6 +648,7 @@
   gap: var(--space-md);
   padding: var(--space-md);
   border-bottom: var(--border-thin) solid #e7edf5;
+  background: var(--color-panel-bg);
 }
 
 .table-card__toolbar-main {
@@ -869,10 +1007,11 @@
 
 .results-table {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   display: block;
   height: 100%;
-  min-height: 0;
+  min-height: 10rem;
+  max-height: 100%;
   overflow: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
@@ -976,7 +1115,8 @@
   justify-content: flex-end;
   gap: var(--space-md);
   width: 100%;
-  padding-bottom: var(--space-lg);
+  margin-top: auto;
+  padding-bottom: 0;
 }
 
 .validation-note {

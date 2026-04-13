@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   AlertTriangle,
   FileImage,
@@ -66,11 +66,15 @@ export function ReportAreaPage(): ReactElement {
   if (isGeneratingReport) {
     return (
       <section className="report-area-page" aria-label="Report area">
-        <article className="panel-card report-area-card report-area-card--loading">
-          <div className="report-area-card__spinner" aria-hidden="true" />
-          <h1>Generating report preview</h1>
-          <p>We're building the report pages from your latest setup and workbook data.</p>
-        </article>
+        <div className="workspace-shell workspace-shell--report">
+          <aside className="workspace-rail">
+            <article className="panel-card report-area-card report-area-card--loading">
+              <div className="report-area-card__spinner" aria-hidden="true" />
+              <h1>Generating report preview</h1>
+              <p>We're building the report pages from your latest setup and workbook data.</p>
+            </article>
+          </aside>
+        </div>
       </section>
     );
   }
@@ -78,11 +82,15 @@ export function ReportAreaPage(): ReactElement {
   if (!generatedReport) {
     return (
       <section className="report-area-page" aria-label="Report area">
-        <article className="panel-card report-area-card">
-          <div className="report-area-card__eyebrow">Report Area</div>
-          <h1>No generated report yet</h1>
-          <p>Go to Report Setup, complete your fields, then press Generate Report to create the preview.</p>
-        </article>
+        <div className="workspace-shell workspace-shell--report">
+          <aside className="workspace-rail">
+            <article className=" report-area-card">
+              <div className="report-area-card__eyebrow">Report Area</div>
+              <h1>No generated report yet</h1>
+              <p>Go to Report Setup, complete your fields, then press Generate Report to create the preview.</p>
+            </article>
+          </aside>
+        </div>
       </section>
     );
   }
@@ -143,35 +151,77 @@ export function ReportAreaPage(): ReactElement {
         </div>
       </Modal>
 
-      <div className="report-preview">
-        <article className="panel-card report-page report-page--cover">
-          <div className="report-page__cover-brand">
-            <img alt="Arad Technologies" src={`${TEMPLATE_ASSET_BASE}cover-header.jpg`} />
-          </div>
-          <div className="report-page__cover-copy">
+      <div className="workspace-shell workspace-shell--report">
+        <aside className="workspace-rail">
+          <article className="report-area-card">
+            <div className="report-area-card__eyebrow">Preview Controls</div>
             <h1>{report.title}</h1>
-            <p className="report-page__cover-subtitle">By: {report.author}</p>
-          </div>
-          <div className="report-page__cover-meta">
-            <strong>{report.date}</strong>
-            <span>{report.summary.totalSections || 0} report sections</span>
-          </div>
-        </article>
+            <p>Review the generated report pages, then export the current version when everything looks right.</p>
+            <div className="graph-viewer-card__stats graph-viewer-card__stats--rail">
+              <div className="report-area-card__action">
+                <Layers3 aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>Sections</small>
+                  <span>{report.summary.totalSections || 0}</span>
+                </div>
+              </div>
+              <div className="report-area-card__action">
+                <RadioTower aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>Rows</small>
+                  <span>{report.summary.totalRows}</span>
+                </div>
+              </div>
+            </div>
+            <div className="report-area-card__actions">
+              <button
+                className="button button--primary dashboard-footer__button"
+                type="button"
+                onClick={handleWordExport}
+              >
+                <WordDocumentIcon />
+                <span>{isExportingWord ? 'Preparing Word...' : 'Download as Word'}</span>
+              </button>
+            </div>
+            {isReportDirty ? (
+              <div className="validation-note">
+                <span className="validation-note__dot" aria-hidden="true" />
+                Report setup changed. Generate again to refresh this preview.
+              </div>
+            ) : null}
+          </article>
+        </aside>
 
-        <article className="panel-card report-page">
-          <div className="report-page__header">
-            <h2>Test Setup</h2>
-          </div>
-          <div className="report-page__setup-block">
-            <img
-              alt="RF anechoic chamber test setup"
-              className="report-page__setup-image"
-              src={`${TEMPLATE_ASSET_BASE}test-setup.png`}
-            />
-          </div>
-        </article>
+        <div className="workspace-main workspace-main--report">
+          <div className="report-preview">
+            <article className="panel-card report-page report-page--cover">
+              <div className="report-page__cover-brand">
+                <img alt="Arad Technologies" src={`${TEMPLATE_ASSET_BASE}cover-header.jpg`} />
+              </div>
+              <div className="report-page__cover-copy">
+                <h1>{report.title}</h1>
+                <p className="report-page__cover-subtitle">By: {report.author}</p>
+              </div>
+              <div className="report-page__cover-meta">
+                <strong>{report.date}</strong>
+                <span>{report.summary.totalSections || 0} report sections</span>
+              </div>
+            </article>
 
-        <article className="panel-card report-page">
+            <article className="panel-card report-page">
+              <div className="report-page__header">
+                <h2>Test Setup</h2>
+              </div>
+              <div className="report-page__setup-block">
+                <img
+                  alt="RF anechoic chamber test setup"
+                  className="report-page__setup-image"
+                  src={`${TEMPLATE_ASSET_BASE}test-setup.png`}
+                />
+              </div>
+            </article>
+
+            <article className="panel-card report-page">
           <div className="report-page__header">
             <h2>Report Details</h2>
           </div>
@@ -242,10 +292,10 @@ export function ReportAreaPage(): ReactElement {
               </tbody>
             </table>
           </section>
-        </article>
+            </article>
 
-        {report.sections.map((section) => (
-          <article className="panel-card report-page" key={section.id}>
+            {report.sections.map((section) => (
+              <article className="panel-card report-page" key={section.id}>
             <div className="report-page__header">
               <h2>{section.title}</h2>
             </div>
@@ -313,38 +363,21 @@ export function ReportAreaPage(): ReactElement {
                 </tbody>
               </table>
             </section>
-          </article>
-        ))}
+              </article>
+            ))}
 
-        <article className="panel-card report-page">
-          <div className="report-page__header">
-            <div className="report-area-card__eyebrow">Final Page</div>
-            <h2>Notes</h2>
+            <article className="panel-card report-page">
+              <div className="report-page__header">
+                <div className="report-area-card__eyebrow">Final Page</div>
+                <h2>Notes</h2>
+              </div>
+              <div className="report-notes">
+                {hasRows
+                  ? 'Notes section placeholder for reviewer comments, conclusions, and release notes.'
+                  : 'Upload a workbook to start building the report pages from your Excel sheets.'}
+              </div>
+            </article>
           </div>
-          <div className="report-notes">
-            {hasRows
-              ? 'Notes section placeholder for reviewer comments, conclusions, and release notes.'
-              : 'Upload a workbook to start building the report pages from your Excel sheets.'}
-          </div>
-        </article>
-      </div>
-
-      <div className="dashboard-footer report-page__footer">
-        <div className="dashboard-footer__actions report-actions">
-          {isReportDirty ? (
-            <div className="validation-note">
-              <span className="validation-note__dot" aria-hidden="true" />
-              Report setup changed. Generate again to refresh this preview.
-            </div>
-          ) : null}
-          <button
-            className="button button--primary dashboard-footer__button"
-            type="button"
-            onClick={handleWordExport}
-          >
-            <WordDocumentIcon />
-            <span>{isExportingWord ? 'Preparing Word...' : 'Download as Word'}</span>
-          </button>
         </div>
       </div>
     </section>

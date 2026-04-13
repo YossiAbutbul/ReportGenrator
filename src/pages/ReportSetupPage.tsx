@@ -332,44 +332,206 @@ export function ReportSetupPage(): ReactElement {
 
   return (
     <section className="trp-dashboard" aria-label="TRP report setup">
-      <header className="setup-hero panel-card">
-        <div className="setup-hero__copy">
-          <div className="setup-hero__eyebrow">Report Setup</div>
-          <h1>Build the test report draft in one flow</h1>
-          <p>
-            Upload the source workbook, review the extracted metadata, then refine the
-            results before generating the report preview.
-          </p>
-        </div>
-      </header>
+      <div className="workspace-shell workspace-shell--setup">
+        <div className="workspace-rail">
+          <section className="setup-section setup-section--primary" aria-labelledby="setup-upload-title">
+            <div className="setup-section__intro">
+              <div>
+                <h2 id="setup-upload-title">Upload Source Data</h2>
+              </div>
+            </div>
+            <UploadSourceDataCard
+              onFileSelected={handleFileSelected}
+            />
+          </section>
 
-      <section className="setup-section setup-section--primary" aria-labelledby="setup-upload-title">
-        <div className="setup-section__intro">
-          <div>
-            <h2 id="setup-upload-title">Upload Source Data</h2>
-          </div>
-          <p>Start with the Excel workbook that contains the report measurements and rows.</p>
+          <section className="setup-section" aria-labelledby="setup-metadata-title">
+            <div className="setup-section__intro">
+              <h2 id="setup-metadata-title">Setup Parameters</h2>
+            </div>
+            <ReportMetadataSection
+              fields={metadataFields.map((field) => ({
+                ...field,
+                value: metadata[field.key],
+              }))}
+              scopeOfTesting={metadata.scopeOfTesting}
+              onFieldChange={handleMetadataFieldChange}
+              onScopeChange={(value) => handleMetadataFieldChange('scopeOfTesting', value)}
+            />
+          </section>
         </div>
-        <UploadSourceDataCard
-          onFileSelected={handleFileSelected}
-        />
-      </section>
 
-      <section className="setup-section" aria-labelledby="setup-metadata-title">
-        <div className="setup-section__intro">
-          <h2 id="setup-metadata-title">Review Metadata and Summary</h2>
-          <p>Confirm the report details and use the summary cards to sanity-check the extracted data.</p>
-        </div>
-        <div className="dashboard-grid">
-          <ReportMetadataSection
-            fields={metadataFields.map((field) => ({
-              ...field,
-              value: metadata[field.key],
-            }))}
-            scopeOfTesting={metadata.scopeOfTesting}
-            onFieldChange={handleMetadataFieldChange}
-            onScopeChange={(value) => handleMetadataFieldChange('scopeOfTesting', value)}
-          />
+        <div className="workspace-main workspace-main--table">
+          <section className="setup-section setup-section--results" aria-labelledby="setup-results-title">
+            <div className="setup-section__intro">
+              <h2 id="setup-results-title">Inspect Extracted Results</h2>
+              <p>Search, filter, and preview rows before you move to the generated report.</p>
+            </div>
+            <article className="panel-card table-card">
+              <div className="table-card__toolbar">
+                <div className="table-card__toolbar-main">
+                  <label className="table-search" htmlFor="results-search">
+                    <Search aria-hidden="true" />
+                    <input
+                      id="results-search"
+                      name="results-search"
+                      type="search"
+                      placeholder="Search by unit ID, frequency, or unit type"
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                    />
+                    {searchQuery ? (
+                      <button
+                        aria-label="Clear search"
+                        className="table-search__clear"
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                      >
+                        <X aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </label>
+                </div>
+                <div className="table-card__actions">
+                  <button
+                    aria-expanded={isFilterPanelOpen}
+                    className={`filter-icon-button${isFilterPanelOpen || hasActiveFilters ? ' is-active' : ''}`}
+                    disabled={!isFilterAvailable}
+                    type="button"
+                    aria-label="Open filters"
+                    ref={filterButtonRef}
+                    onClick={() => {
+                      if (!isFilterAvailable) {
+                        return;
+                      }
+
+                      setIsFilterPanelOpen((current) => !current);
+                    }}
+                  >
+                    <Funnel aria-hidden="true" />
+                    <span className="filter-icon-button__label">Filter</span>
+                    {activeFilterCount > 0 ? (
+                      <span className="filter-icon-button__badge" aria-label={`${activeFilterCount} active filters`}>
+                        {activeFilterCount}
+                      </span>
+                    ) : null}
+                  </button>
+
+                  {isFilterPanelOpen ? (
+                    <div className="filter-panel" ref={filterPanelRef}>
+                      <FilterSection
+                        sectionKey="type"
+                        className="filter-panel__section--type"
+                        label="Unit Type"
+                        options={typeOptions}
+                        selectedValues={selectedTypes}
+                        isOpen={openFilterSection === 'type'}
+                        onOpenChange={() => {
+                          setFilterOptionQuery('');
+                          setOpenFilterSection((current) => (current === 'type' ? null : 'type'));
+                        }}
+                        onToggle={(value) => toggleFilterValue(value, setSelectedTypes)}
+                        searchValue={openFilterSection === 'type' ? filterOptionQuery : ''}
+                        onSearchChange={setFilterOptionQuery}
+                      />
+                      <FilterSection
+                        sectionKey="frequency"
+                        className="filter-panel__section--frequency"
+                        label="Frequency"
+                        options={frequencyOptions}
+                        selectedValues={selectedFrequencies}
+                        isOpen={openFilterSection === 'frequency'}
+                        onOpenChange={() => {
+                          setFilterOptionQuery('');
+                          setOpenFilterSection((current) =>
+                            current === 'frequency' ? null : 'frequency',
+                          );
+                        }}
+                        onToggle={(value) => toggleFilterValue(value, setSelectedFrequencies)}
+                        searchValue={openFilterSection === 'frequency' ? filterOptionQuery : ''}
+                        onSearchChange={setFilterOptionQuery}
+                      />
+                      <FilterSection
+                        sectionKey="id"
+                        className="filter-panel__section--id"
+                        label="Unit ID"
+                        options={idOptions}
+                        selectedValues={selectedIds}
+                        isOpen={openFilterSection === 'id'}
+                        onOpenChange={() => {
+                          setFilterOptionQuery('');
+                          setOpenFilterSection((current) => (current === 'id' ? null : 'id'));
+                        }}
+                        onToggle={(value) => toggleFilterValue(value, setSelectedIds)}
+                        searchValue={openFilterSection === 'id' ? filterOptionQuery : ''}
+                        onSearchChange={setFilterOptionQuery}
+                      />
+                      {hasActiveFilters ? (
+                        <div className="filter-panel__footer">
+                          <button
+                            className="button button--ghost filter-panel__clear"
+                            type="button"
+                            onClick={() => {
+                              setSelectedTypes([]);
+                              setSelectedIds([]);
+                              setSelectedFrequencies([]);
+                              setFilterOptionQuery('');
+                            }}
+                          >
+                            <Trash2 aria-hidden="true" />
+                            Clear filters
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="results-table" role="table" aria-label="Analysis results">
+                <div className="results-table__header" role="row">
+                  <span>Unit Type</span>
+                  <span>Unit ID</span>
+                  <span>Frequency</span>
+                  <span>TRP (dBm)</span>
+                  <span>Max Peak (dBm)</span>
+                  <span>3D Graph</span>
+                </div>
+
+                {filteredRows.length > 0 ? (
+                  filteredRows.map((row) => (
+                    <div
+                      className="results-table__row"
+                      role="row"
+                      key={row.rowKey}
+                    >
+                      <span>{row.unitType}</span>
+                      <span>{row.unit}</span>
+                      <span>{row.frequency}</span>
+                      <span className="results-table__metric">{row.trp}</span>
+                      <span>{row.peak}</span>
+                      {row.graphImageSrc ? (
+                        <button
+                          className="table-link"
+                          type="button"
+                          onClick={() => setPreviewRow(row)}
+                        >
+                          <ScanSearch aria-hidden="true" />
+                          <span>View 3D</span>
+                        </button>
+                      ) : (
+                        <span className="results-table__dash">-</span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="results-table__empty" role="row">
+                    No matching rows found. Try a different search or clear the filters.
+                  </div>
+                )}
+              </div>
+            </article>
+          </section>
 
           <div className="summary-column">
             {summaryCards.map((card, index) => (
@@ -380,200 +542,29 @@ export function ReportSetupPage(): ReactElement {
               />
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className="setup-section setup-section--results" aria-labelledby="setup-results-title">
-        <div className="setup-section__intro">
-          <h2 id="setup-results-title">Inspect Extracted Results</h2>
-          <p>Search, filter, and preview rows before you move to the generated report.</p>
-        </div>
-        <article className="panel-card table-card">
-          <div className="table-card__toolbar">
-            <div className="table-card__toolbar-main">
-              <label className="table-search" htmlFor="results-search">
-                <Search aria-hidden="true" />
-                <input
-                  id="results-search"
-                  name="results-search"
-                  type="search"
-                  placeholder="Search by unit ID, frequency, or unit type"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                />
-                {searchQuery ? (
-                  <button
-                    aria-label="Clear search"
-                    className="table-search__clear"
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    <X aria-hidden="true" />
-                  </button>
-                ) : null}
-              </label>
-            </div>
-            <div className="table-card__actions">
+          <div className="dashboard-footer">
+            <div className="dashboard-footer__actions">
               <button
-                aria-expanded={isFilterPanelOpen}
-                className={`filter-icon-button${isFilterPanelOpen || hasActiveFilters ? ' is-active' : ''}`}
-                disabled={!isFilterAvailable}
+                className="button button--ghost dashboard-footer__button"
                 type="button"
-                aria-label="Open filters"
-                ref={filterButtonRef}
+                onClick={handleDiscardDraft}
+              >
+                <RotateCcw aria-hidden="true" />
+                Discard Draft
+              </button>
+              <button
+                className="button button--primary dashboard-footer__button"
+                type="button"
                 onClick={() => {
-                  if (!isFilterAvailable) {
-                    return;
-                  }
-
-                  setIsFilterPanelOpen((current) => !current);
+                  void handleGenerateReport();
                 }}
               >
-                <Funnel aria-hidden="true" />
-                <span className="filter-icon-button__label">Filter</span>
-                {activeFilterCount > 0 ? (
-                  <span className="filter-icon-button__badge" aria-label={`${activeFilterCount} active filters`}>
-                    {activeFilterCount}
-                  </span>
-                ) : null}
+                <FileText aria-hidden="true" />
+                {isGeneratingReport ? 'Generating...' : 'Generate Report'}
               </button>
-
-              {isFilterPanelOpen ? (
-                <div className="filter-panel" ref={filterPanelRef}>
-                  <FilterSection
-                    sectionKey="type"
-                    className="filter-panel__section--type"
-                    label="Unit Type"
-                    options={typeOptions}
-                    selectedValues={selectedTypes}
-                    isOpen={openFilterSection === 'type'}
-                    onOpenChange={() => {
-                      setFilterOptionQuery('');
-                      setOpenFilterSection((current) => (current === 'type' ? null : 'type'));
-                    }}
-                    onToggle={(value) => toggleFilterValue(value, setSelectedTypes)}
-                    searchValue={openFilterSection === 'type' ? filterOptionQuery : ''}
-                    onSearchChange={setFilterOptionQuery}
-                  />
-                  <FilterSection
-                    sectionKey="frequency"
-                    className="filter-panel__section--frequency"
-                    label="Frequency"
-                    options={frequencyOptions}
-                    selectedValues={selectedFrequencies}
-                    isOpen={openFilterSection === 'frequency'}
-                    onOpenChange={() => {
-                      setFilterOptionQuery('');
-                      setOpenFilterSection((current) =>
-                        current === 'frequency' ? null : 'frequency',
-                      );
-                    }}
-                    onToggle={(value) => toggleFilterValue(value, setSelectedFrequencies)}
-                    searchValue={openFilterSection === 'frequency' ? filterOptionQuery : ''}
-                    onSearchChange={setFilterOptionQuery}
-                  />
-                  <FilterSection
-                    sectionKey="id"
-                    className="filter-panel__section--id"
-                    label="Unit ID"
-                    options={idOptions}
-                    selectedValues={selectedIds}
-                    isOpen={openFilterSection === 'id'}
-                    onOpenChange={() => {
-                      setFilterOptionQuery('');
-                      setOpenFilterSection((current) => (current === 'id' ? null : 'id'));
-                    }}
-                    onToggle={(value) => toggleFilterValue(value, setSelectedIds)}
-                    searchValue={openFilterSection === 'id' ? filterOptionQuery : ''}
-                    onSearchChange={setFilterOptionQuery}
-                  />
-                  {hasActiveFilters ? (
-                    <div className="filter-panel__footer">
-                      <button
-                        className="button button--ghost filter-panel__clear"
-                        type="button"
-                        onClick={() => {
-                          setSelectedTypes([]);
-                          setSelectedIds([]);
-                          setSelectedFrequencies([]);
-                          setFilterOptionQuery('');
-                        }}
-                      >
-                        <Trash2 aria-hidden="true" />
-                        Clear filters
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
           </div>
-
-          <div className="results-table" role="table" aria-label="Analysis results">
-            <div className="results-table__header" role="row">
-              <span>Unit Type</span>
-              <span>Unit ID</span>
-              <span>Frequency</span>
-              <span>TRP (dBm)</span>
-              <span>Max Peak (dBm)</span>
-              <span>3D Graph</span>
-            </div>
-
-            {filteredRows.length > 0 ? (
-              filteredRows.map((row) => (
-                <div
-                  className="results-table__row"
-                  role="row"
-                  key={row.rowKey}
-                >
-                  <span>{row.unitType}</span>
-                  <span>{row.unit}</span>
-                  <span>{row.frequency}</span>
-                  <span className="results-table__metric">{row.trp}</span>
-                  <span>{row.peak}</span>
-                  {row.graphImageSrc ? (
-                    <button
-                      className="table-link"
-                      type="button"
-                      onClick={() => setPreviewRow(row)}
-                    >
-                      <ScanSearch aria-hidden="true" />
-                      <span>View 3D</span>
-                    </button>
-                  ) : (
-                    <span className="results-table__dash">-</span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="results-table__empty" role="row">
-                No matching rows found. Try a different search or clear the filters.
-              </div>
-            )}
-          </div>
-        </article>
-      </section>
-
-      <div className="dashboard-footer">
-        <div className="dashboard-footer__actions">
-          <button
-            className="button button--ghost dashboard-footer__button"
-            type="button"
-            onClick={handleDiscardDraft}
-          >
-            <RotateCcw aria-hidden="true" />
-            Discard Draft
-          </button>
-          <button
-            className="button button--primary dashboard-footer__button"
-            type="button"
-            onClick={() => {
-              void handleGenerateReport();
-            }}
-          >
-            <FileText aria-hidden="true" />
-            {isGeneratingReport ? 'Generating...' : 'Generate Report'}
-          </button>
         </div>
       </div>
 

@@ -52,31 +52,38 @@ function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAUL
   const widthRatio = clamp(safeWidth / 960, 0.55, 1.2);
   const heightRatio = clamp(safeHeight / 720, 0.55, 1.2);
   const compactness = 1 / Math.min(widthRatio, heightRatio);
-  const distanceScale = clamp(compactness, 0.92, 1.45);
+  const verticalCompactness = clamp(720 / safeHeight, 1, 1.65);
+  const distanceScale = clamp(Math.max(compactness, verticalCompactness) * 0.98, 0.94, 1.56);
   const horizontalCenterOffset = safeWidth <= 480
     ? -0.06
     : safeWidth <= 640
       ? -0.03
       : 0;
+  const verticalCenterOffset = safeHeight <= 380
+    ? -0.05
+    : safeHeight <= 520
+      ? -0.025
+      : -0.005;
 
   return {
-    center: { x: horizontalCenterOffset, y: 0, z: 0 },
+    center: { x: horizontalCenterOffset, y: 0, z: verticalCenterOffset },
     eye: {
       x: DEFAULT_CAMERA.eye.x * distanceScale,
       y: DEFAULT_CAMERA.eye.y * distanceScale,
-      z: DEFAULT_CAMERA.eye.z * distanceScale,
+      z: DEFAULT_CAMERA.eye.z * distanceScale * 1.04,
     },
   };
 }
 
 function getAdaptiveSceneDomain(plotHeight: number): { x: [number, number]; y: [number, number] } {
   const safeHeight = Math.max(plotHeight, 1);
-  const verticalTightness = clamp((720 - safeHeight) / 720, 0, 0.4);
-  const upwardShift = clamp(verticalTightness * 0.78, 0, 0.32);
+  const compactness = clamp((720 - safeHeight) / 720, 0, 0.42);
+  const topPadding = clamp(0.015 + (compactness * 0.06), 0.015, 0.05);
+  const bottomPadding = clamp(0.02 + (compactness * 0.1), 0.02, 0.08);
 
   return {
-    x: [0, 1],
-    y: [upwardShift, 1],
+    x: [0.01, 0.99],
+    y: [bottomPadding, 1 - topPadding],
   };
 }
 
@@ -88,6 +95,8 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
   const plotRef = useRef<HTMLDivElement | null>(null);
   const plotlyRef = useRef<PlotlyLike | null>(null);
   const currentDragModeRef = useRef<'turntable' | 'pan' | 'zoom'>('turntable');
+  const resizeFrameRef = useRef<number | null>(null);
+  const lastResizeRef = useRef<{ width: number; height: number } | null>(null);
   const metricGrid = graphData.zValues[metric];
   const cartesianGeometry = useMemo(() => {
     const numericValues = metricGrid.flat().filter((value) => Number.isFinite(value));
@@ -146,7 +155,6 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
   useEffect(() => {
     let isCancelled = false;
     let plotly: PlotlyLike | null = null;
-    let resizeObserver: ResizeObserver | null = null;
     const originalGetContext = HTMLCanvasElement.prototype.getContext;
     onRenderStateChange?.(true);
 
@@ -165,7 +173,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       return originalGetContext.call(this, contextId, options);
     }) as typeof HTMLCanvasElement.prototype.getContext;
 
-    async function renderPlot(): Promise<void> {
+    async function renderPlot(): Promise<(() => void) | void> {
       if (!plotRef.current) {
         return;
       }
@@ -298,25 +306,66 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         },
       );
 
-      resizeObserver = new ResizeObserver(() => {
-        if (plotRef.current && plotly?.Plots) {
-          plotly.Plots.resize(plotRef.current);
-          void plotly.relayout(plotRef.current, {
-            'scene.camera': getCurrentCamera(),
-            'scene.domain': getAdaptiveSceneDomain(plotRef.current.clientHeight),
-          });
-        }
-      });
+      const handleWindowResize = (): void => {
+        const root = plotRef.current;
 
-      resizeObserver.observe(plotRef.current);
+        if (!root || !plotly?.Plots) {
+          return;
+        }
+
+        const width = Math.round(root.clientWidth);
+        const height = Math.round(root.clientHeight);
+        const previousSize = lastResizeRef.current;
+
+        if (
+          previousSize
+          && previousSize.width === width
+          && previousSize.height === height
+        ) {
+          return;
+        }
+
+        lastResizeRef.current = { width, height };
+
+        if (resizeFrameRef.current !== null) {
+          window.cancelAnimationFrame(resizeFrameRef.current);
+        }
+
+        resizeFrameRef.current = window.requestAnimationFrame(() => {
+          resizeFrameRef.current = null;
+
+          if (!plotRef.current || !plotly?.Plots) {
+            return;
+          }
+
+          plotly.Plots.resize(plotRef.current);
+        });
+      };
+
+      window.addEventListener('resize', handleWindowResize);
       onRenderStateChange?.(false);
+
+      return () => {
+        window.removeEventListener('resize', handleWindowResize);
+      };
     }
 
-    void renderPlot();
+    let detachResizeListener: (() => void) | undefined;
+
+    void renderPlot().then((cleanup) => {
+      if (typeof cleanup === 'function') {
+        detachResizeListener = cleanup;
+      }
+    });
 
     return () => {
       isCancelled = true;
-      resizeObserver?.disconnect();
+      detachResizeListener?.();
+      if (resizeFrameRef.current !== null) {
+        window.cancelAnimationFrame(resizeFrameRef.current);
+        resizeFrameRef.current = null;
+      }
+      lastResizeRef.current = null;
       HTMLCanvasElement.prototype.getContext = originalGetContext;
       onRenderStateChange?.(false);
 

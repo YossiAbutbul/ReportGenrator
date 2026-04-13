@@ -1,12 +1,5 @@
 import type { ChangeEvent, KeyboardEvent, ReactElement } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ChartColumnBig,
-  Crosshair,
-  MoveVertical,
-  RadioTower,
-  Radar,
-} from 'lucide-react';
 import { GraphPolarPlot } from '../components/graphViewer/GraphPolarPlot';
 import { GraphUploadCard } from '../components/graphViewer/GraphUploadCard';
 import { parseGraphDataFile } from '../services/graph/parseGraphDataFile';
@@ -16,38 +9,21 @@ import type { GraphMetric, GraphSample } from '../types/graphViewer';
 const metricOptions: Array<{
   key: GraphMetric;
   label: string;
-  color: string;
 }> = [
-  { key: 'combined', label: 'Both-Pols', color: '#2f68bf' },
-  { key: 'hPol', label: 'H-Pol', color: '#2f68bf' },
-  { key: 'vPol', label: 'V-Pol', color: '#2f68bf' },
+  { key: 'combined', label: 'Both-Pols' },
+  { key: 'hPol', label: 'H-Pol' },
+  { key: 'vPol', label: 'V-Pol' },
 ];
 
-type SliceMode = 'azimuth' | 'elevation';
 type ElevationVariant = 'elevation1' | 'elevation2';
-type ReferenceRangeState = {
-  appliedMax: string;
-  appliedMin: string;
-  draftMax: string;
-  draftMin: string;
-  isManual: boolean;
-};
-
-const sliceModeOptions: Array<{
-  key: SliceMode;
-  label: string;
-}> = [
-  { key: 'azimuth', label: 'Azimuth' },
-  { key: 'elevation', label: 'Elvation' },
-];
 
 const ELEVATION_THETA_DEGREES = 90;
 const elevationVariantOptions: Array<{
   key: ElevationVariant;
   label: string;
 }> = [
-  { key: 'elevation1', label: 'Elvation 1' },
-  { key: 'elevation2', label: 'Elvation 2' },
+  { key: 'elevation1', label: 'Elevation 1' },
+  { key: 'elevation2', label: 'Elevation 2' },
 ];
 const DEFAULT_AZIMUTH_THETA = 90;
 
@@ -240,15 +216,24 @@ function getAutoScale(values: number[]): {
   return { min, max, step };
 }
 
+function getRadialRange(range: { appliedMax: string; appliedMin: string }): [number, number] | undefined {
+  const min = Number(range.appliedMin);
+  const max = Number(range.appliedMax);
+
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
+    return undefined;
+  }
+
+  return [min, max];
+}
+
 export function GraphViewer2DPage(): ReactElement {
   const {
     notifications: { showErrorNotification },
     graph2d: {
       graphData: graphData2d,
-      isLoading: isGraphLoading,
       isColorUpdate,
       metric,
-      sliceMode,
       elevationVariant,
       selectedTheta,
       graphColor,
@@ -258,13 +243,14 @@ export function GraphViewer2DPage(): ReactElement {
       setIsLoading: setIsGraphLoading,
       setIsColorUpdate,
       setMetric,
-      setSliceMode,
       setElevationVariant,
       setSelectedTheta,
       setGraphColor,
       setReferenceRanges,
     },
   } = useAppStore();
+
+  const [elevationGraphColor, setElevationGraphColor] = useState('#22bf7a');
 
   const thetaValue = selectedTheta ?? getDefaultTheta(graphData2d?.thetaValues ?? []);
 
@@ -279,6 +265,7 @@ export function GraphViewer2DPage(): ReactElement {
   }, [graphData2d, thetaValue]);
 
   const calibrationFactor = parseCalibrationFactor(graphData2d?.vPolFactor);
+
   const azimuthPoints = useMemo(
     () => selectedSlice.map((sample) => ({
       angle: sample.phi,
@@ -297,47 +284,81 @@ export function GraphViewer2DPage(): ReactElement {
     [calibrationFactor, elevationVariant, graphData2d?.measurementRows, metric],
   );
 
-  const polarPoints = sliceMode === 'elevation' ? elevationPoints : azimuthPoints;
+  const azimuthValues = azimuthPoints.map((p) => p.value);
+  const elevationValues = elevationPoints.map((p) => p.value);
 
-  const sliceValues = polarPoints.map((point) => point.value);
-  const selectedMetric = metricOptions.find((option) => option.key === metric) ?? metricOptions[0];
-  const minSliceValueRaw = sliceValues.length > 0 ? Math.min(...sliceValues) : null;
-  const maxSliceValueRaw = sliceValues.length > 0 ? Math.max(...sliceValues) : null;
-  const averageSliceValueRaw = sliceValues.length > 0
-    ? sliceValues.reduce((sum, value) => sum + value, 0) / sliceValues.length
+  const minAzimuth = azimuthValues.length > 0 ? Math.min(...azimuthValues) : null;
+  const maxAzimuth = azimuthValues.length > 0 ? Math.max(...azimuthValues) : null;
+  const avgAzimuth = azimuthValues.length > 0
+    ? azimuthValues.reduce((sum, v) => sum + v, 0) / azimuthValues.length
     : null;
-  const minSliceValue = minSliceValueRaw;
-  const maxSliceValue = maxSliceValueRaw;
-  const averageSliceValue = averageSliceValueRaw;
 
-  const autoScale = useMemo(() => getAutoScale(sliceValues), [sliceValues]);
-  const currentReferenceRange = referenceRanges[sliceMode];
-  const {
-    appliedMax: appliedMaxReference,
-    appliedMin: appliedMinReference,
-    draftMax: draftMaxReference,
-    draftMin: draftMinReference,
-    isManual: isReferenceManual,
-  } = currentReferenceRange;
+  const minElevation = elevationValues.length > 0 ? Math.min(...elevationValues) : null;
+  const maxElevation = elevationValues.length > 0 ? Math.max(...elevationValues) : null;
+  const avgElevation = elevationValues.length > 0
+    ? elevationValues.reduce((sum, v) => sum + v, 0) / elevationValues.length
+    : null;
+
+  const azimuthAutoScale = useMemo(() => getAutoScale(azimuthValues), [azimuthValues]);
+  const elevationAutoScale = useMemo(() => getAutoScale(elevationValues), [elevationValues]);
+
+  const azimuthRange = referenceRanges.azimuth;
+  const elevationRange = referenceRanges.elevation;
 
   useEffect(() => {
-    if (isReferenceManual) {
+    if (azimuthRange.isManual) {
       return;
     }
 
-    const nextMinReference = String(autoScale.min);
-    const nextMaxReference = String(autoScale.max);
+    const min = String(azimuthAutoScale.min);
+    const max = String(azimuthAutoScale.max);
     setReferenceRanges((current) => ({
       ...current,
-      [sliceMode]: {
-        ...current[sliceMode],
-        appliedMin: nextMinReference,
-        appliedMax: nextMaxReference,
-        draftMin: nextMinReference,
-        draftMax: nextMaxReference,
+      azimuth: {
+        ...current.azimuth,
+        appliedMin: min,
+        appliedMax: max,
+        draftMin: min,
+        draftMax: max,
       },
     }));
-  }, [autoScale.max, autoScale.min, isReferenceManual, sliceMode]);
+  }, [azimuthAutoScale.max, azimuthAutoScale.min, azimuthRange.isManual]);
+
+  useEffect(() => {
+    if (elevationRange.isManual) {
+      return;
+    }
+
+    const min = String(elevationAutoScale.min);
+    const max = String(elevationAutoScale.max);
+    setReferenceRanges((current) => ({
+      ...current,
+      elevation: {
+        ...current.elevation,
+        appliedMin: min,
+        appliedMax: max,
+        draftMin: min,
+        draftMax: max,
+      },
+    }));
+  }, [elevationAutoScale.max, elevationAutoScale.min, elevationRange.isManual]);
+
+  const azimuthRadialRange = useMemo(() => getRadialRange(azimuthRange), [azimuthRange]);
+  const elevationRadialRange = useMemo(() => getRadialRange(elevationRange), [elevationRange]);
+
+  const azimuthRadialStep = useMemo(
+    () => (azimuthRadialRange
+      ? getNiceStep(azimuthRadialRange[1] - azimuthRadialRange[0])
+      : azimuthAutoScale.step),
+    [azimuthAutoScale.step, azimuthRadialRange],
+  );
+
+  const elevationRadialStep = useMemo(
+    () => (elevationRadialRange
+      ? getNiceStep(elevationRadialRange[1] - elevationRadialRange[0])
+      : elevationAutoScale.step),
+    [elevationAutoScale.step, elevationRadialRange],
+  );
 
   const handleGraphFileSelected = async (file: File): Promise<boolean> => {
     try {
@@ -361,7 +382,6 @@ export function GraphViewer2DPage(): ReactElement {
       const parsedGraph = await parseGraphDataFile(file);
       setGraphData2d(parsedGraph);
       setSelectedFileName(file.name);
-      setSliceMode('azimuth');
       setSelectedTheta(getDefaultTheta(parsedGraph.thetaValues));
       return true;
     } catch (error) {
@@ -375,326 +395,323 @@ export function GraphViewer2DPage(): ReactElement {
   };
 
   const handleReferenceChange = (
+    mode: 'azimuth' | 'elevation',
     key: 'draftMax' | 'draftMin',
     event: ChangeEvent<HTMLInputElement>,
   ): void => {
-    const nextValue = event.target.value;
     setReferenceRanges((current) => ({
       ...current,
-      [sliceMode]: {
-        ...current[sliceMode],
-        isManual: true,
-        [key]: nextValue,
-      },
+      [mode]: { ...current[mode], isManual: true, [key]: event.target.value },
     }));
   };
 
-  const applyReferenceRange = (): void => {
-    const parsedMinReference = Number(draftMinReference);
-    const parsedMaxReference = Number(draftMaxReference);
+  const applyReferenceRange = (mode: 'azimuth' | 'elevation'): void => {
+    const range = referenceRanges[mode];
+    const parsedMin = Number(range.draftMin);
+    const parsedMax = Number(range.draftMax);
 
-    if (
-      !Number.isFinite(parsedMinReference)
-      || !Number.isFinite(parsedMaxReference)
-      || parsedMinReference >= parsedMaxReference
-    ) {
+    if (!Number.isFinite(parsedMin) || !Number.isFinite(parsedMax) || parsedMin >= parsedMax) {
       return;
     }
 
     setReferenceRanges((current) => ({
       ...current,
-      [sliceMode]: {
-        ...current[sliceMode],
-        appliedMin: draftMinReference,
-        appliedMax: draftMaxReference,
-        isManual: true,
-      },
+      [mode]: { ...current[mode], appliedMin: range.draftMin, appliedMax: range.draftMax, isManual: true },
     }));
   };
 
-  const handleReferenceKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key !== 'Enter') {
-      return;
+  const handleReferenceKeyDown = (mode: 'azimuth' | 'elevation') => (
+    event: KeyboardEvent<HTMLInputElement>,
+  ): void => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      applyReferenceRange(mode);
     }
-
-    event.preventDefault();
-    applyReferenceRange();
   };
 
-  const radialRange = useMemo<[number, number] | undefined>(() => {
-    const parsedMinReference = Number(appliedMinReference);
-    const parsedMaxReference = Number(appliedMaxReference);
-
-    if (
-      !Number.isFinite(parsedMinReference)
-      || !Number.isFinite(parsedMaxReference)
-      || parsedMinReference >= parsedMaxReference
-    ) {
-      return undefined;
-    }
-
-    return [parsedMinReference, parsedMaxReference];
-  }, [appliedMaxReference, appliedMinReference]);
-
-  const radialStep = useMemo(() => {
-    if (radialRange) {
-      return getNiceStep(radialRange[1] - radialRange[0]);
-    }
-
-    return autoScale.step;
-  }, [autoScale.step, radialRange]);
+  const selectedMetric = metricOptions.find((option) => option.key === metric) ?? metricOptions[0];
+  const elevationLabel = elevationVariant === 'elevation2' ? 'Elevation 2' : 'Elevation 1';
 
   return (
     <section className="graph-viewer-page" aria-label="2D Graph Viewer">
-      <GraphUploadCard
-        description="Choose a TXT measurement export to generate a 2D theta slice."
-        mode="graph2d"
-        title="Upload Graph Data"
-        onFileSelected={handleGraphFileSelected}
-      />
+      <div className="workspace-shell workspace-shell--graph">
 
-      <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
-        <div className="graph-viewer-2d__hero">
-          <div className="graph-viewer-2d__hero-copy">
-            <div className="report-area-card__eyebrow">2D Graph Viewer</div>
-            <h1 className="graph-viewer-card__title">
-              {graphData2d?.fileName || 'Upload a TXT graph file to start'}
-            </h1>
-          </div>
+        {/* Sidebar */}
+        <div className="workspace-rail">
+          <section className="setup-section" aria-labelledby="graph2d-upload-title">
+            <div className="setup-section__intro">
+              <h2 id="graph2d-upload-title">Load Test Data</h2>
+            </div>
+            <GraphUploadCard
+              description="Drag & drop or click to upload"
+              mode="graph2d"
+              onFileSelected={handleGraphFileSelected}
+            />
+          </section>
 
-          <div className="graph-viewer-card__toolbar">
-            {sliceModeOptions.map((option) => (
-              <button
-                key={option.key}
-                className={`graph-viewer-card__metric-button${sliceMode === option.key ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => {
-                  setIsGraphLoading(true);
-                  setSliceMode(option.key);
+          <div className="setup-section">
+            <div className="setup-section__intro">
+              <h2>Graph Parameters</h2>
+            </div>
+
+            <label className="graph-viewer-2d__select-group">
+              <span>Select Theta Angle</span>
+              <select
+                value={thetaValue ?? ''}
+                onChange={(event) => {
+                  setSelectedTheta(Number(event.target.value));
+                  setReferenceRanges((c) => ({
+                    azimuth: { ...c.azimuth, isManual: false },
+                    elevation: { ...c.elevation, isManual: false },
+                  }));
                 }}
               >
-                {option.label}
-              </button>
-            ))}
-            {metricOptions.map((option) => (
-              <button
-                key={option.key}
-                className={`graph-viewer-card__metric-button${metric === option.key ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => {
-                  setIsGraphLoading(true);
-                  setMetric(option.key);
+                {(graphData2d?.thetaValues ?? []).map((theta) => (
+                  <option key={theta} value={theta}>
+                    {theta} deg
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="graph-viewer-2d__select-group">
+              <span>Select Polarity</span>
+              <select
+                value={metric}
+                onChange={(event) => {
+                  setMetric(event.target.value as GraphMetric);
+                  setReferenceRanges((c) => ({
+                    azimuth: { ...c.azimuth, isManual: false },
+                    elevation: { ...c.elevation, isManual: false },
+                  }));
                 }}
               >
-                {option.label}
-              </button>
-            ))}
+                {metricOptions.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="graph-viewer-2d__select-group">
+              <span>Select Elevation</span>
+              <select
+                value={elevationVariant}
+                onChange={(event) => {
+                  setElevationVariant(event.target.value as ElevationVariant);
+                  setReferenceRanges((c) => ({
+                    azimuth: { ...c.azimuth, isManual: false },
+                    elevation: { ...c.elevation, isManual: false },
+                  }));
+                }}
+              >
+                {elevationVariantOptions.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+
+          <div className="setup-section">
+            <div className="setup-section__intro">
+              <h2>Graph Colors</h2>
+            </div>
+            <div className="graph-viewer-2d__colors-row">
+              <label className="graph-viewer-2d__color-field">
+                <input
+                  aria-label="Azimuth graph color"
+                  type="color"
+                  value={graphColor}
+                  onChange={(event) => {
+                    setIsColorUpdate(true);
+                    setGraphColor(event.target.value);
+                    window.setTimeout(() => setIsColorUpdate(false), 0);
+                  }}
+                />
+                <span>Azimuth</span>
+              </label>
+              <label className="graph-viewer-2d__color-field">
+                <input
+                  aria-label="Elevation graph color"
+                  type="color"
+                  value={elevationGraphColor}
+                  onChange={(event) => {
+                    setElevationGraphColor(event.target.value);
+                  }}
+                />
+                <span>Elevation</span>
+              </label>
+            </div>
+          </div>
+
         </div>
 
-        <div className="graph-viewer-2d__stats-grid">
-          <div className="report-area-card__action">
-            <RadioTower aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Frequency</small>
-              <span>{graphData2d?.frequency || 'Frequency pending'}</span>
-            </div>
-          </div>
-          <div className="report-area-card__action">
-            {sliceMode === 'elevation' ? <MoveVertical aria-hidden="true" /> : <Crosshair aria-hidden="true" />}
-            <div className="report-area-card__action-copy">
-              <small>Theta Slice</small>
-              <span>
-                {sliceMode === 'elevation'
-                  ? `${ELEVATION_THETA_DEGREES} deg`
-                  : thetaValue !== null
-                    ? `${thetaValue} deg`
-                    : 'Slice pending'}
-              </span>
-            </div>
-          </div>
-          <div className="report-area-card__action">
-            <Radar aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Max Slice</small>
-              <span>{formatDbm(maxSliceValue)}</span>
-            </div>
-          </div>
-          <div className="report-area-card__action">
-            <ChartColumnBig aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Avg Slice</small>
-              <span>{formatDbm(averageSliceValue)}</span>
-            </div>
-          </div>
-        </div>
+        {/* Main content – dual plots */}
+        <div className="workspace-main workspace-main--visual">
+          <div className="graph-viewer-2d__dual-plots">
 
-        {graphData2d && polarPoints.length > 0 && (sliceMode === 'elevation' || thetaValue !== null && selectedSlice.length > 0) ? (
-          <section className="graph-viewer-2d__analysis-card">
-            <div className="graph-viewer-2d__analysis-header">
-              <div>
+            {/* Azimuth */}
+            <div className="graph-viewer-2d__plot-column">
+              <div className="graph-viewer-2d__plot-header">
                 <h2>
-                  {sliceMode === 'elevation'
-                    ? `${selectedMetric.label} ${elevationVariant === 'elevation2' ? 'Elvation 2' : 'Elvation 1'} at theta ${ELEVATION_THETA_DEGREES} deg`
-                    : `${selectedMetric.label} Azimuth at theta ${thetaValue} deg`}
+                  {`Azimuth (${selectedMetric.label}) at \u03B8 = ${thetaValue ?? ELEVATION_THETA_DEGREES}.00\u00B0`}
                 </h2>
               </div>
-            </div>
 
-            <div className="graph-viewer-2d__analysis-body">
-              <div className="graph-viewer-2d__plot-shell">
-                <GraphPolarPlot
-                  color={graphColor}
-                  isInteractiveUpdate={isColorUpdate}
-                  maxReferenceLabel={appliedMaxReference}
-                  metric={metric}
-                  minReferenceLabel={appliedMinReference}
-                  onRenderStateChange={setIsGraphLoading}
-                  points={polarPoints}
-                  radialRange={radialRange}
-                  radialStep={radialStep}
-                />
-              </div>
-
-              <aside className="graph-viewer-2d__aside">
-                {sliceMode === 'azimuth' ? (
-                  <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                    <div className="panel-card__header panel-card__header--metadata">
-                      <span>Theta Angle</span>
-                    </div>
-                    <div className="graph-viewer-2d__side-body">
-                      <label className="graph-viewer-2d__select-group">
-                        <select
-                          value={thetaValue ?? ''}
-                          onChange={(event) => {
-                            setIsGraphLoading(true);
-                            setSelectedTheta(Number(event.target.value));
-                          }}
-                        >
-                          {(graphData2d?.thetaValues ?? []).map((theta) => (
-                            <option key={theta} value={theta}>
-                              {theta} deg
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
-                  </div>
+              <div className="graph-viewer-2d__plot-shell graph-viewer-2d__plot-shell--workspace">
+                {graphData2d && azimuthPoints.length > 0 ? (
+                  <GraphPolarPlot
+                    color={graphColor}
+                    isInteractiveUpdate={isColorUpdate}
+                    maxReferenceLabel={azimuthRange.appliedMax}
+                    metric={metric}
+                    minReferenceLabel={azimuthRange.appliedMin}
+                    onRenderStateChange={setIsGraphLoading}
+                    points={azimuthPoints}
+                    radialRange={azimuthRadialRange}
+                    radialStep={azimuthRadialStep}
+                  />
                 ) : (
-                  <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                    <div className="panel-card__header panel-card__header--metadata">
-                      <span>Elvation</span>
-                    </div>
-                    <div className="graph-viewer-2d__side-body">
-                      <label className="graph-viewer-2d__select-group">
-                        <select
-                          value={elevationVariant}
-                          onChange={(event) => {
-                            setIsGraphLoading(true);
-                            setElevationVariant(event.target.value as ElevationVariant);
-                          }}
-                        >
-                          {elevationVariantOptions.map((option) => (
-                            <option key={option.key} value={option.key}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
+                  <div className="graph-viewer-card__empty">
+                    {graphData2d
+                      ? 'No azimuth slice data for the selected theta angle.'
+                      : 'Upload a measurement TXT file to generate plots.'}
                   </div>
                 )}
+              </div>
 
-                <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                  <div className="panel-card__header panel-card__header--metadata">
-                    <span>Reference Range</span>
-                  </div>
-                  <div className="graph-viewer-2d__side-body">
-                    <div className="graph-viewer-2d__reference-grid">
-                      <label className="graph-viewer-2d__field">
-                        <span>Max Reference</span>
-                        <input
-                          type="number"
-                          value={draftMaxReference}
-                          onChange={(event) => handleReferenceChange('draftMax', event)}
-                          onKeyDown={handleReferenceKeyDown}
-                        />
-                      </label>
-                      <label className="graph-viewer-2d__field">
-                        <span>Min Reference</span>
-                        <input
-                          type="number"
-                          value={draftMinReference}
-                          onChange={(event) => handleReferenceChange('draftMin', event)}
-                          onKeyDown={handleReferenceKeyDown}
-                        />
-                      </label>
-                    </div>
-                    <p className="graph-viewer-2d__reference-hint">
-                      Press Enter to update graph
-                    </p>
-                  </div>
+              <div className="graph-viewer-2d__ref-row">
+                <div className="graph-viewer-2d__ref-inputs">
+                  <label className="graph-viewer-2d__ref-input-group">
+                    <span className="graph-viewer-2d__ref-item-label">Max Reference</span>
+                    <input
+                      className="graph-viewer-2d__ref-input"
+                      type="number"
+                      value={azimuthRange.draftMax}
+                      onChange={(e) => handleReferenceChange('azimuth', 'draftMax', e)}
+                      onKeyDown={handleReferenceKeyDown('azimuth')}
+                    />
+                  </label>
+                  <label className="graph-viewer-2d__ref-input-group">
+                    <span className="graph-viewer-2d__ref-item-label">Min Reference</span>
+                    <input
+                      className="graph-viewer-2d__ref-input"
+                      type="number"
+                      value={azimuthRange.draftMin}
+                      onChange={(e) => handleReferenceChange('azimuth', 'draftMin', e)}
+                      onKeyDown={handleReferenceKeyDown('azimuth')}
+                    />
+                  </label>
                 </div>
+              </div>
 
-                <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                  <div className="panel-card__header panel-card__header--metadata">
-                    <span>Graph Data</span>
-                  </div>
-                  <div className="graph-viewer-2d__side-body">
-                    <table className="graph-viewer-2d__power-table">
-                      <tbody>
-                        <tr>
-                          <th scope="row">Min Power</th>
-                          <td>{formatDbm(minSliceValue)}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Max Power</th>
-                          <td>{formatDbm(maxSliceValue)}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Average Power</th>
-                          <td>{formatDbm(averageSliceValue)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div className="panel-card panel-card--metadata graph-viewer-2d__side-card">
-                  <div className="panel-card__header panel-card__header--metadata">
-                    <span>Graph Color</span>
-                  </div>
-                  <div className="graph-viewer-2d__side-body">
-                    <label className="graph-viewer-2d__color-field">
-                      <input
-                        aria-label="Graph color"
-                        type="color"
-                        value={graphColor}
-                        onChange={(event) => {
-                          setIsColorUpdate(true);
-                          setGraphColor(event.target.value);
-                          window.setTimeout(() => setIsColorUpdate(false), 0);
-                        }}
-                      />
-                      <span>{graphColor.toUpperCase()}</span>
-                    </label>
-                  </div>
-                </div>
-              </aside>
+              <table className="graph-viewer-2d__power-table">
+                <thead>
+                  <tr>
+                    <th />
+                    <th scope="col">Power [dBm]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Min Power</th>
+                    <td>{formatDbm(minAzimuth)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Max Power</th>
+                    <td>{formatDbm(maxAzimuth)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Average Power</th>
+                    <td>{formatDbm(avgAzimuth)}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </section>
-        ) : graphData2d ? (
-          <div className="graph-viewer-card__empty">
-            {sliceMode === 'elevation'
-              ? `Elevation view at theta ${ELEVATION_THETA_DEGREES} deg is not available for this file format yet.`
-              : 'No azimuth slice data is available for the selected theta angle.'}
+
+            {/* Elevation */}
+            <div className="graph-viewer-2d__plot-column">
+              <div className="graph-viewer-2d__plot-header">
+                <h2>{`${elevationLabel} (${selectedMetric.label})`}</h2>
+              </div>
+
+              <div className="graph-viewer-2d__plot-shell graph-viewer-2d__plot-shell--workspace">
+                {graphData2d && elevationPoints.length > 0 ? (
+                  <GraphPolarPlot
+                    color={elevationGraphColor}
+                    isInteractiveUpdate={false}
+                    maxReferenceLabel={elevationRange.appliedMax}
+                    metric={metric}
+                    minReferenceLabel={elevationRange.appliedMin}
+                    onRenderStateChange={setIsGraphLoading}
+                    points={elevationPoints}
+                    radialRange={elevationRadialRange}
+                    radialStep={elevationRadialStep}
+                  />
+                ) : (
+                  <div className="graph-viewer-card__empty">
+                    {graphData2d
+                      ? `${elevationLabel} data is not available for this file format.`
+                      : 'Upload a measurement TXT file to generate plots.'}
+                  </div>
+                )}
+              </div>
+
+              <div className="graph-viewer-2d__ref-row">
+                <div className="graph-viewer-2d__ref-inputs">
+                  <label className="graph-viewer-2d__ref-input-group">
+                    <span className="graph-viewer-2d__ref-item-label">Max Reference</span>
+                    <input
+                      className="graph-viewer-2d__ref-input"
+                      type="number"
+                      value={elevationRange.draftMax}
+                      onChange={(e) => handleReferenceChange('elevation', 'draftMax', e)}
+                      onKeyDown={handleReferenceKeyDown('elevation')}
+                    />
+                  </label>
+                  <label className="graph-viewer-2d__ref-input-group">
+                    <span className="graph-viewer-2d__ref-item-label">Min Reference</span>
+                    <input
+                      className="graph-viewer-2d__ref-input"
+                      type="number"
+                      value={elevationRange.draftMin}
+                      onChange={(e) => handleReferenceChange('elevation', 'draftMin', e)}
+                      onKeyDown={handleReferenceKeyDown('elevation')}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <table className="graph-viewer-2d__power-table">
+                <thead>
+                  <tr>
+                    <th />
+                    <th scope="col">Power [dBm]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Min Power</th>
+                    <td>{formatDbm(minElevation)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Max Power</th>
+                    <td>{formatDbm(maxElevation)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Average Power</th>
+                    <td>{formatDbm(avgElevation)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
           </div>
-        ) : (
-          <div className="graph-viewer-card__empty">
-            Upload a measurement TXT file to generate a 2D theta/polarity slice.
-          </div>
-        )}
-      </article>
+        </div>
+      </div>
     </section>
   );
 }

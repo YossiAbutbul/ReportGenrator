@@ -1,5 +1,5 @@
 :root {
-  --color-page-bg: #e8edf5;
+  --color-page-bg: #fff;
   --color-shell-bg: rgba(255, 255, 255, 0.94);
   --color-panel-bg: #ffffff;
   --color-panel-tint: #fbfcff;
@@ -62,7 +62,7 @@
   --radius-full: 999rem;
 
   --border-thin: 0.0625rem;
-  --sidebar-width: 13.75rem;
+  --sidebar-width: 21rem;
   --summary-width: 10rem;
   --shell-max-width: 90rem;
   --shell-frame-height: calc(100dvh - 1.5rem);

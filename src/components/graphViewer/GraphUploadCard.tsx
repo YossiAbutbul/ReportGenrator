@@ -5,7 +5,7 @@ import type {
   RefObject,
 } from 'react';
 import { useRef, useState } from 'react';
-import { ChartColumnBig, FileUp } from 'lucide-react';
+import { FileText, Upload } from 'lucide-react';
 import { useAppStore } from '../../store/store';
 
 type GraphUploadCardProps = {
@@ -22,10 +22,9 @@ function openFileDialog(inputRef: RefObject<HTMLInputElement | null>): void {
 }
 
 export function GraphUploadCard({
-  description = 'Choose a TXT measurement export to generate a 3D graph preview',
+  description = 'Drag & drop or click to upload',
   mode = 'graph3d',
   onFileSelected,
-  title = 'Upload Graph Data',
 }: GraphUploadCardProps): ReactElement {
   const {
     graph3d,
@@ -92,18 +91,24 @@ export function GraphUploadCard({
         onChange={handleInputChange}
       />
 
-      <div className="upload-card__icon" aria-hidden="true">
-        <ChartColumnBig aria-hidden="true" />
-      </div>
-
-      <div className="upload-card__copy">
-        <h1>{title}</h1>
-        <div className="upload-card__status">
-          <p className={selectedFileName ? 'upload-card__file-text' : ''}>
-            {selectedFileName || description}
-          </p>
-        </div>
-      </div>
+      <button
+        className="upload-card__drop-zone"
+        type="button"
+        aria-label="Click or drag to upload a TXT file"
+        onClick={() => openFileDialog(inputRef)}
+      >
+        {selectedFileName ? (
+          <>
+            <FileText className="upload-card__drop-icon upload-card__drop-icon--file" aria-hidden="true" />
+            <span className="upload-card__file-name">{selectedFileName}</span>
+          </>
+        ) : (
+          <>
+            <Upload className="upload-card__drop-icon" aria-hidden="true" />
+            <span className="upload-card__drop-hint">{description}</span>
+          </>
+        )}
+      </button>
 
       <div className="upload-card__actions">
         <button
@@ -111,8 +116,8 @@ export function GraphUploadCard({
           type="button"
           onClick={() => openFileDialog(inputRef)}
         >
-          <FileUp aria-hidden="true" />
-          <span>Choose TXT File</span>
+          <FileText aria-hidden="true" />
+          <span>Choose File</span>
         </button>
       </div>
     </div>

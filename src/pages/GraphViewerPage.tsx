@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import {
   ChartColumnBig,
   Home,
@@ -107,146 +107,153 @@ export function GraphViewerPage(): ReactElement {
 
   return (
     <section className="graph-viewer-page" aria-label="3D Graph Viewer">
-      <GraphUploadCard mode="graph3d" onFileSelected={handleGraphFileSelected} />
+      <div className="workspace-shell workspace-shell--graph">
+        <div className="workspace-rail">
+          <GraphUploadCard mode="graph3d" onFileSelected={handleGraphFileSelected} />
 
-      <article className="panel-card graph-viewer-card graph-viewer-card--2d-dashboard">
-        <div className="graph-viewer-2d__hero">
-          <div className="graph-viewer-2d__hero-copy">
-            <div className="report-area-card__eyebrow">3D Graph Viewer</div>
-            <h1 className="graph-viewer-card__title">
-              {graphData?.fileName || 'Upload a TXT graph file to start'}
-            </h1>
-          </div>
+          <article className="panel-card graph-viewer-card graph-viewer-card--left-rail">
+            <div className="graph-viewer-2d__hero">
+              <div className="graph-viewer-2d__hero-copy">
+                <div className="report-area-card__eyebrow">3D Graph Viewer</div>
+                <h1 className="graph-viewer-card__title">
+                  {graphData?.fileName || 'Upload a TXT graph file to start'}
+                </h1>
+              </div>
 
-          <div className="graph-viewer-card__toolbar">
-            {metricOptions.map((option) => (
-              <button
-                key={option.key}
-                className={`graph-viewer-card__metric-button${metric === option.key ? ' is-active' : ''}`}
-                type="button"
-                onClick={() => {
-                  setIsGraphLoading(true);
-                  setMetric(option.key);
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+              <div className="graph-viewer-card__toolbar">
+                {metricOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    className={`graph-viewer-card__metric-button${metric === option.key ? ' is-active' : ''}`}
+                    type="button"
+                    onClick={() => {
+                      setIsGraphLoading(true);
+                      setMetric(option.key);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="graph-viewer-card__stats graph-viewer-card__stats--rail">
+              <div className="report-area-card__action">
+                <RadioTower aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>Frequency</small>
+                  <span>{graphData?.frequency || 'Frequency pending'}</span>
+                </div>
+              </div>
+              <div className="report-area-card__action">
+                <ChartColumnBig aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>TRP</small>
+                  <span>{graphData?.calculatedTrp || 'TRP pending'}</span>
+                </div>
+              </div>
+              <div className="report-area-card__action report-area-card__action--stacked">
+                <Radar aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>Max Peak</small>
+                  <span>{graphData?.maxPeakWithVPolFactor || 'Max peak pending'}</span>
+                </div>
+              </div>
+              <div className="report-area-card__action">
+                <Layers3 aria-hidden="true" />
+                <div className="report-area-card__action-copy">
+                  <small>Samples Taken</small>
+                  <span>{graphData ? `${graphData.sampleCount}` : `${rowsWithGraphs}`}</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
 
-        <div className="graph-viewer-card__stats">
-          <div className="report-area-card__action">
-            <RadioTower aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Frequency</small>
-              <span>{graphData?.frequency || 'Frequency pending'}</span>
-            </div>
-          </div>
-          <div className="report-area-card__action">
-            <ChartColumnBig aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>TRP</small>
-              <span>{graphData?.calculatedTrp || 'TRP pending'}</span>
-            </div>
-          </div>
-          <div className="report-area-card__action report-area-card__action--stacked">
-            <Radar aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Max Peak</small>
-              <span>{graphData?.maxPeakWithVPolFactor || 'Max peak pending'}</span>
-            </div>
-          </div>
-          <div className="report-area-card__action">
-            <Layers3 aria-hidden="true" />
-            <div className="report-area-card__action-copy">
-              <small>Samples Taken</small>
-              <span>{graphData ? `${graphData.sampleCount}` : `${rowsWithGraphs}`}</span>
-            </div>
-          </div>
-        </div>
-
-        {graphData ? (
-          <section className="graph-viewer-2d__analysis-card">
+        <div className="workspace-main workspace-main--visual">
+          <article className="panel-card graph-viewer-card graph-viewer-card--canvas">
             <div className="graph-viewer-2d__analysis-header">
               <div>
+                <div className="report-area-card__eyebrow">Surface Canvas</div>
                 <h2>{`${metricOptions.find((option) => option.key === metric)?.label ?? 'Both-Pols'} 3D Surface`}</h2>
               </div>
             </div>
 
-            <div className="graph-viewer-3d__analysis-body">
-              <div className="graph-viewer-card__plot-shell">
-                {isGraphLoading ? (
-                  <div className="graph-viewer-card__loading" aria-live="polite">
-                    <span className="graph-viewer-card__spinner" aria-hidden="true" />
-                    <span>Loading 3D graph...</span>
-                  </div>
-                ) : null}
-                <div className="graph-viewer-card__controls">
-                  <button
-                    className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
-                    type="button"
-                    onClick={() => handleViewControlChange('pan')}
-                  >
-                    <Move aria-hidden="true" />
-                    <span>Pan</span>
-                  </button>
-                  <button
-                    className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
-                    type="button"
-                    onClick={() => handleViewControlChange('turntable')}
-                  >
-                    <RotateCw aria-hidden="true" />
-                    <span>Rotate</span>
-                  </button>
-                  <button
-                    className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
-                    type="button"
-                    onClick={() => handleViewControlChange('zoom')}
-                  >
-                    <Search aria-hidden="true" />
-                    <span>Zoom</span>
-                  </button>
-                  <button
-                    className="graph-viewer-card__control-button"
-                    type="button"
-                    onClick={handleResetView}
-                  >
-                    <Home aria-hidden="true" />
-                    <span>Reset</span>
-                  </button>
-                </div>
-                <div className="graph-viewer-card__plot-layout">
-                  <div className="graph-legend" aria-hidden="true">
-                    <div className="graph-legend__bar" />
-                    <div className="graph-legend__ticks">
-                      {legendTicks.map((tick) => (
-                        <span
-                          className="graph-legend__tick"
-                          key={tick.key}
-                          style={{ top: `${tick.offset}%` }}
-                        >
-                          {tick.value}
-                        </span>
-                      ))}
+            {graphData ? (
+              <div className="graph-viewer-3d__analysis-body graph-viewer-3d__analysis-body--workspace">
+                <div className="graph-viewer-card__plot-shell">
+                  {isGraphLoading ? (
+                    <div className="graph-viewer-card__loading" aria-live="polite">
+                      <span className="graph-viewer-card__spinner" aria-hidden="true" />
+                      <span>Loading 3D graph...</span>
                     </div>
+                  ) : null}
+                  <div className="graph-viewer-card__controls">
+                    <button
+                      className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
+                      type="button"
+                      onClick={() => handleViewControlChange('pan')}
+                    >
+                      <Move aria-hidden="true" />
+                      <span>Pan</span>
+                    </button>
+                    <button
+                      className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
+                      type="button"
+                      onClick={() => handleViewControlChange('turntable')}
+                    >
+                      <RotateCw aria-hidden="true" />
+                      <span>Rotate</span>
+                    </button>
+                    <button
+                      className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
+                      type="button"
+                      onClick={() => handleViewControlChange('zoom')}
+                    >
+                      <Search aria-hidden="true" />
+                      <span>Zoom</span>
+                    </button>
+                    <button
+                      className="graph-viewer-card__control-button"
+                      type="button"
+                      onClick={handleResetView}
+                    >
+                      <Home aria-hidden="true" />
+                      <span>Reset</span>
+                    </button>
                   </div>
-                  <GraphSurfacePlot
-                    graphData={graphData}
-                    metric={metric}
-                    onRenderStateChange={setIsGraphLoading}
-                    ref={graphPlotRef}
-                  />
+                  <div className="graph-viewer-card__plot-layout">
+                    <div className="graph-legend" aria-hidden="true">
+                      <div className="graph-legend__bar" />
+                      <div className="graph-legend__ticks">
+                        {legendTicks.map((tick) => (
+                          <span
+                            className="graph-legend__tick"
+                            key={tick.key}
+                            style={{ top: `${tick.offset}%` }}
+                          >
+                            {tick.value}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <GraphSurfacePlot
+                      graphData={graphData}
+                      metric={metric}
+                      onRenderStateChange={setIsGraphLoading}
+                      ref={graphPlotRef}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        ) : (
-          <div className="graph-viewer-card__empty">
-            Upload a measurement TXT file to generate an interactive 3D surface plot.
-          </div>
-        )}
-      </article>
+            ) : (
+              <div className="graph-viewer-card__empty">
+                Upload a measurement TXT file to generate an interactive 3D surface plot.
+              </div>
+            )}
+          </article>
+        </div>
+      </div>
     </section>
   );
 }

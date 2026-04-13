@@ -1,27 +1,58 @@
 import type { ReactElement } from 'react';
-import { Menu, X } from 'lucide-react';
+import { CircleHelp, FileText, Radar, Settings2, Shapes } from 'lucide-react';
+import type { AppPage } from '../../types/navigation';
 
 type ShellHeaderProps = {
-  isMobileNavOpen?: boolean;
-  onToggleMobileNav?: () => void;
+  activePage: AppPage;
+  onNavigate: (page: AppPage) => void;
+  onOpenHelp: () => void;
 };
 
 export function ShellHeader({
-  isMobileNavOpen = false,
-  onToggleMobileNav,
+  activePage,
+  onNavigate,
+  onOpenHelp,
 }: ShellHeaderProps): ReactElement {
+  const items: Array<{ key: AppPage; label: string; icon: typeof Settings2 }> = [
+    { key: 'reportSetup', label: 'Report Setup', icon: Settings2 },
+    { key: 'reportArea', label: 'Report Area', icon: FileText },
+    { key: 'graphViewer', label: '3D Graph', icon: Shapes },
+    { key: 'graphViewer2d', label: '2D Graph', icon: Radar },
+  ];
+  const activeIndex = items.findIndex((item) => item.key === activePage);
+
   return (
     <header className="shell-header">
       <div className="shell-header__brand">Test Report Generator</div>
-      <button
-        aria-expanded={isMobileNavOpen}
-        aria-label={isMobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
-        className="shell-header__menu-button"
-        type="button"
-        onClick={onToggleMobileNav}
+      <nav
+        className="shell-header__nav"
+        aria-label="Primary navigation"
+        style={{ ['--active-index' as string]: activeIndex }}
       >
-        {isMobileNavOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-      </button>
+        <span className="shell-header__nav-indicator" aria-hidden="true" />
+        {items.map((item) => (
+          <button
+            key={item.key}
+            className={`shell-header__nav-item${activePage === item.key ? ' is-active' : ''}`}
+            type="button"
+            onClick={() => onNavigate(item.key)}
+          >
+            <item.icon aria-hidden="true" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+      <div className="shell-header__actions">
+        <button
+          aria-label="Open help center"
+          className="shell-header__help-button"
+          type="button"
+          onClick={onOpenHelp}
+        >
+          <CircleHelp aria-hidden="true" />
+          <span>Help Center</span>
+        </button>
+      </div>
     </header>
   );
 }
