@@ -6,19 +6,19 @@
 
 <p align="center">
   <img
-    src="https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=28&duration=2800&pause=900&color=138D96&center=true&vCenter=true&width=820&lines=RF+reporting+workspace;3D+and+2D+measurement+inspection;Word-ready+report+generation"
+    src="https://readme-typing-svg.demolab.com?font=Montserrat&weight=800&size=28&duration=2800&pause=900&color=1A365D&center=true&vCenter=true&width=820&lines=RF+reporting+workspace;3D+radiation+pattern+analysis;Word-ready+report+generation"
     alt="Animated project banner"
   />
 </p>
 
 <p align="center">
-  A focused RF reporting workspace for turning measurement files into a clean report workflow,
-  interactive 3D inspection, and precise 2D azimuth/elevation analysis.
+  An RF reporting workspace for turning measurement files into structured reports,<br/>
+  interactive 3D radiation pattern inspection, and precise 2D azimuth/elevation analysis.
 </p>
 
 <p align="center">
   <a href="https://yossiabutbul.github.io/ReportGenrator/">
-    <img src="https://img.shields.io/badge/Live%20App-Open%20ReportGenrator-138D96?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open live app" />
+    <img src="https://img.shields.io/badge/Live%20App-Open%20ReportGenrator-1A365D?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open live app" />
   </a>
 </p>
 
@@ -26,76 +26,106 @@
   <img src="https://img.shields.io/badge/Vite-7.x-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/React-19.x-149ECA?style=for-the-badge&logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-2F74C0?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Plotly-3D%20%2B%202D-2C3E50?style=for-the-badge" alt="Plotly" />
+  <img src="https://img.shields.io/badge/Three.js-3D%20Engine-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" />
+  <img src="https://img.shields.io/badge/Plotly-2D%20Graphs-2C3E50?style=for-the-badge" alt="Plotly" />
   <img src="https://img.shields.io/badge/GitHub%20Pages-Auto%20Deploy-1F6FEB?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Pages" />
 </p>
 
 ---
 
-## Core Experience
+## Features
 
 ### Report Setup
-- Upload Excel or CSV source data
-- Edit report metadata
-- Search and filter table rows
-- Generate a stable report snapshot only when you choose to
+- Upload `.xlsx` / `.xlsm` workbooks with embedded 3D graph images
+- Edit report metadata (title, author, date, scope, firmware/hardware versions)
+- Search, filter, and preview table rows by unit type, ID, or frequency
+- Generate a document-ready report snapshot on demand
 
 ### Report Area
-- Review a document-style preview
-- See template-based pages like cover, setup, details, results, and notes
-- Export the generated report as Word
+- Document viewer with zoom controls (Ctrl+Scroll or toolbar), A4-style page layout
+- Page headers with report title and date, footers with page numbers
+- Upload unit placement photo (shown on test setup page, included in Word export)
+- Skeleton loading states with shimmer animation
+- Export as Word (.docx) with full formatting, images, and tables
 
 ### 3D Graph Viewer
-- Load TXT measurement exports
-- Inspect 3D graph data visually
-- Compare measurement behavior interactively
+- Load TXT measurement files (Howland WTL format)
+- Three.js-powered 3D radiation pattern surface with vertex-colored heatmap
+- Spherical wireframe grid (theta rings + phi meridians) rendered on the surface
+- Orbit controls: rotate (drag), zoom (scroll), pan (right-click)
+- Animated camera reset with spherical interpolation
+- Technical metadata panel: frequency, TRP, max peak, V-Pol factor, samples
+- Download current view as high-res PNG
+- Correct TRP calculation: power-sum in watts (not max)
 
 ### 2D Graph Viewer
-- Switch between `Azimuth` and `Elvation`
-- Support both `Elvation 1` and `Elvation 2`
-- Inspect `H-Pol`, `V-Pol`, and `Both-Pols`
-- Tune graph reference range independently for azimuth and elevation
-- Use reusable tooltip cards prepared for future 3D reuse
+- Azimuth and elevation polar plots with Plotly.js
+- Circular grid, spline interpolation, adaptive marker density
+- Switch between H-Pol, V-Pol, and Both-Pols (TRP power sum)
+- Adjustable reference range per slice mode
+- Min/max/average power statistics table
+- Blank radar charts as placeholders when no data loaded
+
+### Dark Mode
+- System-wide dark/light toggle with animated icon swap
+- Neutral charcoal palette (no blue tint)
+- Theme persists to localStorage, inline script prevents flash
+- 3D plot re-renders with correct background on toggle
+
+### Unified Design System
+- Consistent button styles across all pages (`#1A365D` primary)
+- Unified font sizes, heights, border-radius
+- Status bar with copyright and page count
+- Responsive filter panel with redesigned dropdowns
+- Help center with workflow guide and tips
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript 5 |
+| Build | Vite 7 |
+| 3D Engine | Three.js (surface mesh + wireframe + OrbitControls) |
+| 2D Charts | Plotly.js (polar/radar plots) |
+| Excel Parsing | ExcelJS + JSZip |
+| Word Export | JSZip (DOCX template manipulation) |
+| Icons | Lucide React |
+| Hosting | GitHub Pages (auto deploy) |
 
 ---
 
 ## Local Development
 
-### 1. Install dependencies
-
 ```bash
+# Install dependencies
 npm install
-```
 
-### 2. Start the app
-
-```bash
+# Start dev server
 npm run dev
-```
 
-### 3. Run tests
-
-```bash
+# Run tests
 npm run test
-```
 
-### 4. Create a production build
-
-```bash
+# Production build
 npm run build
 ```
 
 ---
 
-## Vision
+## File Format Support
 
-The long-term goal is not just generating reports faster.
+### Report Workbook (`.xlsx` / `.xlsm`)
+Worksheets are parsed as unit types. Columns: Unit ID, Frequency, TRP (dBm), Peak (dBm). Embedded graph images are extracted automatically.
 
-It is building a tighter RF review environment where:
-
-- raw measurement files are easier to inspect
-- report structure is easier to trust
-- visual analysis is part of the reporting flow
-- export becomes the last step, not the first struggle
+### Measurement TXT (Howland WTL)
+Standard TRP measurement export with metadata headers and `Test Data Results` section containing theta, phi, H-Pol, and V-Pol columns. Supports both 15-degree and 5-degree resolution files.
 
 ---
+
+## Author
+
+**Yossi Abutbul** - RF Technician & BSc Computer Science Student
+
+[![GitHub](https://img.shields.io/badge/GitHub-YossiAbutbul-1A365D?style=flat-square&logo=github)](https://github.com/YossiAbutbul)
