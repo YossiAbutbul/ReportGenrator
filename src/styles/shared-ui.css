@@ -708,25 +708,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.25rem;
+  height: 1.25rem;
   padding: 0;
+  margin-right: -0.25rem;
   border: 0;
-  border-radius: 999rem;
-  background: #5c7494;
-  color: #ffffff;
+  border-radius: 0;
+  background: transparent;
+  color: #9aafc8;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: color 150ms ease;
 }
 
 .table-search__clear svg {
   width: 0.8rem;
   height: 0.8rem;
-  stroke: currentColor;
-  stroke-width: 2.6;
+  stroke-width: 2.5;
 }
 
 .table-search__clear:hover {
-  background: #4f6786;
+  color: #3d5272;
 }
 
 .filter-icon-button {
