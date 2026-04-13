@@ -1,21 +1,8 @@
 import type { ReactElement } from 'react';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useSyncExternalStore } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { GraphMetric, ParsedGraphFile } from '../../types/graphViewer';
-
-type PlotlyLike = {
-  newPlot: (
-    root: HTMLDivElement,
-    data: unknown[],
-    layout: Record<string, unknown>,
-    config: Record<string, unknown>,
-  ) => Promise<unknown>;
-  purge: (root: HTMLDivElement) => void;
-  relayout: (root: HTMLDivElement, update: Record<string, unknown>) => Promise<unknown>;
-  toImage: (root: HTMLDivElement, opts: Record<string, unknown>) => Promise<string>;
-  Plots?: {
-    resize: (root: HTMLDivElement) => void;
-  };
-};
 
 export type GraphSurfacePlotHandle = {
   resetView: () => void;
@@ -29,403 +16,325 @@ type GraphSurfacePlotProps = {
   onRenderStateChange?: (isRendering: boolean) => void;
 };
 
-const metricLabels: Record<GraphMetric, string> = {
-  combined: 'TRP (H+V)',
-  hPol: 'H-Pol',
-  vPol: 'V-Pol',
-};
+const COLORSCALE: Array<[number, THREE.Color]> = [
+  [0, new THREE.Color('#1e3a5f')],
+  [0.15, new THREE.Color('#2563eb')],
+  [0.35, new THREE.Color('#38bdf8')],
+  [0.5, new THREE.Color('#4ade80')],
+  [0.65, new THREE.Color('#facc15')],
+  [0.8, new THREE.Color('#f97316')],
+  [1, new THREE.Color('#dc2626')],
+];
 
-function toRadians(value: number): number {
-  return (value * Math.PI) / 180;
-}
-
-const DEFAULT_CAMERA = {
-  center: { x: 0, y: 0, z: 0 },
-  eye: { x: 1.08, y: 0.9, z: 0.7 },
-};
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
-
-function getAdaptiveCamera(plotWidth: number, plotHeight: number): typeof DEFAULT_CAMERA {
-  const safeWidth = Math.max(plotWidth, 1);
-  const safeHeight = Math.max(plotHeight, 1);
-  const widthRatio = clamp(safeWidth / 960, 0.55, 1.2);
-  const heightRatio = clamp(safeHeight / 720, 0.55, 1.2);
-  const compactness = 1 / Math.min(widthRatio, heightRatio);
-  const verticalCompactness = clamp(720 / safeHeight, 1, 1.65);
-  const distanceScale = clamp(Math.max(compactness, verticalCompactness) * 0.98, 0.94, 1.56);
-  const horizontalCenterOffset = safeWidth <= 480
-    ? -0.06
-    : safeWidth <= 640
-      ? -0.03
-      : 0;
-  const verticalCenterOffset = safeHeight <= 380
-    ? -0.05
-    : safeHeight <= 520
-      ? -0.025
-      : -0.005;
-
-  return {
-    center: { x: horizontalCenterOffset, y: 0, z: verticalCenterOffset },
-    eye: {
-      x: DEFAULT_CAMERA.eye.x * distanceScale,
-      y: DEFAULT_CAMERA.eye.y * distanceScale,
-      z: DEFAULT_CAMERA.eye.z * distanceScale * 1.04,
-    },
-  };
-}
-
-function getAdaptiveSceneDomain(plotHeight: number): { x: [number, number]; y: [number, number] } {
-  const safeHeight = Math.max(plotHeight, 1);
-  const compactness = clamp((720 - safeHeight) / 720, 0, 0.42);
-  const topPadding = clamp(0.015 + (compactness * 0.06), 0.015, 0.05);
-  const bottomPadding = clamp(0.02 + (compactness * 0.1), 0.02, 0.08);
-
-  return {
-    x: [0.01, 0.99],
-    y: [bottomPadding, 1 - topPadding],
-  };
-}
-
-export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(function GraphSurfacePlot({
-  graphData,
-  metric,
-  onRenderStateChange,
-}, ref): ReactElement {
-  const plotRef = useRef<HTMLDivElement | null>(null);
-  const plotlyRef = useRef<PlotlyLike | null>(null);
-  const currentDragModeRef = useRef<'turntable' | 'pan' | 'zoom'>('turntable');
-  const resizeFrameRef = useRef<number | null>(null);
-  const lastResizeRef = useRef<{ width: number; height: number } | null>(null);
-  const onRenderStateChangeRef = useRef(onRenderStateChange);
-  onRenderStateChangeRef.current = onRenderStateChange;
-  const metricGrid = graphData.zValues[metric];
-  const cartesianGeometry = useMemo(() => {
-    const numericValues = metricGrid.flat().filter((value) => Number.isFinite(value));
-    const minValue = Math.min(...numericValues);
-    const maxValue = Math.max(...numericValues);
-    const valueRange = Math.max(maxValue - minValue, 1);
-    const baseRadius = valueRange * 0.9;
-
-    const x = metricGrid.map((rowValues, rowIndex) =>
-      rowValues.map((value, columnIndex) => {
-        const theta = toRadians(graphData.thetaGrid[rowIndex][columnIndex]);
-        const phi = toRadians(graphData.phiGrid[rowIndex][columnIndex]);
-        const radius = baseRadius + (value - minValue);
-
-        return radius * Math.sin(theta) * Math.cos(phi);
-      }),
-    );
-
-    const y = metricGrid.map((rowValues, rowIndex) =>
-      rowValues.map((value, columnIndex) => {
-        const theta = toRadians(graphData.thetaGrid[rowIndex][columnIndex]);
-        const phi = toRadians(graphData.phiGrid[rowIndex][columnIndex]);
-        const radius = baseRadius + (value - minValue);
-
-        return radius * Math.sin(theta) * Math.sin(phi);
-      }),
-    );
-
-    const z = metricGrid.map((rowValues, rowIndex) =>
-      rowValues.map((value, columnIndex) => {
-        const theta = toRadians(graphData.thetaGrid[rowIndex][columnIndex]);
-        const radius = baseRadius + (value - minValue);
-
-        return radius * Math.cos(theta);
-      }),
-    );
-
-    return {
-      maxValue,
-      minValue,
-      surfaceColor: metricGrid,
-      x,
-      y,
-      z,
-    };
-  }, [graphData.phiGrid, graphData.thetaGrid, metricGrid]);
-
-  const getCurrentCamera = (): typeof DEFAULT_CAMERA => {
-    if (!plotRef.current) {
-      return DEFAULT_CAMERA;
+function sampleColorscale(t: number): THREE.Color {
+  const clamped = Math.max(0, Math.min(1, t));
+  for (let i = 1; i < COLORSCALE.length; i++) {
+    const [prevStop, prevColor] = COLORSCALE[i - 1];
+    const [currStop, currColor] = COLORSCALE[i];
+    if (clamped <= currStop) {
+      const ratio = (clamped - prevStop) / (currStop - prevStop);
+      return new THREE.Color().lerpColors(prevColor, currColor, ratio);
     }
+  }
+  return COLORSCALE[COLORSCALE.length - 1][1].clone();
+}
 
-    return getAdaptiveCamera(plotRef.current.clientWidth, plotRef.current.clientHeight);
-  };
+function getThemeSnapshot(): string {
+  return document.documentElement.getAttribute('data-theme') ?? 'light';
+}
 
-  useEffect(() => {
-    let isCancelled = false;
-    let plotly: PlotlyLike | null = null;
-    const originalGetContext = HTMLCanvasElement.prototype.getContext;
-    onRenderStateChangeRef.current?.(true);
+function subscribeTheme(callback: () => void): () => void {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+}
 
-    HTMLCanvasElement.prototype.getContext = (function patchedGetContext(
-      this: HTMLCanvasElement,
-      contextId: string,
-      options?: unknown,
-    ) {
-      if (contextId === '2d') {
-        return originalGetContext.call(this, contextId, {
-          ...(typeof options === 'object' && options !== null ? options : {}),
-          willReadFrequently: true,
-        });
+export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(
+  function GraphSurfacePlot({ graphData, metric, onRenderStateChange }, ref): ReactElement {
+    const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot);
+    const isDark = theme === 'dark';
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+    const sceneRef = useRef<THREE.Scene | null>(null);
+    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+    const controlsRef = useRef<OrbitControls | null>(null);
+    const frameRef = useRef<number>(0);
+    const onRenderStateChangeRef = useRef(onRenderStateChange);
+    onRenderStateChangeRef.current = onRenderStateChange;
+
+    const metricGrid = graphData.zValues[metric];
+
+    const geometry = useMemo(() => {
+      const numericValues = metricGrid.flat().filter((v) => Number.isFinite(v));
+      const minValue = Math.min(...numericValues);
+      const maxValue = Math.max(...numericValues);
+      const valueRange = Math.max(maxValue - minValue, 1);
+      const baseRadius = valueRange * 0.9;
+      const rows = metricGrid.length;
+      const cols = metricGrid[0]?.length ?? 0;
+
+      // Build vertices + colors
+      const positions: number[] = [];
+      const colors: number[] = [];
+      const indices: number[] = [];
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const value = metricGrid[row][col];
+          const theta = (graphData.thetaGrid[row][col] * Math.PI) / 180;
+          const phi = (graphData.phiGrid[row][col] * Math.PI) / 180;
+          const radius = baseRadius + (value - minValue);
+
+          const x = radius * Math.sin(theta) * Math.cos(phi);
+          const y = radius * Math.cos(theta);
+          const z = radius * Math.sin(theta) * Math.sin(phi);
+
+          positions.push(x, y, z);
+
+          const t = (value - minValue) / valueRange;
+          const color = sampleColorscale(t);
+          colors.push(color.r, color.g, color.b);
+        }
       }
 
-      return originalGetContext.call(this, contextId, options);
-    }) as typeof HTMLCanvasElement.prototype.getContext;
-
-    async function renderPlot(): Promise<(() => void) | void> {
-      if (!plotRef.current) {
-        return;
+      // Build triangles
+      for (let row = 0; row < rows - 1; row++) {
+        for (let col = 0; col < cols - 1; col++) {
+          const a = row * cols + col;
+          const b = row * cols + col + 1;
+          const c = (row + 1) * cols + col;
+          const d = (row + 1) * cols + col + 1;
+          indices.push(a, b, d);
+          indices.push(a, d, c);
+        }
       }
 
-      const plotlyModule = await import('plotly.js-dist-min');
+      // Build wireframe lines (theta rings + phi meridians)
+      // Each line segment = 2 vertices (start, end) for LineSegments
+      const wirePositions: number[] = [];
 
-      if (isCancelled || !plotRef.current) {
-        return;
-      }
-
-      plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
-      plotlyRef.current = plotly;
-      const defaultCamera = getCurrentCamera();
-      const sceneDomain = getAdaptiveSceneDomain(plotRef.current.clientHeight);
-
-      await plotly.newPlot(
-        plotRef.current,
-        [
-          {
-            type: 'surface',
-            x: cartesianGeometry.x,
-            y: cartesianGeometry.y,
-            z: cartesianGeometry.z,
-            surfacecolor: cartesianGeometry.surfaceColor,
-            colorscale: [
-              [0, '#1e3a5f'],
-              [0.15, '#2563eb'],
-              [0.35, '#38bdf8'],
-              [0.5, '#4ade80'],
-              [0.65, '#facc15'],
-              [0.8, '#f97316'],
-              [1, '#dc2626'],
-            ],
-            showscale: false,
-            contours: {
-              x: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                show: true,
-              },
-              y: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                show: true,
-              },
-              z: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                highlightcolor: 'rgba(0, 0, 0, 0)',
-                show: true,
-                usecolormap: false,
-              },
-            },
-            cmin: cartesianGeometry.minValue,
-            cmax: cartesianGeometry.maxValue,
-            lighting: {
-              ambient: 0.55,
-              diffuse: 1,
-              fresnel: 0.2,
-              roughness: 0.35,
-              specular: 0.4,
-            },
-            lightposition: {
-              x: 1.5,
-              y: 1,
-              z: 1.2,
-            },
-            hoverinfo: 'skip',
-          },
-        ],
-        {
-          autosize: true,
-          margin: {
-            b: 0,
-            l: 0,
-            r: 0,
-            t: 0,
-          },
-          paper_bgcolor: 'transparent',
-          plot_bgcolor: 'transparent',
-          scene: {
-            aspectmode: 'cube',
-            bgcolor: 'rgba(255,255,255,0)',
-            camera: {
-              ...defaultCamera,
-            },
-            domain: sceneDomain,
-            xaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
-              showbackground: false,
-              showgrid: false,
-              showline: false,
-              spikesides: false,
-              showspikes: false,
-              showticklabels: false,
-              title: { text: '' },
-              zeroline: false,
-            },
-            yaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
-              showbackground: false,
-              showgrid: false,
-              showline: false,
-              spikesides: false,
-              showspikes: false,
-              showticklabels: false,
-              title: { text: '' },
-              zeroline: false,
-            },
-            zaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
-              showbackground: false,
-              showgrid: false,
-              showline: false,
-              spikesides: false,
-              showspikes: false,
-              showticklabels: false,
-              title: { text: '' },
-              zeroline: false,
-            },
-          },
-        },
-        {
-          displaylogo: false,
-          displayModeBar: false,
-          responsive: true,
-          staticPlot: false,
-        },
-      );
-
-      const handleWindowResize = (): void => {
-        const root = plotRef.current;
-
-        if (!root || !plotly?.Plots) {
-          return;
-        }
-
-        const width = Math.round(root.clientWidth);
-        const height = Math.round(root.clientHeight);
-        const previousSize = lastResizeRef.current;
-
-        if (
-          previousSize
-          && previousSize.width === width
-          && previousSize.height === height
-        ) {
-          return;
-        }
-
-        lastResizeRef.current = { width, height };
-
-        if (resizeFrameRef.current !== null) {
-          window.cancelAnimationFrame(resizeFrameRef.current);
-        }
-
-        resizeFrameRef.current = window.requestAnimationFrame(() => {
-          resizeFrameRef.current = null;
-
-          if (!plotRef.current || !plotly?.Plots) {
-            return;
-          }
-
-          plotly.Plots.resize(plotRef.current);
-        });
+      const v = (row: number, col: number): [number, number, number] => {
+        const i = (row * cols + col) * 3;
+        return [positions[i], positions[i + 1], positions[i + 2]];
       };
 
-      window.addEventListener('resize', handleWindowResize);
+      // Theta rings — every row (latitude circles)
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const nextCol = (col + 1) % cols;
+          const [ax, ay, az] = v(row, col);
+          const [bx, by, bz] = v(row, nextCol);
+          wirePositions.push(ax, ay, az, bx, by, bz);
+        }
+      }
+
+      // Phi meridians — every ~15 degrees (longitude lines)
+      const meridianStep = Math.max(1, Math.round(cols / 24));
+      for (let col = 0; col < cols; col += meridianStep) {
+        for (let row = 0; row < rows - 1; row++) {
+          const [ax, ay, az] = v(row, col);
+          const [bx, by, bz] = v(row + 1, col);
+          wirePositions.push(ax, ay, az, bx, by, bz);
+        }
+      }
+
+      // Compute bounding radius for camera positioning
+      let maxRadius = 0;
+      for (let i = 0; i < positions.length; i += 3) {
+        const r = Math.sqrt(positions[i] ** 2 + positions[i + 1] ** 2 + positions[i + 2] ** 2);
+        if (r > maxRadius) maxRadius = r;
+      }
+
+      return { positions, colors, indices, wirePositions, minValue, maxValue, maxRadius };
+    }, [graphData.phiGrid, graphData.thetaGrid, metricGrid]);
+
+    // Setup scene
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      onRenderStateChangeRef.current?.(true);
+
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
+
+      // Scene
+      const scene = new THREE.Scene();
+      sceneRef.current = scene;
+
+      // Camera
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        container.clientWidth / container.clientHeight,
+        0.1,
+        geometry.maxRadius * 20,
+      );
+      const camDist = geometry.maxRadius * 2.8;
+      camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+      camera.lookAt(0, 0, 0);
+      cameraRef.current = camera;
+
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.rotateSpeed = 0.8;
+      controls.zoomSpeed = 1.0;
+      controls.panSpeed = 0.6;
+      controls.enablePan = true;
+      controlsRef.current = controls;
+
+      // Lighting — scaled by theme
+      const ld = geometry.maxRadius * 2;
+      const ambientIntensity = isDark ? 2.0 : 3.0;
+      const dirIntensity = isDark ? 0.3 : 0.5;
+      const ambientLight = new THREE.AmbientLight(0xffffff, ambientIntensity);
+      scene.add(ambientLight);
+
+      const lightPositions: [number, number, number][] = [
+        [ld, ld, ld],
+        [-ld, ld, -ld],
+        [ld, -ld, -ld],
+        [-ld, -ld, ld],
+        [0, ld * 1.5, 0],
+        [0, -ld * 1.5, 0],
+      ];
+
+      for (const pos of lightPositions) {
+        const light = new THREE.DirectionalLight(0xffffff, dirIntensity);
+        light.position.set(...pos);
+        scene.add(light);
+      }
+
+      // Surface mesh
+      const surfaceGeom = new THREE.BufferGeometry();
+      surfaceGeom.setAttribute('position', new THREE.Float32BufferAttribute(geometry.positions, 3));
+      surfaceGeom.setAttribute('color', new THREE.Float32BufferAttribute(geometry.colors, 3));
+      surfaceGeom.setIndex(geometry.indices);
+      surfaceGeom.computeVertexNormals();
+
+      const surfaceMat = new THREE.MeshLambertMaterial({
+        vertexColors: true,
+        side: THREE.DoubleSide,
+      });
+
+      const surfaceMesh = new THREE.Mesh(surfaceGeom, surfaceMat);
+      scene.add(surfaceMesh);
+
+      // Wireframe grid lines
+      const wireGeom = new THREE.BufferGeometry();
+      wireGeom.setAttribute('position', new THREE.Float32BufferAttribute(geometry.wirePositions, 3));
+
+      const wireMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(0x102040),
+        opacity: 0.4,
+        transparent: true,
+        depthTest: true,
+      });
+
+      const wireLines = new THREE.LineSegments(wireGeom, wireMat);
+      scene.add(wireLines);
+
+      // Animation loop
+      function animate(): void {
+        frameRef.current = requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      frameRef.current = requestAnimationFrame(animate);
+
+      // Resize
+      const resizeObserver = new ResizeObserver(() => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w === 0 || h === 0) return;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+      resizeObserver.observe(container);
+
       onRenderStateChangeRef.current?.(false);
 
       return () => {
-        window.removeEventListener('resize', handleWindowResize);
+        resizeObserver.disconnect();
+        cancelAnimationFrame(frameRef.current);
+        controls.dispose();
+        renderer.dispose();
+        surfaceGeom.dispose();
+        surfaceMat.dispose();
+        wireGeom.dispose();
+        wireMat.dispose();
+        if (container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement);
+        }
+        rendererRef.current = null;
+        sceneRef.current = null;
+        cameraRef.current = null;
+        controlsRef.current = null;
       };
-    }
+    }, [geometry, isDark]);
 
-    let detachResizeListener: (() => void) | undefined;
-
-    void renderPlot().then((cleanup) => {
-      if (typeof cleanup === 'function') {
-        detachResizeListener = cleanup;
+    // Update background on theme change
+    useEffect(() => {
+      const renderer = rendererRef.current;
+      if (!renderer) return;
+      if (isDark) {
+        renderer.setClearColor(0x0f1219, 1);
+      } else {
+        renderer.setClearColor(0x000000, 0);
       }
-    });
+    }, [isDark]);
 
-    return () => {
-      isCancelled = true;
-      detachResizeListener?.();
-      if (resizeFrameRef.current !== null) {
-        window.cancelAnimationFrame(resizeFrameRef.current);
-        resizeFrameRef.current = null;
-      }
-      lastResizeRef.current = null;
-      HTMLCanvasElement.prototype.getContext = originalGetContext;
-      onRenderStateChangeRef.current?.(false);
+    useImperativeHandle(ref, () => ({
+      resetView: () => {
+        const camera = cameraRef.current;
+        const controls = controlsRef.current;
+        if (!camera || !controls) return;
+        const camDist = geometry.maxRadius * 2.8;
+      camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+        camera.lookAt(0, 0, 0);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      },
+      setDragMode: () => {
+        // OrbitControls handles all modes natively
+      },
+      downloadImage: async () => {
+        const renderer = rendererRef.current;
+        const scene = sceneRef.current;
+        const camera = cameraRef.current;
+        if (!renderer || !scene || !camera) return;
 
-      if (plotRef.current && plotly) {
-        plotly.purge(plotRef.current);
-      }
+        // Render at higher resolution
+        const w = 1600;
+        const h = 1200;
+        const prevSize = renderer.getSize(new THREE.Vector2());
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.render(scene, camera);
 
-      plotlyRef.current = null;
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cartesianGeometry, metric]);
+        const dataUrl = renderer.domElement.toDataURL('image/png');
 
-  useImperativeHandle(ref, () => ({
-    resetView: () => {
-      if (!plotRef.current || !plotlyRef.current) {
-        return;
-      }
+        // Restore original size
+        renderer.setSize(prevSize.x, prevSize.y);
+        camera.aspect = prevSize.x / prevSize.y;
+        camera.updateProjectionMatrix();
 
-      const defaultCamera = getCurrentCamera();
+        const anchor = document.createElement('a');
+        anchor.href = dataUrl;
+        anchor.download = '3d-radiation-pattern.png';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+      },
+    }), []);
 
-      void plotlyRef.current.relayout(plotRef.current, {
-        'scene.camera': defaultCamera,
-        'scene.domain': getAdaptiveSceneDomain(plotRef.current.clientHeight),
-      });
-    },
-    setDragMode: (mode) => {
-      if (!plotRef.current || !plotlyRef.current || currentDragModeRef.current === mode) {
-        return;
-      }
-
-      currentDragModeRef.current = mode;
-      void plotlyRef.current.relayout(plotRef.current, {
-        dragmode: mode,
-      });
-    },
-    downloadImage: async () => {
-      if (!plotRef.current || !plotlyRef.current) {
-        return;
-      }
-
-      const dataUrl = await plotlyRef.current.toImage(plotRef.current, {
-        format: 'png',
-        width: 1600,
-        height: 1200,
-        scale: 2,
-      });
-
-      const anchor = document.createElement('a');
-      anchor.href = dataUrl;
-      anchor.download = '3d-radiation-pattern.png';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    },
-  }), []);
-
-  return <div className="graph-surface-plot" ref={plotRef} />;
-});
+    return <div className="graph-surface-plot" ref={containerRef} />;
+  },
+);

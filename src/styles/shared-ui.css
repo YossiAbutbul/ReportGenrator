@@ -1204,3 +1204,179 @@
     transform: translateY(0);
   }
 }
+
+/* ── Dark-mode overrides: shared-ui ───────────────── */
+
+[data-theme="dark"] .button--primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .button--primary:hover:not(:disabled) {
+  background: #3b82f6;
+  box-shadow: 0 0.25rem 0.75rem rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="dark"] .button--ghost {
+  border-color: #2a3548;
+  background: #1a2030;
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .button--ghost:hover:not(:disabled) {
+  background: #222d3e;
+  border-color: #3a4a60;
+}
+
+[data-theme="dark"] .button--ghost:disabled {
+  opacity: 0.4;
+}
+
+[data-theme="dark"] .setup-hero {
+  border-color: #2a3548;
+  background: linear-gradient(180deg, #161b26 0%, #111720 100%);
+}
+
+[data-theme="dark"] .setup-section__intro h2 {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .setup-section__intro p {
+  color: #7a8da8;
+}
+
+[data-theme="dark"] .setup-section__step-badge {
+  background: #1a2b45;
+  color: #5b9aef;
+  border-color: #2a4068;
+}
+
+[data-theme="dark"] .workspace-rail {
+  background: var(--color-panel-bg);
+  border-right-color: var(--color-border);
+}
+
+[data-theme="dark"] .workspace-main {
+  background: #111720;
+}
+
+[data-theme="dark"] .panel-card {
+  background: var(--color-panel-bg);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .panel-card__header--metadata {
+  color: #6a7c94;
+}
+
+[data-theme="dark"] .filter-icon-button {
+  border-color: #2a3548;
+  background: #1a2030;
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .filter-icon-button:hover:not(:disabled) {
+  background: #222d3e;
+  border-color: #3a4a60;
+}
+
+[data-theme="dark"] .filter-icon-button.is-active {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .filter-panel {
+  background: rgba(22, 27, 38, 0.98);
+  border-color: #2a3548;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .filter-panel__options {
+  background: #1a2030;
+  border-color: #2a3548;
+}
+
+[data-theme="dark"] .filter-panel__option:hover {
+  background: #1e2838;
+}
+
+[data-theme="dark"] .results-table__row {
+  color: #b0c0d4;
+}
+
+[data-theme="dark"] .results-table__row:hover {
+  background: #1c2333;
+}
+
+[data-theme="dark"] .results-table__header th {
+  background: #161b26;
+  color: #6a7c94;
+  border-bottom-color: #2a3548;
+}
+
+[data-theme="dark"] .table-card {
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .table-card__toolbar {
+  border-bottom-color: #222d3e;
+}
+
+[data-theme="dark"] .table-link {
+  border-color: #2a3548;
+  background: #1a2030;
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .table-link:hover {
+  background: #1e2838;
+}
+
+[data-theme="dark"] .summary-card {
+  background: linear-gradient(180deg, #161b26 0%, #111720 100%);
+}
+
+[data-theme="dark"] .summary-card:hover {
+  box-shadow: 0 0.85rem 1.75rem rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .summary-card--tone-1 {
+  background: linear-gradient(180deg, var(--color-summary-card-sky-top) 0%, var(--color-summary-card-sky-bottom) 100%);
+}
+
+[data-theme="dark"] .summary-card--tone-2 {
+  background: linear-gradient(180deg, var(--color-summary-card-blue-top) 0%, var(--color-summary-card-blue-bottom) 100%);
+}
+
+[data-theme="dark"] .summary-card--tone-3 {
+  background: linear-gradient(180deg, var(--color-summary-card-lavender-top) 0%, var(--color-summary-card-lavender-bottom) 100%);
+}
+
+[data-theme="dark"] .tooltip-card {
+  background: rgba(15, 18, 25, 0.9);
+  border-color: rgba(42, 53, 72, 0.6);
+}
+
+[data-theme="dark"] .app-notification {
+  border-color: #5a2020;
+  background: linear-gradient(180deg, #2a1414 0%, #1e1010 100%);
+  color: #e8b0b0;
+}
+
+[data-theme="dark"] .validation-note {
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .metadata-field__control,
+[data-theme="dark"] .metadata-field__control--textarea {
+  background: var(--color-input-bg);
+  border-color: var(--color-input-border);
+  color: var(--color-input-text);
+}
+
+[data-theme="dark"] .table-search input {
+  background: var(--color-input-bg);
+  border-color: var(--color-input-border);
+  color: var(--color-input-text);
+}

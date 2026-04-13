@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { CircleHelp, FileText, Radar, Settings2, Shapes } from 'lucide-react';
 import type { AppPage } from '../../types/navigation';
+import { ThemeToggle } from './ThemeToggle';
 
 type ShellHeaderProps = {
   activePage: AppPage;
@@ -43,6 +44,7 @@ export function ShellHeader({
         ))}
       </nav>
       <div className="shell-header__actions">
+        <ThemeToggle />
         <button
           aria-label="Open help center"
           className="shell-header__help-button"
