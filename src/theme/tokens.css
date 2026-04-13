@@ -75,3 +75,54 @@
   --font-size-3xl: 1.6rem;
   --font-size-stat: 2.5rem;
 }
+
+/* ── Dark Mode ────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --color-page-bg: #0f1219;
+  --color-shell-bg: rgba(15, 18, 25, 0.94);
+  --color-panel-bg: #161b26;
+  --color-panel-tint: #1a2030;
+  --color-panel-muted: #1c2333;
+  --color-panel-soft: #1e2840;
+  --color-panel-accent: #1a2540;
+  --color-input-bg: #1a2030;
+  --color-input-border: #2a3548;
+  --color-input-text: #b8c8dc;
+  --color-input-placeholder: #5a6e88;
+  --color-badge-bg: #1a2236;
+  --color-badge-text: #6a7c94;
+  --color-border: #2a3548;
+  --color-border-soft: #222d3e;
+  --color-border-subtle: #1e2838;
+  --color-text: #d8e2f0;
+  --color-text-muted: #8a9ab0;
+  --color-text-soft: #6a7c94;
+  --color-primary: #5b9aef;
+  --color-primary-strong: #6aa3f5;
+  --color-primary-soft: #1a2b45;
+  --color-primary-border: #2a4068;
+  --color-danger: #e07070;
+  --color-success: #4ad680;
+  --color-avatar-bg: #3d2a10;
+  --color-avatar-text: #e0a050;
+  --color-shadow: rgba(0, 0, 0, 0.35);
+  --color-shadow-soft: rgba(0, 0, 0, 0.25);
+  --color-shell-glow: rgba(76, 118, 197, 0.06);
+  --color-scrollbar-track: #111720;
+  --color-scrollbar-thumb: #2a3548;
+  --color-scrollbar-thumb-hover: #3a4a60;
+  --color-scrollbar-sidebar-track: #111720;
+  --color-scrollbar-sidebar-thumb: #2a3548;
+  --color-scrollbar-sidebar-thumb-hover: #3a4a60;
+  --color-summary-card-blob: rgba(255, 255, 255, 0.05);
+  --color-summary-card-blob-soft: rgba(255, 255, 255, 0.03);
+  --color-summary-card-label: #6888b0;
+  --color-summary-card-value: #5a8cc0;
+  --color-summary-card-blue-top: #111e34;
+  --color-summary-card-blue-bottom: #0f1a2e;
+  --color-summary-card-lavender-top: #161830;
+  --color-summary-card-lavender-bottom: #14162c;
+  --color-summary-card-sky-top: #101c2c;
+  --color-summary-card-sky-bottom: #0e1a28;
+}

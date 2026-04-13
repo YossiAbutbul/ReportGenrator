@@ -760,6 +760,7 @@
   min-height: 0;
 }
 
+
 .graph-viewer-3d__analysis-body--workspace {
   height: 100%;
   min-height: 0;
@@ -976,4 +977,232 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ── Dark-mode overrides: graph-viewer ────────────── */
+
+[data-theme="dark"] .graph-viewer-card--canvas,
+[data-theme="dark"] .workspace-main--visual {
+  background: #0f1219;
+}
+
+[data-theme="dark"] .panel-card.graph-viewer-card--canvas {
+  background: transparent;
+  border-color: transparent;
+}
+
+[data-theme="dark"] .graph-viewer-card--2d-dashboard {
+  background: var(--color-panel-bg);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .graph-viewer-card__title {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .graph-viewer-card__metric-button {
+  border-color: #2a3548;
+  background: #1a2030;
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .graph-viewer-card__metric-button.is-active {
+  border-color: #2a4068;
+  background: #1a2b45;
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .graph-viewer-card__plot-shell,
+[data-theme="dark"] .graph-viewer-card__plot-layout,
+[data-theme="dark"] .graph-surface-plot {
+  background: #0f1219;
+}
+
+[data-theme="dark"] .graph-viewer-2d__plot-shell {
+  background: transparent;
+}
+
+[data-theme="dark"] .graph-viewer-2d__analysis-card .graph-viewer-2d__plot-shell {
+  background: #0f1219;
+  border-radius: 0.75rem;
+}
+
+[data-theme="dark"] .graph-viewer-card__controls {
+  background: rgba(22, 27, 38, 0.95);
+  border-color: #2a3548;
+}
+
+[data-theme="dark"] .graph-viewer-card__control-button {
+  color: #6a7c94;
+}
+
+[data-theme="dark"] .graph-viewer-card__control-button:hover {
+  background: #1a2b45;
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .graph-viewer-card__control-button.is-active {
+  background: #1a2b45;
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .graph-viewer-card__loading {
+  background: rgba(15, 18, 25, 0.75);
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .graph-viewer-card__spinner {
+  border-color: #2a3548;
+  border-top-color: #5b9aef;
+}
+
+[data-theme="dark"] .graph-viewer-card__empty {
+  background: #161b26;
+  border-color: var(--color-border);
+  color: #6a7c94;
+}
+
+[data-theme="dark"] .graph-viewer-3d__info-panel {
+  border-left-color: #222d3e;
+  background: linear-gradient(180deg, #161b26 0%, #111720 100%);
+}
+
+[data-theme="dark"] .info-panel__eyebrow {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .info-panel__title {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .info-panel__field {
+  border-bottom-color: #222d3e;
+}
+
+[data-theme="dark"] .info-panel__field-label {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .info-panel__field-value {
+  color: #b8c8dc;
+}
+
+[data-theme="dark"] .info-panel__field-value--accent {
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .info-panel__field-value--placeholder {
+  color: #3a4a60;
+}
+
+[data-theme="dark"] .graph-viewer-3d__split {
+  background: #0f1219;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .graph-viewer-3d__plot-area {
+  background: #0f1219;
+}
+
+[data-theme="dark"] .graph-viewer-3d__empty-canvas {
+  background: #0f1219;
+}
+
+[data-theme="dark"] .globe__shell {
+  border-color: #2a3548;
+}
+
+[data-theme="dark"] .globe__meridian,
+[data-theme="dark"] .globe__parallel {
+  border-color: #2a3548;
+}
+
+[data-theme="dark"] .graph-viewer-3d__empty-label {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .graph-viewer-2d__analysis-card {
+  border-color: #222d3e;
+  background: linear-gradient(180deg, #161b26 0%, #111720 100%);
+}
+
+[data-theme="dark"] .graph-viewer-2d__analysis-header h2 {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table {
+  border-color: #222d3e;
+  background: #161b26;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table thead th {
+  color: #8a9ab0;
+  border-bottom-color: #222d3e;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table tbody tr {
+  border-top-color: #1e2838;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table tbody tr:hover {
+  background: #1c2333;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table tbody th {
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .graph-viewer-2d__power-table td {
+  color: #b8c8dc;
+}
+
+[data-theme="dark"] .graph-viewer-2d__plot-column + .graph-viewer-2d__plot-column {
+  border-left-color: #222d3e;
+}
+
+[data-theme="dark"] .graph-viewer-2d__plot-header h2 {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .graph-viewer-2d__ref-input {
+  background: var(--color-input-bg);
+  border-color: var(--color-input-border);
+  color: var(--color-input-text);
+}
+
+[data-theme="dark"] .graph-viewer-2d__ref-item-label {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .graph-viewer-2d__select-group {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .graph-viewer-2d__select-group select {
+  background-color: var(--color-input-bg);
+  border-color: var(--color-input-border);
+  color: var(--color-input-text);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238a9ab0' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .graph-preview__metric-card {
+  border-color: #222d3e;
+  background: linear-gradient(180deg, #161b26 0%, #111720 100%);
+}
+
+[data-theme="dark"] .graph-preview__metric-label {
+  color: #5a6e88;
+}
+
+[data-theme="dark"] .graph-preview__metric-value {
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .graph-legend__bar {
+  border-color: rgba(42, 53, 72, 0.8);
+}
+
+[data-theme="dark"] .graph-legend__tick {
+  color: #5a6e88;
 }

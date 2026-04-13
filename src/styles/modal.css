@@ -226,3 +226,61 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Dark-mode overrides: modal ───────────────────── */
+
+[data-theme="dark"] .modal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .modal__dialog {
+  border-color: #2a3548;
+  background: #161b26;
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .modal__header {
+  border-bottom-color: #222d3e;
+}
+
+[data-theme="dark"] .modal__title {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .modal__close {
+  color: #6a7c94;
+}
+
+[data-theme="dark"] .modal__close:hover {
+  background: #1e2838;
+  color: #b8c8dc;
+}
+
+[data-theme="dark"] .help-center__heading {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .help-center__card {
+  border-color: #222d3e;
+  background: linear-gradient(180deg, #1a2030 0%, #161b26 100%);
+}
+
+[data-theme="dark"] .help-center__card h4 {
+  color: #d0daea;
+}
+
+[data-theme="dark"] .help-center__card p {
+  color: #8a9ab0;
+}
+
+[data-theme="dark"] .help-center__icon {
+  border-color: #2a3548;
+  background: #1a2b45;
+  color: #5b9aef;
+}
+
+[data-theme="dark"] .help-center__tips {
+  border-color: #222d3e;
+  background: linear-gradient(180deg, #1a2030 0%, #161b26 100%);
+  color: #b8c8dc;
+}

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { GraphMetric, ParsedGraphFile } from '../../types/graphViewer';
 
 type PlotlyLike = {
@@ -89,11 +89,23 @@ function getAdaptiveSceneDomain(plotHeight: number): { x: [number, number]; y: [
   };
 }
 
+function getThemeSnapshot(): string {
+  return document.documentElement.getAttribute('data-theme') ?? 'light';
+}
+
+function subscribeTheme(callback: () => void): () => void {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+}
+
 export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfacePlotProps>(function GraphSurfacePlot({
   graphData,
   metric,
   onRenderStateChange,
 }, ref): ReactElement {
+  const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot);
+  const isDark = theme === 'dark';
   const plotRef = useRef<HTMLDivElement | null>(null);
   const plotlyRef = useRef<PlotlyLike | null>(null);
   const currentDragModeRef = useRef<'turntable' | 'pan' | 'zoom'>('turntable');
@@ -213,23 +225,9 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
             ],
             showscale: false,
             contours: {
-              x: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                show: true,
-              },
-              y: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                show: true,
-              },
-              z: {
-                color: 'rgba(30, 58, 95, 0.15)',
-                highlight: false,
-                highlightcolor: 'rgba(0, 0, 0, 0)',
-                show: true,
-                usecolormap: false,
-              },
+              x: { show: false, highlight: false },
+              y: { show: false, highlight: false },
+              z: { show: false, highlight: false },
             },
             cmin: cartesianGeometry.minValue,
             cmax: cartesianGeometry.maxValue,
@@ -245,58 +243,67 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
               y: 1,
               z: 1.2,
             },
+            flatshading: false,
             hoverinfo: 'skip',
           },
         ],
         {
           autosize: true,
+          hovermode: false,
           margin: {
             b: 0,
             l: 0,
             r: 0,
             t: 0,
           },
-          paper_bgcolor: 'transparent',
-          plot_bgcolor: 'transparent',
+          paper_bgcolor: isDark ? '#0f1219' : 'transparent',
+          plot_bgcolor: isDark ? '#0f1219' : 'transparent',
           scene: {
             aspectmode: 'cube',
-            bgcolor: 'rgba(255,255,255,0)',
+            bgcolor: isDark ? '#0f1219' : 'rgba(255,255,255,0)',
+            hovermode: false,
             camera: {
               ...defaultCamera,
             },
             domain: sceneDomain,
             xaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
+              backgroundcolor: 'rgba(0,0,0,0)',
+              gridcolor: 'rgba(0,0,0,0)',
               showbackground: false,
               showgrid: false,
               showline: false,
-              spikesides: false,
               showspikes: false,
+              spikesides: false,
+              spikecolor: 'rgba(0,0,0,0)',
+              spikethickness: 0,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
             },
             yaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
+              backgroundcolor: 'rgba(0,0,0,0)',
+              gridcolor: 'rgba(0,0,0,0)',
               showbackground: false,
               showgrid: false,
               showline: false,
-              spikesides: false,
               showspikes: false,
+              spikesides: false,
+              spikecolor: 'rgba(0,0,0,0)',
+              spikethickness: 0,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
             },
             zaxis: {
-              backgroundcolor: 'rgba(255,255,255,0)',
-              gridcolor: 'rgba(0, 0, 0, 0)',
+              backgroundcolor: 'rgba(0,0,0,0)',
+              gridcolor: 'rgba(0,0,0,0)',
               showbackground: false,
               showgrid: false,
               showline: false,
-              spikesides: false,
               showspikes: false,
+              spikesides: false,
+              spikecolor: 'rgba(0,0,0,0)',
+              spikethickness: 0,
               showticklabels: false,
               title: { text: '' },
               zeroline: false,
@@ -381,7 +388,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       plotlyRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cartesianGeometry, metric]);
+  }, [cartesianGeometry, isDark, metric]);
 
   useImperativeHandle(ref, () => ({
     resetView: () => {
