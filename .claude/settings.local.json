@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx tsc:*)",
       "Bash(grep -n \"setup-section--primary\" \"c:/Users/yossefa/OneDrive - Arad Technologies Ltd/Documents/GitHub/ReportGenrator/src/styles\"/*.css)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git push:*)"
     ]
   }
 }
