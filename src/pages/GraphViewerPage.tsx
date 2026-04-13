@@ -3,9 +3,6 @@ import { useMemo, useRef } from 'react';
 import {
   Download,
   Home,
-  Move,
-  RotateCw,
-  Search,
 } from 'lucide-react';
 import {
   GraphSurfacePlot,
@@ -23,12 +20,10 @@ export function GraphViewerPage(): ReactElement {
     graph3d: {
       graphData,
       metric,
-      activeViewControl,
       isLoading: isGraphLoading,
       setGraphData,
       setSelectedFileName,
       setMetric,
-      setActiveViewControl,
       setIsLoading: setIsGraphLoading,
     },
   } = useAppStore();
@@ -80,24 +75,9 @@ export function GraphViewerPage(): ReactElement {
     }
   };
 
-  const handleViewControlChange = (
-    nextMode: 'turntable' | 'pan' | 'zoom',
-  ): void => {
-    if (activeViewControl === nextMode) {
-      return;
-    }
-
-    setActiveViewControl(nextMode);
-    requestAnimationFrame(() => {
-      graphPlotRef.current?.setDragMode(nextMode);
-    });
-  };
-
   const handleResetView = (): void => {
-    setActiveViewControl('turntable');
     requestAnimationFrame(() => {
       graphPlotRef.current?.resetView();
-      graphPlotRef.current?.setDragMode('turntable');
     });
   };
 
@@ -169,30 +149,6 @@ export function GraphViewerPage(): ReactElement {
                       </div>
                     ) : null}
                     <div className="graph-viewer-card__controls">
-                      <button
-                        className={`graph-viewer-card__control-button${activeViewControl === 'pan' ? ' is-active' : ''}`}
-                        type="button"
-                        onClick={() => handleViewControlChange('pan')}
-                      >
-                        <Move aria-hidden="true" />
-                        <span>Pan</span>
-                      </button>
-                      <button
-                        className={`graph-viewer-card__control-button${activeViewControl === 'turntable' ? ' is-active' : ''}`}
-                        type="button"
-                        onClick={() => handleViewControlChange('turntable')}
-                      >
-                        <RotateCw aria-hidden="true" />
-                        <span>Rotate</span>
-                      </button>
-                      <button
-                        className={`graph-viewer-card__control-button${activeViewControl === 'zoom' ? ' is-active' : ''}`}
-                        type="button"
-                        onClick={() => handleViewControlChange('zoom')}
-                      >
-                        <Search aria-hidden="true" />
-                        <span>Zoom</span>
-                      </button>
                       <button
                         className="graph-viewer-card__control-button"
                         type="button"
