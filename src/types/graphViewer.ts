@@ -15,9 +15,11 @@ export type ParsedGraphFile = {
   maxPeakWithVPolFactor: string;
   measurementRows: string[][];
   phiGrid: number[][];
+  phiStep: number;
   sampleCount: number;
   samples: GraphSample[];
   thetaGrid: number[][];
+  thetaStep: number;
   thetaValues: number[];
   vPolFactor: string;
   zValues: Record<GraphMetric, number[][]>;

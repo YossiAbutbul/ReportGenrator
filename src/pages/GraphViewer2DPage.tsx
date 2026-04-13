@@ -250,7 +250,7 @@ export function GraphViewer2DPage(): ReactElement {
     },
   } = useAppStore();
 
-  const [elevationGraphColor, setElevationGraphColor] = useState('#22bf7a');
+  const [elevationGraphColor, setElevationGraphColor] = useState('#e85d3a');
 
   const thetaValue = selectedTheta ?? getDefaultTheta(graphData2d?.thetaValues ?? []);
 
@@ -597,7 +597,7 @@ export function GraphViewer2DPage(): ReactElement {
                     maxReferenceLabel={azimuthRange.appliedMax}
                     minReferenceLabel={azimuthRange.appliedMin}
                     points={[]}
-                    radialRange={[-10, 4]}
+                    radialRange={[-6, 6]}
                     radialStep={2}
                   />
                 )}
@@ -679,7 +679,7 @@ export function GraphViewer2DPage(): ReactElement {
                     maxReferenceLabel={elevationRange.appliedMax}
                     minReferenceLabel={elevationRange.appliedMin}
                     points={[]}
-                    radialRange={[-10, 4]}
+                    radialRange={[-6, 6]}
                     radialStep={2}
                   />
                 )}

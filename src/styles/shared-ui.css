@@ -1091,7 +1091,7 @@
 
 .tooltip-card {
   position: absolute;
-  z-index: 4;
+  z-index: 20;
   padding: 0.45rem 0.6rem;
   border: 1px solid rgba(208, 219, 235, 0.4);
   border-radius: 0.8rem;

@@ -12,17 +12,17 @@ export function cloneInitialRows() {
 export function createDefaultReferenceRanges(): ReferenceRanges {
   return {
     azimuth: {
-      appliedMax: '4',
-      appliedMin: '-10',
-      draftMax: '4',
-      draftMin: '-10',
+      appliedMax: '6',
+      appliedMin: '-6',
+      draftMax: '6',
+      draftMin: '-6',
       isManual: false,
     },
     elevation: {
-      appliedMax: '4',
-      appliedMin: '-10',
-      draftMax: '4',
-      draftMin: '-10',
+      appliedMax: '6',
+      appliedMin: '-15',
+      draftMax: '6',
+      draftMin: '-15',
       isManual: false,
     },
   };

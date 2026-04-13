@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TooltipCard } from '../common/TooltipCard';
 import type { GraphMetric } from '../../types/graphViewer';
 
@@ -93,14 +94,9 @@ export function GraphPolarPlot({
   );
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>): void => {
-    if (!containerRef.current) {
-      return;
-    }
-
-    const bounds = containerRef.current.getBoundingClientRect();
     const nextPosition = {
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
+      x: event.clientX,
+      y: event.clientY,
     };
 
     pointerPositionRef.current = nextPosition;
@@ -205,37 +201,53 @@ export function GraphPolarPlot({
         ? [...dataPoints.map((point) => point.angle), dataPoints[0].angle]
         : [];
 
+      const markerSize = dataPoints.length > 48 ? 2.5 : dataPoints.length > 24 ? 3.5 : 5;
+      const hasData = dataPoints.length > 0;
+
       const data = [
         {
           type: 'scatterpolar',
-          mode: 'lines+markers',
+          mode: hasData ? 'lines+markers' : 'lines',
           r: closedR,
           theta: closedTheta,
           fill: 'toself',
-          fillcolor: `${color}22`,
+          fillcolor: `${color}18`,
           hoveron: 'points',
           hoverinfo: 'none',
           line: {
             color,
-            width: 3,
+            width: 2,
+            shape: 'spline',
+            smoothing: 0.6,
           },
           marker: {
-            color,
-            size: 6,
+            color: '#ffffff',
+            size: markerSize,
+            line: {
+              color,
+              width: 1.5,
+            },
           },
           name: metricLabels[metric],
         },
       ];
+
+      const cardinalLabels: Record<number, string> = {
+        0: '0°',
+        90: '90°',
+        180: '180°',
+        270: '270°',
+      };
 
       const layout = {
         autosize: true,
         dragmode: false,
         hovermode: 'closest',
         margin: {
-          b: 26,
-          l: 62,
-          r: 62,
-          t: 12,
+          b: 30,
+          l: 50,
+          r: 50,
+          t: 16,
         },
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
@@ -243,32 +255,36 @@ export function GraphPolarPlot({
         polar: {
           angularaxis: {
             direction: 'clockwise',
-            gridcolor: '#d9e5f3',
-            linecolor: '#d9e5f3',
+            gridcolor: 'rgba(180, 198, 220, 0.35)',
+            linecolor: 'rgba(180, 198, 220, 0.5)',
             rotation: 90,
             tickmode: 'array',
-            ticktext: angleTicks.map((value) => `${value}°`),
+            ticktext: angleTicks.map((v) => cardinalLabels[v] ?? `${v}°`),
             tickvals: angleTicks,
             tickfont: {
-              color: '#5f7290',
-              size: 11,
+              color: '#8899b0',
+              size: 10,
+              family: 'inherit',
             },
+            griddash: 'dot',
           },
           bgcolor: 'transparent',
-          gridshape: 'linear',
+          gridshape: 'circular',
           radialaxis: {
             angle: 90,
-            gridcolor: '#d9e5f3',
-            linecolor: '#d9e5f3',
+            gridcolor: 'rgba(180, 198, 220, 0.3)',
+            linecolor: 'rgba(180, 198, 220, 0.4)',
             range: computedRange,
             showticklabels: true,
             tickfont: {
-              color: '#6f83a0',
-              size: 10,
+              color: '#94a3b8',
+              size: 9,
+              family: 'inherit',
             },
             tickmode: 'array',
             ticktext: radialTickText,
             tickvals: radialTickValues,
+            griddash: 'dot',
           },
         },
       };
@@ -360,11 +376,12 @@ export function GraphPolarPlot({
       onMouseLeave={handlePlotlyUnhover}
     >
       <div className="graph-polar-plot" ref={plotRef} />
-      {tooltip ? (
+      {tooltip ? createPortal(
         <TooltipCard
           className="graph-polar-plot__tooltip"
           style={{
-            left: `${tooltip.x + 12}px`,
+            position: 'fixed',
+            left: `${tooltip.x + 14}px`,
             top: `${tooltip.y - 10}px`,
           }}
         >
@@ -372,7 +389,8 @@ export function GraphPolarPlot({
           <div className="graph-polar-plot__tooltip-line">
             Power: {tooltip.power.toFixed(2)} [dBm]
           </div>
-        </TooltipCard>
+        </TooltipCard>,
+        document.body,
       ) : null}
     </div>
   );

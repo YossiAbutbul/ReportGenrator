@@ -77,7 +77,7 @@ export function AppStoreProvider({
   const [graph2dSliceMode, setGraph2dSliceMode] = useState<SliceMode>('azimuth');
   const [graph2dElevationVariant, setGraph2dElevationVariant] = useState<ElevationVariant>('elevation1');
   const [graph2dSelectedTheta, setGraph2dSelectedTheta] = useState<number | null>(null);
-  const [graph2dColor, setGraph2dColor] = useState('#138d96');
+  const [graph2dColor, setGraph2dColor] = useState('#2563eb');
   const [graph2dReferenceRanges, setGraph2dReferenceRanges] = useState<ReferenceRanges>(createDefaultReferenceRanges);
 
   const showErrorNotification = (message: string): void => {
@@ -119,7 +119,7 @@ export function AppStoreProvider({
     setGraph2dSliceMode('azimuth');
     setGraph2dElevationVariant('elevation1');
     setGraph2dSelectedTheta(null);
-    setGraph2dColor('#138d96');
+    setGraph2dColor('#2563eb');
     setGraph2dReferenceRanges(createDefaultReferenceRanges());
   };
 

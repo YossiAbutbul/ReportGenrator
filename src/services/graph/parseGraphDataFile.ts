@@ -81,6 +81,8 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
   const calculatedTrpLine = lines.find((line) => line.startsWith('Calculated TRP ='));
   const vPolFactorLine = lines.find((line) => line.startsWith('Path Loss VPOL Cal Factor ='));
   const sourceFileLine = lines.find((line) => line.startsWith('File Name:'));
+  const axis1IncrementLine = lines.find((line) => line.startsWith('Axis1 Increment:'));
+  const axis2IncrementLine = lines.find((line) => line.startsWith('Axis2 Increment:'));
   const resultsStartIndex = lines.findIndex((line) => line.includes('Test Data Results'));
 
   if (resultsStartIndex < 0) {
@@ -140,6 +142,11 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
   const maxPeakWithVPolFactor =
     vPolFactorValue === null ? null : maxPeak + vPolFactorValue;
 
+  const axis1Match = axis1IncrementLine?.match(/(-?\d+(?:\.\d+)?)/);
+  const axis2Match = axis2IncrementLine?.match(/(-?\d+(?:\.\d+)?)/);
+  const phiStep = axis1Match ? Number(axis1Match[1]) : (thetaValues.length > 1 ? thetaValues[1] - thetaValues[0] : 15);
+  const thetaStep = axis2Match ? Number(axis2Match[1]) : (thetaValues.length > 1 ? thetaValues[1] - thetaValues[0] : 15);
+
   return {
     calculatedTrp: formatMetric(
       calculatedTrpValueMatch ? Number(calculatedTrpValueMatch[1]) : null,
@@ -150,9 +157,11 @@ export async function parseGraphDataFile(file: File): Promise<ParsedGraphFile> {
     maxPeakWithVPolFactor: formatMetric(maxPeakWithVPolFactor),
     measurementRows,
     phiGrid,
+    phiStep,
     sampleCount: samples.length,
     samples,
     thetaGrid,
+    thetaStep,
     thetaValues,
     vPolFactor: vPolFactorValue !== null
       ? `${vPolFactorValue.toFixed(2)} dB`

@@ -167,8 +167,7 @@ export function GraphViewerPage(): ReactElement {
                   <div className="graph-viewer-card__plot-shell">
                     {isGraphLoading ? (
                       <div className="graph-viewer-card__loading" aria-live="polite">
-                        <span className="graph-viewer-card__spinner" aria-hidden="true" />
-                        <span>Loading 3D graph...</span>
+                        <span>Loading...</span>
                       </div>
                     ) : null}
                     <div className="graph-viewer-card__controls">
@@ -276,8 +275,57 @@ export function GraphViewerPage(): ReactElement {
                 </aside>
               </div>
             ) : (
-              <div className="graph-viewer-card__empty">
-                Upload a measurement TXT file to generate an interactive 3D surface plot.
+              <div className="graph-viewer-3d__split">
+                <div className="graph-viewer-3d__plot-area">
+                  <div className="graph-viewer-3d__empty-canvas">
+                    <div className="globe" aria-hidden="true">
+                      <svg className="globe__svg" viewBox="0 0 200 200">
+                        {/* Outer circle */}
+                        <circle cx="100" cy="100" r="82" fill="none" stroke="#c7d2e0" strokeWidth="1.2" />
+
+                        {/* Latitude lines */}
+                        <ellipse cx="100" cy="60" rx="68" ry="8" fill="none" stroke="#dbe3ed" strokeWidth="0.7" />
+                        <ellipse cx="100" cy="100" rx="82" ry="12" fill="none" stroke="#c7d2e0" strokeWidth="0.8" />
+                        <ellipse cx="100" cy="140" rx="68" ry="8" fill="none" stroke="#dbe3ed" strokeWidth="0.7" />
+
+                        {/* Animated meridian lines — 6 longitude lines with staggered phase */}
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                          <ellipse
+                            key={i}
+                            cx="100"
+                            cy="100"
+                            rx="0"
+                            ry="82"
+                            fill="none"
+                            stroke="#c7d2e0"
+                            strokeWidth="0.8"
+                            className={`globe__meridian globe__meridian--${i}`}
+                          />
+                        ))}
+
+                        {/* Axis line */}
+                        <line x1="100" y1="14" x2="100" y2="186" stroke="#dbe3ed" strokeWidth="0.5" />
+                      </svg>
+                    </div>
+                    <p className="graph-viewer-3d__empty-label">Load a TXT file to render 3D surface</p>
+                  </div>
+                </div>
+
+                <aside className="graph-viewer-3d__info-panel">
+                  <div className="info-panel__header">
+                    <span className="info-panel__eyebrow">Technical Metadata</span>
+                    <h3 className="info-panel__title">Radiation Summary</h3>
+                  </div>
+
+                  <div className="info-panel__fields">
+                    {['Source File', 'Frequency', 'TRP Value', 'Max Peak', 'V-Pol Factor', 'Samples'].map((label) => (
+                      <div className="info-panel__field" key={label}>
+                        <span className="info-panel__field-label">{label}</span>
+                        <span className="info-panel__field-value info-panel__field-value--placeholder">—</span>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
               </div>
             )}
           </article>
