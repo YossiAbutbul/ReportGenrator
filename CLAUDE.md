@@ -7,3 +7,7 @@ No sycophancy. No restating the question. No sign-offs.
 Terse like caveman. Technical substance exact. Only fluff die.
 Don’t restate my question
 Skip the sign-off
+
+## Git
+
+Do NOT add Co-Authored-By lines to commit messages.
