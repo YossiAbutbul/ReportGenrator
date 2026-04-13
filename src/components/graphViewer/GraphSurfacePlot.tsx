@@ -6,7 +6,6 @@ import type { GraphMetric, ParsedGraphFile } from '../../types/graphViewer';
 
 export type GraphSurfacePlotHandle = {
   resetView: () => void;
-  setDragMode: (mode: 'turntable' | 'pan' | 'zoom') => void;
   downloadImage: () => Promise<void>;
 };
 
@@ -173,7 +172,12 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         0.1,
         geometry.maxRadius * 20,
       );
-      const camDist = geometry.maxRadius * 2.8;
+      // Fit bounding sphere into canvas
+      const aspect = container.clientWidth / container.clientHeight;
+      const fovRad = THREE.MathUtils.degToRad(45);
+      const effectiveFov = aspect < 1 ? 2 * Math.atan(Math.tan(fovRad / 2) * aspect) : fovRad;
+      const fitDist = geometry.maxRadius / Math.sin(effectiveFov / 2);
+      const camDist = fitDist * 1.05;
       camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
       camera.lookAt(0, 0, 0);
       cameraRef.current = camera;
@@ -294,15 +298,20 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       resetView: () => {
         const camera = cameraRef.current;
         const controls = controlsRef.current;
-        if (!camera || !controls) return;
-        const camDist = geometry.maxRadius * 2.8;
-      camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+        const container = containerRef.current;
+        if (!camera || !controls || !container) return;
+
+        // Fit bounding sphere into canvas
+        const aspect = container.clientWidth / container.clientHeight;
+        const fovRad = THREE.MathUtils.degToRad(camera.fov);
+        const effectiveFov = aspect < 1 ? 2 * Math.atan(Math.tan(fovRad / 2) * aspect) : fovRad;
+        const fitDist = geometry.maxRadius / Math.sin(effectiveFov / 2);
+        const camDist = fitDist * 1.05; // 5% breathing room
+
+        camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
         camera.lookAt(0, 0, 0);
         controls.target.set(0, 0, 0);
         controls.update();
-      },
-      setDragMode: () => {
-        // OrbitControls handles all modes natively
       },
       downloadImage: async () => {
         const renderer = rendererRef.current;
