@@ -19,9 +19,6 @@ import {
 import { parseReportWorkbook } from '../services/excel/parseReportWorkbook';
 import { buildReportPreview } from '../services/report/buildReportPreview';
 import { useAppStore } from '../store/store';
-import type {
-  SummaryCardData,
-} from '../types/trpDashboard';
 
 type FilterSectionProps = {
   sectionKey: string;
@@ -35,21 +32,6 @@ type FilterSectionProps = {
   searchValue: string;
   onSearchChange: (value: string) => void;
 };
-
-function SummaryCard({
-  label,
-  value,
-  toneClassName,
-}: SummaryCardData & { toneClassName: string }): ReactElement {
-  return (
-    <article className={`summary-card ${toneClassName}`}>
-      <span className="summary-card__blob summary-card__blob--top" aria-hidden="true" />
-      <span className="summary-card__blob summary-card__blob--bottom" aria-hidden="true" />
-      <span className="summary-card__label">{label}</span>
-      <strong className="summary-card__value">{value}</strong>
-    </article>
-  );
-}
 
 function FilterSection({
   sectionKey,
@@ -166,18 +148,6 @@ export function ReportSetupPage(): ReactElement {
   } = useAppStore();
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  const summaryCards = useMemo<SummaryCardData[]>(
-    () => [
-      { label: 'Total Units', value: String(new Set(tableRows.map((row) => row.unit)).size) },
-      {
-        label: 'Frequencies',
-        value: String(new Set(tableRows.map((row) => row.frequency)).size),
-      },
-      { label: 'Data Rows', value: String(tableRows.length) },
-    ],
-    [tableRows],
-  );
 
   const typeOptions = useMemo(
     () => [...new Set(tableRows.map((row) => row.unitType))],
@@ -336,9 +306,11 @@ export function ReportSetupPage(): ReactElement {
         <div className="workspace-rail">
           <section className="setup-section setup-section--primary" aria-labelledby="setup-upload-title">
             <div className="setup-section__intro">
-              <div>
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">1</span>
                 <h2 id="setup-upload-title">Upload Source Data</h2>
               </div>
+              <p>Import your Excel or CSV measurement file.</p>
             </div>
             <UploadSourceDataCard
               onFileSelected={handleFileSelected}
@@ -347,7 +319,11 @@ export function ReportSetupPage(): ReactElement {
 
           <section className="setup-section" aria-labelledby="setup-metadata-title">
             <div className="setup-section__intro">
-              <h2 id="setup-metadata-title">Setup Parameters</h2>
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">2</span>
+                <h2 id="setup-metadata-title">Setup Parameters</h2>
+              </div>
+              <p>Fill in report details before generating.</p>
             </div>
             <ReportMetadataSection
               fields={metadataFields.map((field) => ({
@@ -363,8 +339,11 @@ export function ReportSetupPage(): ReactElement {
 
         <div className="workspace-main workspace-main--table">
           <section className="setup-section setup-section--results" aria-labelledby="setup-results-title">
-            <div className="setup-section__intro">
-              <h2 id="setup-results-title">Inspect Extracted Results</h2>
+            <div className="setup-section__intro setup-section__intro--main">
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">3</span>
+                <h2 id="setup-results-title">Inspect Extracted Results</h2>
+              </div>
               <p>Search, filter, and preview rows before you move to the generated report.</p>
             </div>
             <article className="panel-card table-card">
@@ -532,16 +511,6 @@ export function ReportSetupPage(): ReactElement {
               </div>
             </article>
           </section>
-
-          <div className="summary-column">
-            {summaryCards.map((card, index) => (
-              <SummaryCard
-                key={card.label}
-                {...card}
-                toneClassName={`summary-card--tone-${index + 1}`}
-              />
-            ))}
-          </div>
 
           <div className="dashboard-footer">
             <div className="dashboard-footer__actions">

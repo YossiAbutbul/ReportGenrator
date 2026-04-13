@@ -104,7 +104,11 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .shell-header__nav-item:hover:not(.is-active) {
   color: #3d5980;
-  background: rgba(47, 95, 224, 0.05);
+  background: var(--color-panel-muted);
+}
+
+.shell-header__nav-item:active:not(.is-active) {
+  transform: scale(0.97);
 }
 
 .shell-header__nav-item svg {
@@ -131,6 +135,13 @@ input[type="number"]::-webkit-inner-spin-button {
   color: #5d7290;
   font-size: 0.82rem;
   font-weight: 700;
+  transition: background 150ms ease, border-color 150ms ease;
+  cursor: pointer;
+}
+
+.shell-header__help-button:hover {
+  background: var(--color-panel-muted);
+  border-color: var(--color-border);
 }
 
 .shell-header__actions {
@@ -224,10 +235,10 @@ input[type="number"]::-webkit-inner-spin-button {
   overflow: hidden;
   min-height: 2.4rem;
   padding: 0.5rem 0.75rem;
-  border: var(--border-thin) dashed #c3d3e8;
+  border: var(--border-thin) solid #e4ecf5;
   border-radius: var(--radius-sm);
-  background: #f7fafd;
-  color: #7d93ab;
+  background: #ffffff;
+  color: #8fa5be;
   font-size: 0.8rem;
   font-weight: 500;
   font: inherit;
@@ -241,8 +252,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .upload-card__drop-zone:hover {
-  border-color: #a8bfd8;
-  background: #f3f8ff;
+  border-color: #c5d5e8;
+  background: #fafcff;
 }
 
 .upload-card__drop-icon {
@@ -259,6 +270,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .upload-card__drop-hint {
+  font-size: 0.76rem;
   line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;

@@ -63,6 +63,8 @@
   border-radius: 0.7rem;
   background: transparent;
   color: #5f7290;
+  transition: background 150ms ease, color 150ms ease;
+  cursor: pointer;
 }
 
 .modal__close svg {

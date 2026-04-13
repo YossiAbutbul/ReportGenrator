@@ -440,7 +440,11 @@ export function GraphViewer2DPage(): ReactElement {
         <div className="workspace-rail">
           <section className="setup-section" aria-labelledby="graph2d-upload-title">
             <div className="setup-section__intro">
-              <h2 id="graph2d-upload-title">Load Test Data</h2>
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">1</span>
+                <h2 id="graph2d-upload-title">Load Test Data</h2>
+              </div>
+              <p>Upload a measurement TXT file.</p>
             </div>
             <GraphUploadCard
               description="Drag & drop or click to upload"
@@ -451,7 +455,10 @@ export function GraphViewer2DPage(): ReactElement {
 
           <div className="setup-section">
             <div className="setup-section__intro">
-              <h2>Graph Parameters</h2>
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">2</span>
+                <h2>Graph Parameters</h2>
+              </div>
             </div>
 
             <label className="graph-viewer-2d__select-group">
@@ -517,7 +524,10 @@ export function GraphViewer2DPage(): ReactElement {
 
           <div className="setup-section">
             <div className="setup-section__intro">
-              <h2>Graph Colors</h2>
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">3</span>
+                <h2>Graph Colors</h2>
+              </div>
             </div>
             <div className="graph-viewer-2d__colors-row">
               <label className="graph-viewer-2d__color-field">

@@ -192,6 +192,11 @@
   line-height: 1.45;
   vertical-align: middle;
   text-align: left;
+  transition: background 120ms ease;
+}
+
+.report-data-table tbody tr:hover td {
+  background: var(--color-panel-muted);
 }
 
 .report-data-table th {
@@ -242,6 +247,12 @@
   color: #4f6f98;
   font-size: 0.84rem;
   font-weight: 700;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.report-chip:hover {
+  background: var(--color-panel-soft);
+  border-color: var(--color-primary-border);
 }
 
 .report-page__stat {
@@ -256,6 +267,12 @@
   color: #567192;
   font-size: 0.82rem;
   font-weight: 700;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.report-page__stat:hover {
+  background: var(--color-panel-soft);
+  border-color: var(--color-primary-border);
 }
 
 .report-page__stat svg {
@@ -380,6 +397,12 @@
   color: #567192;
   font-size: 0.84rem;
   font-weight: 700;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.report-area-card__action:hover {
+  background: var(--color-panel-soft);
+  border-color: var(--color-primary-border);
 }
 
 .report-area-card__action--stacked {

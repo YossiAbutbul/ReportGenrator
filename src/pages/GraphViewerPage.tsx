@@ -109,31 +109,48 @@ export function GraphViewerPage(): ReactElement {
     <section className="graph-viewer-page" aria-label="3D Graph Viewer">
       <div className="workspace-shell workspace-shell--graph">
         <div className="workspace-rail">
-          <GraphUploadCard mode="graph3d" onFileSelected={handleGraphFileSelected} />
-
-          <article className="panel-card graph-viewer-card graph-viewer-card--left-rail">
-            <div className="graph-viewer-2d__hero">
-              <div className="graph-viewer-2d__hero-copy">
-                <div className="report-area-card__eyebrow">3D Graph Viewer</div>
-                <h1 className="graph-viewer-card__title">
-                  {graphData?.fileName || 'Upload a TXT graph file to start'}
-                </h1>
+          <section className="setup-section" aria-labelledby="graph3d-upload-title">
+            <div className="setup-section__intro">
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">1</span>
+                <h2 id="graph3d-upload-title">Load Test Data</h2>
               </div>
+              <p>Upload a measurement TXT file.</p>
+            </div>
+            <GraphUploadCard mode="graph3d" onFileSelected={handleGraphFileSelected} />
+          </section>
 
-              <div className="graph-viewer-card__toolbar">
+          <div className="setup-section">
+            <div className="setup-section__intro">
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">2</span>
+                <h2>Graph Parameters</h2>
+              </div>
+            </div>
+
+            <label className="graph-viewer-2d__select-group">
+              <span>Select Polarity</span>
+              <select
+                value={metric}
+                onChange={(event) => {
+                  setIsGraphLoading(true);
+                  setMetric(event.target.value as GraphMetric);
+                }}
+              >
                 {metricOptions.map((option) => (
-                  <button
-                    key={option.key}
-                    className={`graph-viewer-card__metric-button${metric === option.key ? ' is-active' : ''}`}
-                    type="button"
-                    onClick={() => {
-                      setIsGraphLoading(true);
-                      setMetric(option.key);
-                    }}
-                  >
+                  <option key={option.key} value={option.key}>
                     {option.label}
-                  </button>
+                  </option>
                 ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="setup-section">
+            <div className="setup-section__intro">
+              <div className="setup-section__step-row">
+                <span className="setup-section__step-badge">3</span>
+                <h2>Measurement Info</h2>
               </div>
             </div>
 
@@ -167,7 +184,7 @@ export function GraphViewerPage(): ReactElement {
                 </div>
               </div>
             </div>
-          </article>
+          </div>
         </div>
 
         <div className="workspace-main workspace-main--visual">
