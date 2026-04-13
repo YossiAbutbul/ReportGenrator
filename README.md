@@ -33,11 +33,20 @@
 
 ## Features
 
-- **Report Setup** — Upload Excel workbooks, edit metadata, generate document-ready reports
-- **Report Area** — A4 document viewer with zoom, page headers/footers, Word export
-- **3D Graph** — Three.js radiation pattern surface with spherical wireframe grid and orbit controls
-- **2D Graph** — Polar azimuth/elevation plots with adjustable reference ranges
-- **Dark Mode** — Neutral charcoal theme, persisted to localStorage
+### Report Setup
+Upload `.xlsx` / `.xlsm` workbooks, edit metadata fields, search and filter rows by unit type, ID, or frequency. Generate a document snapshot when ready.
+
+### Report Area
+A4-style document viewer with zoom controls, page headers and footers, unit placement photo upload, skeleton loading states. Export as formatted Word document.
+
+### 3D Graph Viewer
+Three.js-powered radiation pattern surface with vertex-colored heatmap, spherical wireframe grid (theta/phi), orbit controls, animated camera reset, and PNG export. TRP calculated as power sum in watts.
+
+### 2D Graph Viewer
+Polar azimuth and elevation plots with circular grid, spline interpolation, and adaptive marker density. Adjustable reference ranges, power statistics, H-Pol / V-Pol / Both-Pols views.
+
+### Dark Mode
+Neutral charcoal theme with no blue tint. Animated toggle, persisted to localStorage, 3D scene re-renders on switch.
 
 ---
 
@@ -47,6 +56,15 @@
 npm install
 npm run dev
 ```
+
+---
+
+## Supported File Formats
+
+| Format | Usage |
+|--------|-------|
+| `.xlsx` / `.xlsm` | Report workbooks with embedded graph images |
+| `.txt` (Howland WTL) | TRP measurement exports (15° and 5° resolution) |
 
 ---
 
