@@ -294,6 +294,8 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       }
     }, [isDark]);
 
+    const resetAnimRef = useRef<number | null>(null);
+
     useImperativeHandle(ref, () => ({
       resetView: () => {
         const camera = cameraRef.current;
@@ -301,17 +303,59 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         const container = containerRef.current;
         if (!camera || !controls || !container) return;
 
-        // Fit bounding sphere into canvas
+        // Cancel any running animation
+        if (resetAnimRef.current !== null) {
+          cancelAnimationFrame(resetAnimRef.current);
+        }
+
+        // Target position
         const aspect = container.clientWidth / container.clientHeight;
         const fovRad = THREE.MathUtils.degToRad(camera.fov);
         const effectiveFov = aspect < 1 ? 2 * Math.atan(Math.tan(fovRad / 2) * aspect) : fovRad;
         const fitDist = geometry.maxRadius / Math.sin(effectiveFov / 2);
-        const camDist = fitDist * 1.05; // 5% breathing room
+        const camDist = fitDist * 1.05;
 
-        camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
-        camera.lookAt(0, 0, 0);
-        controls.target.set(0, 0, 0);
-        controls.update();
+        const targetPos = new THREE.Vector3(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+        const targetLook = new THREE.Vector3(0, 0, 0);
+        const startPos = camera.position.clone();
+        const startTarget = controls.target.clone();
+
+        // Convert to spherical for constant-radius interpolation
+        const startSph = new THREE.Spherical().setFromVector3(startPos);
+        const targetSph = new THREE.Spherical().setFromVector3(targetPos);
+
+        const startTime = performance.now();
+        const duration = 600;
+
+        function easeOutCubic(t: number): number {
+          return 1 - (1 - t) ** 3;
+        }
+
+        const cam = camera;
+        const ctrl = controls;
+
+        function animateReset(): void {
+          const elapsed = performance.now() - startTime;
+          const t = Math.min(elapsed / duration, 1);
+          const e = easeOutCubic(t);
+
+          // Interpolate spherical coords — constant radius, smooth arc
+          const r = startSph.radius + (targetSph.radius - startSph.radius) * e;
+          const phi = startSph.phi + (targetSph.phi - startSph.phi) * e;
+          const theta = startSph.theta + (targetSph.theta - startSph.theta) * e;
+
+          cam.position.setFromSpherical(new THREE.Spherical(r, phi, theta));
+          ctrl.target.lerpVectors(startTarget, targetLook, e);
+          ctrl.update();
+
+          if (t < 1) {
+            resetAnimRef.current = requestAnimationFrame(animateReset);
+          } else {
+            resetAnimRef.current = null;
+          }
+        }
+
+        resetAnimRef.current = requestAnimationFrame(animateReset);
       },
       downloadImage: async () => {
         const renderer = rendererRef.current;

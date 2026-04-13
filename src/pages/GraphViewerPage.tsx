@@ -148,16 +148,14 @@ export function GraphViewerPage(): ReactElement {
                         <span>Loading...</span>
                       </div>
                     ) : null}
-                    <div className="graph-viewer-card__controls">
-                      <button
-                        className="graph-viewer-card__control-button"
-                        type="button"
-                        onClick={handleResetView}
-                      >
-                        <Home aria-hidden="true" />
-                        <span>Reset</span>
-                      </button>
-                    </div>
+                    <button
+                      className="graph-3d__reset-btn"
+                      type="button"
+                      onClick={handleResetView}
+                    >
+                      <Home aria-hidden="true" />
+                      <span>Reset View</span>
+                    </button>
                     <div className="graph-viewer-card__plot-layout">
                       <div className="graph-legend" aria-hidden="true">
                         <div className="graph-legend__bar" />
