@@ -108,7 +108,6 @@ export function GraphViewerPage(): ReactElement {
           <section className="setup-section" aria-labelledby="graph3d-upload-title">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">1</span>
                 <h2 id="graph3d-upload-title">Load Test Data</h2>
               </div>
               <p>Upload a measurement TXT file.</p>
@@ -127,7 +126,6 @@ export function GraphViewerPage(): ReactElement {
           <div className="setup-section">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">2</span>
                 <h2>Graph Parameters</h2>
               </div>
             </div>

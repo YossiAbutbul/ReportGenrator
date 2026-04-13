@@ -307,7 +307,6 @@ export function ReportSetupPage(): ReactElement {
           <section className="setup-section setup-section--primary" aria-labelledby="setup-upload-title">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">1</span>
                 <h2 id="setup-upload-title">Upload Source Data</h2>
               </div>
               <p>Import your Excel or CSV measurement file.</p>
@@ -320,7 +319,6 @@ export function ReportSetupPage(): ReactElement {
           <section className="setup-section" aria-labelledby="setup-metadata-title">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">2</span>
                 <h2 id="setup-metadata-title">Setup Parameters</h2>
               </div>
               <p>Fill in report details before generating.</p>
@@ -341,7 +339,6 @@ export function ReportSetupPage(): ReactElement {
           <section className="setup-section setup-section--results" aria-labelledby="setup-results-title">
             <div className="setup-section__intro setup-section__intro--main">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">3</span>
                 <h2 id="setup-results-title">Inspect Extracted Results</h2>
               </div>
               <p>Search, filter, and preview rows before you move to the generated report.</p>

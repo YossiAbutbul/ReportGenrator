@@ -335,89 +335,89 @@
 }
 
 [data-theme="dark"] .modal__dialog {
-  border-color: #2a3548;
-  background: #161b26;
+  border-color: #333333;
+  background: #1a1a1a;
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.5);
 }
 
 [data-theme="dark"] .modal__header {
-  border-bottom-color: #222d3e;
+  border-bottom-color: #2a2a2a;
 }
 
 [data-theme="dark"] .modal__title {
-  color: #d0daea;
+  color: #e0e0e0;
 }
 
 [data-theme="dark"] .modal__close {
-  color: #6a7c94;
+  color: #777777;
 }
 
 [data-theme="dark"] .modal__close:hover {
-  background: #1e2838;
-  color: #b8c8dc;
+  background: #252525;
+  color: #cccccc;
 }
 
 [data-theme="dark"] .help-center__heading {
-  color: #d0daea;
+  color: #e0e0e0;
 }
 
 [data-theme="dark"] .help-center__subheading {
-  color: #5a6e88;
+  color: #666666;
 }
 
 [data-theme="dark"] .help-center__heading-icon {
-  color: #5b9aef;
+  color: #6ea8fe;
 }
 
 [data-theme="dark"] .help-center__step {
-  border-color: #222d3e;
-  background: #1a2030;
+  border-color: #2a2a2a;
+  background: #1e1e1e;
 }
 
 [data-theme="dark"] .help-center__step:hover {
-  border-color: #2a3548;
+  border-color: #333333;
 }
 
 [data-theme="dark"] .help-center__step-title h4 {
-  color: #d0daea;
+  color: #e0e0e0;
 }
 
 [data-theme="dark"] .help-center__step p {
-  color: #6a7c94;
+  color: #777777;
 }
 
 [data-theme="dark"] .help-center__shortcut {
-  border-bottom-color: #1e2838;
+  border-bottom-color: #252525;
 }
 
 [data-theme="dark"] .help-center__kbd {
-  border-color: #2a3548;
-  background: #1a2030;
-  color: #b8c8dc;
-  box-shadow: 0 1px 0 #222d3e;
+  border-color: #333333;
+  background: #1e1e1e;
+  color: #cccccc;
+  box-shadow: 0 1px 0 #2a2a2a;
 }
 
 [data-theme="dark"] .help-center__shortcut-action {
-  color: #6a7c94;
+  color: #777777;
 }
 
 [data-theme="dark"] .help-center__tip {
-  color: #8a9ab0;
+  color: #999999;
 }
 
 [data-theme="dark"] .help-center__tip::before {
-  background: #3a4a60;
+  background: #444444;
 }
 
 [data-theme="dark"] .help-center__footer {
-  border-top-color: #222d3e;
-  color: #5a6e88;
+  border-top-color: #2a2a2a;
+  color: #666666;
 }
 
 [data-theme="dark"] .help-center__footer a {
-  color: #6a7c94;
+  color: #777777;
 }
 
 [data-theme="dark"] .help-center__footer a:hover {
-  color: #5b9aef;
+  color: #6ea8fe;
 }

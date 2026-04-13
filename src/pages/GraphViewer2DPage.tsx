@@ -441,7 +441,6 @@ export function GraphViewer2DPage(): ReactElement {
           <section className="setup-section" aria-labelledby="graph2d-upload-title">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">1</span>
                 <h2 id="graph2d-upload-title">Load Test Data</h2>
               </div>
               <p>Upload a measurement TXT file.</p>
@@ -461,7 +460,6 @@ export function GraphViewer2DPage(): ReactElement {
           <div className="setup-section">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">2</span>
                 <h2>Graph Parameters</h2>
               </div>
             </div>
@@ -530,7 +528,6 @@ export function GraphViewer2DPage(): ReactElement {
           <div className="setup-section">
             <div className="setup-section__intro">
               <div className="setup-section__step-row">
-                <span className="setup-section__step-badge">3</span>
                 <h2>Graph Colors</h2>
               </div>
             </div>

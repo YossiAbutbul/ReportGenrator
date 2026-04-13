@@ -15,28 +15,24 @@ type HelpCenterModalProps = {
 
 const workflows = [
   {
-    step: '01',
     icon: Settings2,
     title: 'Report Setup',
     description: 'Upload Excel workbook, fill metadata fields, press Generate Report.',
     accent: '#2563eb',
   },
   {
-    step: '02',
     icon: FileText,
     title: 'Report Area',
     description: 'Review document preview, add unit placement photo, export as Word.',
     accent: '#059669',
   },
   {
-    step: '03',
     icon: ChartColumnBig,
     title: '3D Graph Viewer',
     description: 'Upload TXT measurement file, inspect 3D radiation pattern surface.',
     accent: '#d97706',
   },
   {
-    step: '04',
     icon: Radar,
     title: '2D Graph Viewer',
     description: 'Analyze azimuth/elevation slices, adjust reference range, compare polarizations.',
@@ -72,7 +68,6 @@ export function HelpCenterModal({
           <div className="help-center__steps">
             {workflows.map((item) => (
               <article key={item.title} className="help-center__step">
-                <div className="help-center__step-number" style={{ color: item.accent }}>{item.step}</div>
                 <div className="help-center__step-body">
                   <div className="help-center__step-title">
                     <item.icon aria-hidden="true" className="help-center__step-icon" style={{ color: item.accent }} />

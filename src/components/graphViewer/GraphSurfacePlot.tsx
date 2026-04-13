@@ -284,7 +284,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       const renderer = rendererRef.current;
       if (!renderer) return;
       if (isDark) {
-        renderer.setClearColor(0x0f1219, 1);
+        renderer.setClearColor(0x111111, 1);
       } else {
         renderer.setClearColor(0x000000, 0);
       }

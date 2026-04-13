@@ -373,20 +373,20 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 [data-theme="dark"] .theme-toggle {
-  border-color: #2a3548;
-  background: #1a2030;
-  color: #8a9ab0;
+  border-color: #333333;
+  background: #1e1e1e;
+  color: #999999;
 }
 
 [data-theme="dark"] .theme-toggle:hover {
-  background: #222d3e;
-  border-color: #3a4a60;
+  background: #2a2a2a;
+  border-color: #444444;
 }
 
 /* ── Dark-mode overrides: app-shell ───────────────── */
 
 [data-theme="dark"] .shell-header {
-  background: rgba(22, 27, 38, 0.95);
+  background: rgba(26, 26, 26, 0.95);
   border-color: var(--color-border);
 }
 
@@ -395,7 +395,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 [data-theme="dark"] .shell-header__nav-item {
-  color: #6a7c94;
+  color: #777777;
 }
 
 [data-theme="dark"] .shell-header__nav-item:hover {
@@ -404,18 +404,18 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 [data-theme="dark"] .shell-header__nav-item.is-active {
-  color: #7db4f0;
+  color: #7db5ff;
 }
 
 [data-theme="dark"] .shell-header__help-button {
-  border-color: #2a3548;
-  background: #1a2030;
-  color: #8a9ab0;
+  border-color: #333333;
+  background: #1e1e1e;
+  color: #999999;
 }
 
 [data-theme="dark"] .shell-header__help-button:hover {
-  background: #222d3e;
-  border-color: #3a4a60;
+  background: #2a2a2a;
+  border-color: #444444;
 }
 
 [data-theme="dark"] .app-shell__body {
@@ -424,7 +424,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 [data-theme="dark"] .app-shell__content {
-  background: linear-gradient(180deg, #0f1219 0%, #111720 100%);
+  background: linear-gradient(180deg, #111111 0%, #161616 100%);
 }
 
 [data-theme="dark"] .upload-card {
@@ -433,21 +433,21 @@ input[type="number"]::-webkit-inner-spin-button {
 
 [data-theme="dark"] .upload-card.is-drag-active {
   border-color: var(--color-primary);
-  background: #1a2540;
+  background: #1e2233;
 }
 
 [data-theme="dark"] .upload-card__drop-zone {
-  border-color: #2a3548;
-  background: #1a2030;
-  color: #6a7c94;
+  border-color: #333333;
+  background: #1e1e1e;
+  color: #777777;
 }
 
 [data-theme="dark"] .upload-card__drop-zone:hover {
-  border-color: #3a4a60;
-  background: #1e2838;
+  border-color: #444444;
+  background: #252525;
 }
 
 [data-theme="dark"] .upload-card__icon {
-  border-color: #2a3548;
-  background: #1a2030;
+  border-color: #333333;
+  background: #1e1e1e;
 }
