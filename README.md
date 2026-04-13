@@ -45,9 +45,6 @@ Three.js-powered radiation pattern surface with vertex-colored heatmap, spherica
 ### 2D Graph Viewer
 Polar azimuth and elevation plots with circular grid, spline interpolation, and adaptive marker density. Adjustable reference ranges, power statistics, H-Pol / V-Pol / Both-Pols views.
 
-### Dark Mode
-Neutral charcoal theme with no blue tint. Animated toggle, persisted to localStorage, 3D scene re-renders on switch.
-
 ---
 
 ## Quick Start
