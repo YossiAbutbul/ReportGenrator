@@ -800,7 +800,10 @@
   color: #475569;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: background 150ms ease, color 150ms ease, transform 200ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    transform 200ms ease;
 }
 
 .graph-3d__reset-btn:hover {
