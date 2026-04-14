@@ -11,7 +11,10 @@
       "WebFetch(domain:dribbble.com)",
       "Bash(git commit:*)",
       "Bash(grep -c \"#161b26\\\\|#1a2030\\\\|#222d3e\\\\|#2a3548\\\\|#0f1219\" src/styles/*.css)",
-      "Bash(grep -rn \"rgba\\(\" src/styles/*.css)"
+      "Bash(grep -rn \"rgba\\(\" src/styles/*.css)",
+      "Read(//c/tmp/**)",
+      "Bash(python3 -c ':*)",
+      "Bash(node:*)"
     ]
   }
 }
