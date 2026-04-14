@@ -643,10 +643,24 @@ function buildResultsTableXml(
   });
 }
 
+function buildNotesXml(notes: string): string {
+  const trimmed = notes.trim();
+  if (!trimmed) return '';
+  return trimmed
+    .split(/\r?\n/)
+    .map((line) =>
+      line.trim() === ''
+        ? createEmptyEditableParagraph()
+        : createParagraph(line, { size: 24, spacingAfter: 120, bidi: false }),
+    )
+    .join('');
+}
+
 function buildDocumentXml(
   report: ReportPreview,
   imagePartsByRowKey: Map<string, DocxImagePart>,
   unitPlacementImagePart: DocxImagePart | null,
+  notesContent: string = '',
 ): string {
   const measurementTable = createTable(
     [
@@ -803,7 +817,7 @@ function buildDocumentXml(
     ${resultPages}
 
     ${appendEditableParagraphBeforePageBreak(`
-    ${createParagraph('Notes', {
+    ${createParagraph('Summary', {
       styleId: 'Heading1',
       bold: true,
       size: 32,
@@ -812,9 +826,27 @@ function buildDocumentXml(
       spacingBefore: 120,
       pageBreakBefore: true,
     })}
-    ${createEmptyEditableParagraph()}
-    ${createEmptyEditableParagraph()}
-    ${createEmptyEditableParagraph()}
+    ${createTable(
+      [
+        ['', 'Frequency [MHz]', 'Average TRP [dBm]', 'Average Peak [dBm]'],
+        ...report.summaryTableRows.map((row) => [
+          row.type,
+          row.frequency,
+          row.averageTrp,
+          row.averagePeak,
+        ]),
+      ],
+      { headerRow: true, columnWidths: [2500, 2000, 2000, 2000] },
+    )}
+    ${createParagraph('Notes', {
+      styleId: 'Heading2',
+      bold: true,
+      size: 26,
+      color: '002060',
+      spacingAfter: 180,
+      spacingBefore: 240,
+    })}
+    ${buildNotesXml(notesContent) || `${createEmptyEditableParagraph()}${createEmptyEditableParagraph()}${createEmptyEditableParagraph()}`}
     `)}
 
     <w:sectPr>
@@ -882,6 +914,7 @@ async function buildUnitPlacementImagePart(
 export async function exportReportAsWord(
   report: ReportPreview,
   unitPlacementDataUrl: string | null = null,
+  notesContent: string = '',
 ): Promise<void> {
   const response = await fetch(TEMPLATE_DOCX_PATH);
 
@@ -916,7 +949,7 @@ export async function exportReportAsWord(
     imageParts.push(unitPlacementImagePart);
   }
 
-  zip.file('word/document.xml', buildDocumentXml(report, imagePartsByRowKey, unitPlacementImagePart));
+  zip.file('word/document.xml', buildDocumentXml(report, imagePartsByRowKey, unitPlacementImagePart, notesContent));
   zip.file('word/_rels/document.xml.rels', buildDocumentRelationshipsXml(imageParts));
 
   imageParts.forEach((imagePart) => {

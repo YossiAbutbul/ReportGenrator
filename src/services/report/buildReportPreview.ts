@@ -1,4 +1,4 @@
-import type { ReportPreview, ReportResultSection } from '../../types/report';
+import type { ReportPreview, ReportResultSection, SummaryTableRow } from '../../types/report';
 import type { ReportMetadataForm, ResultRow } from '../../types/trpDashboard';
 
 function getDisplayValue(value: string, fallback: string): string {
@@ -53,6 +53,42 @@ function buildSections(tableRows: ResultRow[]): ReportResultSection[] {
   }));
 }
 
+export function buildSummaryTableRows(sections: ReportResultSection[]): SummaryTableRow[] {
+  const rows: SummaryTableRow[] = [];
+
+  for (const section of sections) {
+    const freqMap = new Map<string, { trpSum: number; peakSum: number; count: number }>();
+
+    for (const row of section.rows) {
+      const trp = parseFloat(row.trp);
+      const peak = parseFloat(row.peak);
+      if (isNaN(trp) || isNaN(peak)) continue;
+
+      const existing = freqMap.get(row.frequency);
+      if (existing) {
+        existing.trpSum += trp;
+        existing.peakSum += peak;
+        existing.count += 1;
+      } else {
+        freqMap.set(row.frequency, { trpSum: trp, peakSum: peak, count: 1 });
+      }
+    }
+
+    const sortedFreqs = sortFrequencyLabels([...freqMap.keys()]);
+    for (const freq of sortedFreqs) {
+      const entry = freqMap.get(freq)!;
+      rows.push({
+        type: section.title,
+        frequency: freq,
+        averageTrp: (entry.trpSum / entry.count).toFixed(2),
+        averagePeak: (entry.peakSum / entry.count).toFixed(2),
+      });
+    }
+  }
+
+  return rows;
+}
+
 export function buildReportPreview(
   metadata: ReportMetadataForm,
   tableRows: ResultRow[],
@@ -79,10 +115,6 @@ export function buildReportPreview(
         key: 'Frequency',
         value: allFrequencies.length > 0 ? allFrequencies.join(', ') : 'No frequency data loaded yet',
       },
-      {
-        key: 'Scope',
-        value: getDisplayValue(metadata.scopeOfTesting, 'TRP test'),
-      },
     ],
     firmwareHardwareParameters: [
       {
@@ -95,5 +127,6 @@ export function buildReportPreview(
       },
     ],
     sections,
+    summaryTableRows: buildSummaryTableRows(sections),
   };
 }

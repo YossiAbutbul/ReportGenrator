@@ -73,10 +73,14 @@ export type AppStoreValue = {
     isStaleModalOpen: boolean;
     zoomLevel: number;
     unitPlacementImage: string | null;
+    notesContent: string;
+    dragSectionId: string | null;
     setIsExportingWord: Dispatch<SetStateAction<boolean>>;
     setIsStaleModalOpen: Dispatch<SetStateAction<boolean>>;
     setZoomLevel: Dispatch<SetStateAction<number>>;
     setUnitPlacementImage: Dispatch<SetStateAction<string | null>>;
+    setNotesContent: Dispatch<SetStateAction<string>>;
+    setDragSectionId: Dispatch<SetStateAction<string | null>>;
   };
   graph3d: {
     graphData: ParsedGraphFile | null;

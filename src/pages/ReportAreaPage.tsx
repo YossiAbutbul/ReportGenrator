@@ -1,8 +1,9 @@
-import type { ChangeEvent, ReactElement } from 'react';
-import { useEffect, useRef, useCallback } from 'react';
+import type { ChangeEvent, DragEvent, ReactElement } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import {
   AlertTriangle,
   FileImage,
+  GripVertical,
   ImagePlus,
   Minus,
   Pencil,
@@ -12,6 +13,7 @@ import {
   Ruler,
   Trash2,
 } from 'lucide-react';
+import { buildSummaryTableRows } from '../services/report/buildReportPreview';
 import { Modal } from '../components/common/Modal';
 import {
   exportReportAsWord,
@@ -51,6 +53,36 @@ function WordDocumentIcon(): ReactElement {
   );
 }
 
+const PAGE_SCALE = 5.6 / 51; // thumbnail width / actual page width
+
+function PagePreview({ pageId, version }: { pageId: string; version: string }): ReactElement {
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    const timer = setTimeout(() => {
+      const source = document.getElementById(pageId);
+      if (!source || !wrap) return;
+      const clone = source.cloneNode(true) as HTMLElement;
+      clone.removeAttribute('id');
+      clone.style.pointerEvents = 'none';
+      clone.style.userSelect = 'none';
+      wrap.innerHTML = '';
+      wrap.appendChild(clone);
+    }, 80);
+
+    return () => clearTimeout(timer);
+  }, [pageId, version]);
+
+  return (
+    <div className="doc-page-nav__preview-wrap">
+      <div ref={wrapRef} className="doc-page-nav__preview-inner" />
+    </div>
+  );
+}
+
 function PageHeader({ title, date }: { title: string; date: string }): ReactElement {
   return (
     <div className="doc-page__header">
@@ -75,21 +107,27 @@ export function ReportAreaPage(): ReactElement {
       generatedReport,
       isGeneratingReport,
       isReportDirty,
+      setGeneratedReport,
     },
     reportAreaUi: {
       isExportingWord,
       isStaleModalOpen,
       zoomLevel,
       unitPlacementImage,
+      notesContent,
+      dragSectionId,
       setIsExportingWord,
       setIsStaleModalOpen,
       setZoomLevel,
       setUnitPlacementImage,
+      setNotesContent,
+      setDragSectionId,
     },
   } = useAppStore();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     if (generatedReport && isReportDirty) {
@@ -244,13 +282,14 @@ export function ReportAreaPage(): ReactElement {
   const hasRows = report.summary.totalRows > 0;
   const displayFileName = report.title;
 
-  const totalPages = 3 + report.sections.length + 1;
+  const totalPages = 3 + report.sections.length + 1; // summary page (notes merged in)
+  const previewVersion = report.sections.map((s) => s.id).join(',') + (unitPlacementImage ? '|img' : '|noimg');
 
   const handleWordExport = async (): Promise<void> => {
     if (isExportingWord) return;
     setIsExportingWord(true);
     try {
-      await exportReportAsWord(report, unitPlacementImage);
+      await exportReportAsWord(report, unitPlacementImage, notesContent);
     } finally {
       setIsExportingWord(false);
     }
@@ -439,6 +478,8 @@ export function ReportAreaPage(): ReactElement {
             </div>
           </div>
 
+          {/* Canvas + Page Thumbnails */}
+          <div className="doc-body">
           {/* Document Canvas */}
           <div className="doc-canvas" ref={scrollContainerRef}>
             <div
@@ -446,7 +487,7 @@ export function ReportAreaPage(): ReactElement {
               style={{ transform: `scale(${zoomLevel})` }}
             >
               {/* Page 1: Cover */}
-              <article className="doc-page doc-page--cover">
+              <article id="page-cover" className="doc-page doc-page--cover">
                 <PageHeader title={report.title} date={report.date} />
                 <div className="doc-page__content doc-page__content--cover">
                   <div className="report-page__cover-brand">
@@ -464,7 +505,7 @@ export function ReportAreaPage(): ReactElement {
               </article>
 
               {/* Page 2: Test Setup */}
-              <article className="doc-page">
+              <article id="page-setup" className="doc-page">
                 <PageHeader title={report.title} date={report.date} />
                 <div className="doc-page__content doc-page__content--setup">
                   <div className="report-page__header">
@@ -491,7 +532,7 @@ export function ReportAreaPage(): ReactElement {
               </article>
 
               {/* Report Details */}
-              <article className="doc-page">
+              <article id="page-details" className="doc-page">
                 <PageHeader title={report.title} date={report.date} />
                 <div className="doc-page__content">
                   <div className="report-page__header">
@@ -570,7 +611,7 @@ export function ReportAreaPage(): ReactElement {
 
               {/* Section Pages */}
               {report.sections.map((section) => (
-                <article className="doc-page" key={section.id}>
+                <article id={`page-section-${section.id}`} className="doc-page" key={section.id}>
                   <PageHeader title={report.title} date={report.date} />
                   <div className="doc-page__content">
                     <div className="report-page__header">
@@ -645,24 +686,160 @@ export function ReportAreaPage(): ReactElement {
                 </article>
               ))}
 
-              {/* Notes Page */}
-              <article className="doc-page">
+              {/* Summary + Notes Page */}
+              <article id="page-summary" className="doc-page">
                 <PageHeader title={report.title} date={report.date} />
                 <div className="doc-page__content">
                   <div className="report-page__header">
                     <div className="report-area-card__eyebrow">Final Page</div>
-                    <h2>Notes</h2>
+                    <h2>Summary</h2>
                   </div>
-                  <div className="report-notes">
-                    {hasRows
-                      ? 'Notes section placeholder for reviewer comments, conclusions, and release notes.'
-                      : 'Upload a workbook to start building the report pages from your Excel sheets.'}
-                  </div>
+                  <section className="report-page__section">
+                    <table className="report-data-table" aria-label="Summary table">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Frequency [MHz]</th>
+                          <th>Average TRP [dBm]</th>
+                          <th>Average Peak [dBm]</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {report.summaryTableRows.map((row, i) => (
+                          <tr key={i}>
+                            <td>{row.type}</td>
+                            <td>{row.frequency}</td>
+                            <td>{row.averageTrp}</td>
+                            <td>{row.averagePeak}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </section>
+                  <section className="report-page__section">
+                    <h3>Notes</h3>
+                    <textarea
+                      aria-label="Notes"
+                      className="report-notes-textarea"
+                      placeholder={hasRows ? 'Enter reviewer comments, conclusions, and release notes...' : 'Upload a workbook to enable notes.'}
+                      rows={6}
+                      value={notesContent}
+                      onChange={(e) => setNotesContent(e.target.value)}
+                    />
+                  </section>
                 </div>
                 <PageFooter pageNumber={nextPage()} totalPages={totalPages} />
               </article>
             </div>
           </div>
+
+            {/* Page Thumbnails Panel */}
+            <nav className="doc-page-nav" aria-label="Page thumbnails">
+              <div className="doc-page-nav__title">Pages</div>
+
+              {/* Fixed: Cover */}
+              <button type="button" className="doc-page-nav__thumb" onClick={() => document.getElementById('page-cover')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} title="Cover">
+                <PagePreview pageId="page-cover" version={previewVersion} />
+                <span className="doc-page-nav__lbl">Cover</span>
+                <span className="doc-page-nav__num">1</span>
+              </button>
+
+              {/* Fixed: Test Setup */}
+              <button type="button" className="doc-page-nav__thumb" onClick={() => document.getElementById('page-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} title="Test Setup">
+                <PagePreview pageId="page-setup" version={previewVersion} />
+                <span className="doc-page-nav__lbl">Test Setup</span>
+                <span className="doc-page-nav__num">2</span>
+              </button>
+
+              {/* Fixed: Report Details */}
+              <button type="button" className="doc-page-nav__thumb" onClick={() => document.getElementById('page-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} title="Report Details">
+                <PagePreview pageId="page-details" version={previewVersion} />
+                <span className="doc-page-nav__lbl">Report Details</span>
+                <span className="doc-page-nav__num">3</span>
+              </button>
+
+              {/* Drag divider */}
+              {report.sections.length > 0 && <div className="doc-page-nav__divider" />}
+
+              {/* Draggable section pages */}
+              {report.sections.map((section, idx) => {
+                const fromIdx = report.sections.findIndex((s) => s.id === dragSectionId);
+                const toIdx = report.sections.findIndex((s) => s.id === section.id);
+                const isBeingDragged = dragSectionId === section.id;
+                const isDropTarget = dropTargetId === section.id && !isBeingDragged;
+                // Push direction: if dragged item comes from below this item, gap is above; from above, gap is below
+                const pushDown = isDropTarget && fromIdx > toIdx;
+                const pushUp = isDropTarget && fromIdx < toIdx;
+
+                return (
+                  <div
+                    key={section.id}
+                    className={[
+                      'doc-page-nav__section-slot',
+                      pushDown ? 'doc-page-nav__section-slot--push-down' : '',
+                      pushUp ? 'doc-page-nav__section-slot--push-up' : '',
+                    ].join(' ')}
+                    onDragOver={(e: DragEvent<HTMLDivElement>) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      if (dragSectionId && dragSectionId !== section.id) {
+                        setDropTargetId(section.id);
+                      }
+                    }}
+                    onDrop={(e: DragEvent<HTMLDivElement>) => {
+                      e.preventDefault();
+                      if (!dragSectionId || dragSectionId === section.id) return;
+                      const secs = report.sections;
+                      const fi = secs.findIndex((s) => s.id === dragSectionId);
+                      const ti = secs.findIndex((s) => s.id === section.id);
+                      if (fi === -1 || ti === -1) return;
+                      const reordered = [...secs];
+                      const [moved] = reordered.splice(fi, 1);
+                      reordered.splice(ti, 0, moved);
+                      setGeneratedReport((prev) => prev ? { ...prev, sections: reordered, summaryTableRows: buildSummaryTableRows(reordered) } : prev);
+                      setDragSectionId(null);
+                      setDropTargetId(null);
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className={[
+                        'doc-page-nav__thumb doc-page-nav__thumb--draggable',
+                        isBeingDragged ? 'doc-page-nav__thumb--ghost' : '',
+                      ].join(' ')}
+                      draggable
+                      onDragStart={(e: DragEvent<HTMLButtonElement>) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDragSectionId(section.id);
+                        setDropTargetId(null);
+                      }}
+                      onDragEnd={() => { setDragSectionId(null); setDropTargetId(null); }}
+                      onClick={() => {
+                        if (!dragSectionId) {
+                          document.getElementById(`page-section-${section.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      title={section.title}
+                    >
+                      <GripVertical className="doc-page-nav__grip" aria-hidden="true" size={10} />
+                      <PagePreview pageId={`page-section-${section.id}`} version={previewVersion} />
+                      <span className="doc-page-nav__lbl">{section.title}</span>
+                      <span className="doc-page-nav__num">{idx + 4}</span>
+                    </button>
+                  </div>
+                );
+              })}
+
+              {report.sections.length > 0 && <div className="doc-page-nav__divider" />}
+
+              {/* Fixed: Summary & Notes */}
+              <button type="button" className="doc-page-nav__thumb" onClick={() => document.getElementById('page-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} title="Summary & Notes">
+                <PagePreview pageId="page-summary" version={previewVersion} />
+                <span className="doc-page-nav__lbl">Summary & Notes</span>
+                <span className="doc-page-nav__num">{totalPages}</span>
+              </button>
+            </nav>
+          </div>{/* end doc-body */}
 
           {/* Status Bar */}
           <div className="doc-statusbar">

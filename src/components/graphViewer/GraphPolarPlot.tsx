@@ -55,6 +55,11 @@ type TooltipState = {
   y: number;
 } | null;
 
+// Start loading/parsing Plotly at module import time (app boot) so it's ready on first render
+const plotlyPromise: Promise<PlotlyLike> = import('plotly.js-dist-min').then(
+  (mod) => (mod.default ?? mod) as PlotlyLike,
+);
+
 const metricLabels: Record<GraphMetric, string> = {
   combined: 'TRP (H+V)',
   hPol: 'H-Pol',
@@ -158,13 +163,12 @@ export function GraphPolarPlot({
         onRenderStateChange?.(true);
       }
 
-      const plotlyModule = await import('plotly.js-dist-min');
+      const plotly = await plotlyPromise;
 
       if (isCancelled || !plotRef.current) {
         return;
       }
 
-      const plotly = (plotlyModule.default ?? plotlyModule) as PlotlyLike;
       plotlyRef.current = plotly;
 
       const radialValues = dataPoints.map((point) => point.value);

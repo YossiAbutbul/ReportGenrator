@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import './App.css';
+
 import { AppShell } from './components/layout/AppShell';
 import { GraphViewer2DPage } from './pages/GraphViewer2DPage';
 import { GraphViewerPage } from './pages/GraphViewerPage';

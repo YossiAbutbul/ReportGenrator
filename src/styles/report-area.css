@@ -24,7 +24,6 @@
   z-index: 10;
 }
 
-
 .doc-toolbar__file-info {
   display: flex;
   align-items: center;
@@ -95,7 +94,9 @@
   background: transparent;
   color: #4a6fa5;
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .doc-toolbar__zoom-btn:hover:not(:disabled) {
@@ -173,7 +174,7 @@
 }
 
 .doc-statusbar__copyright:hover {
-  color: #1A365D;
+  color: #1a365d;
 }
 
 .doc-statusbar__page-count {
@@ -193,13 +194,227 @@
   padding: 0;
 }
 
+.doc-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Page Thumbnail Navigator ─────────────────────── */
+
+.doc-page-nav {
+  width: 9rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 0 0 1.5rem;
+  background: var(--color-panel-bg);
+  border-left: 1px solid var(--color-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb) transparent;
+}
+
+.doc-page-nav__title {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: 0.4rem;
+  flex-shrink: 0;
+}
+
+.doc-page-nav__divider {
+  width: 60%;
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 0.35rem 0;
+  flex-shrink: 0;
+}
+
+/* ── Thumb Button ─────────────────────────── */
+
+.doc-page-nav__thumb {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem 0.4rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.doc-page-nav__thumb:hover {
+  background: var(--color-panel-soft);
+}
+
+.doc-page-nav__thumb:hover .doc-page-nav__mini-page {
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.55),
+    0 0 0 2px #3b82f6;
+}
+
+.doc-page-nav__thumb--draggable {
+  cursor: grab;
+}
+
+.doc-page-nav__thumb--draggable:active {
+  cursor: grabbing;
+}
+
+.doc-page-nav__thumb--ghost {
+  opacity: 0.25;
+}
+
+/* Slot covers the full drop zone including push gap */
+.doc-page-nav__section-slot {
+  pointer-events: auto;
+}
+
+.doc-page-nav__grip {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  color: transparent;
+  pointer-events: none;
+  transition: color 140ms ease;
+}
+
+.doc-page-nav__thumb--draggable:hover .doc-page-nav__grip {
+  color: var(--color-text-soft);
+}
+
+/* ── Section Slot (push-apart animation) ─── */
+
+.doc-page-nav__section-slot {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: padding 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.doc-page-nav__section-slot--push-down {
+  padding-top: 2.2rem;
+  position: relative;
+}
+
+.doc-page-nav__section-slot--push-up {
+  padding-bottom: 2.2rem;
+  position: relative;
+}
+
+/* Drop indicator line */
+.doc-page-nav__section-slot--push-down::before,
+.doc-page-nav__section-slot--push-up::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  height: 2px;
+  border-radius: 1px;
+  background: #3b82f6;
+  box-shadow: 0 0 6px #3b82f6;
+}
+
+.doc-page-nav__section-slot--push-down::before {
+  top: 0.65rem;
+}
+
+.doc-page-nav__section-slot--push-up::after {
+  bottom: 0.65rem;
+}
+
+/* ── Live Page Preview ──────────────────────── */
+
+.doc-page-nav__preview-wrap {
+  width: 5.6rem;
+  height: 7.9rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #f0f2f5;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  position: relative;
+  transition: box-shadow 140ms ease;
+}
+
+.doc-page-nav__thumb:hover .doc-page-nav__preview-wrap {
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.5),
+    0 0 0 2px #3b82f6;
+}
+
+.doc-page-nav__preview-inner {
+  transform: scale(0.1098);
+  transform-origin: top left;
+  width: 51rem;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Label + number below thumb ──────────── */
+
+.doc-page-nav__lbl {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  transition: color 140ms ease;
+}
+
+.doc-page-nav__thumb:hover .doc-page-nav__lbl {
+  color: var(--color-text);
+}
+
+.doc-page-nav__num {
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
 .doc-canvas {
   flex: 1;
   overflow: auto;
   background: #e8ecf1;
   background-image:
-    radial-gradient(circle at 20% 50%, rgba(74, 111, 165, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(30, 58, 95, 0.02) 0%, transparent 40%);
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(74, 111, 165, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(30, 58, 95, 0.02) 0%,
+      transparent 40%
+    );
 }
 
 .doc-canvas__scaler {
@@ -243,6 +458,9 @@
   border-bottom: 1px solid #edf0f5;
   background: linear-gradient(180deg, #fafbfd 0%, #f6f8fb 100%);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .doc-page__header-title {
@@ -405,7 +623,6 @@
   max-width: 100%;
   object-fit: contain;
   margin: 0;
-  border: 1px solid #d1d9e6;
   border-radius: 0.25rem;
   background: #ffffff;
 }
@@ -444,7 +661,9 @@
   color: #4a6fa5;
   font-size: 0.78rem;
   font-weight: 700;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .report-page__stat:hover {
@@ -477,7 +696,9 @@
   color: #4a6fa5;
   font-size: 0.8rem;
   font-weight: 700;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .report-chip:hover {
@@ -527,8 +748,30 @@
   color: #4a6fa5;
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Notes Textarea ───────────────────────────────── */
+
+.report-notes-textarea {
+  width: 100%;
+  min-height: 8rem;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #3d5470;
+  background: #fafcff;
+  border: 1px solid #d1d9e6;
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  box-sizing: border-box;
+  transition: border-color 120ms ease;
+}
+
+.report-notes-textarea:focus {
+  outline: none;
+  background: #ffffff;
 }
 
 .report-result-table__graph-image {
@@ -632,7 +875,9 @@
   color: #567192;
   font-size: 0.84rem;
   font-weight: 700;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .report-area-card__action:hover {
@@ -733,7 +978,9 @@
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
 }
 
 .report-area-card__upload-btn:hover {
@@ -795,9 +1042,12 @@
   border: none;
   border-radius: 0.3rem;
   background: rgba(255, 255, 255, 0.92);
-  color: #1A365D;
+  color: #1a365d;
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease, transform 100ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 100ms ease;
 }
 
 .placement-card__action:hover {
@@ -904,15 +1154,23 @@
 }
 
 @keyframes skel-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ── Keyframes ────────────────────────────────────── */
 
 @keyframes report-area-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Print Styles ─────────────────────────────────── */

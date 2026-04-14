@@ -20,6 +20,13 @@ export type ReportResultSection = {
   rows: ResultRow[];
 };
 
+export type SummaryTableRow = {
+  type: string;
+  frequency: string;
+  averageTrp: string;
+  averagePeak: string;
+};
+
 export type ReportPreview = {
   title: string;
   author: string;
@@ -29,4 +36,5 @@ export type ReportPreview = {
   measurementParameters: KeyValueRow[];
   firmwareHardwareParameters: KeyValueRow[];
   sections: ReportResultSection[];
+  summaryTableRows: SummaryTableRow[];
 };

@@ -145,6 +145,7 @@ export function ReportSetupPage(): ReactElement {
       setPreviewRow,
       resetReportSetupUi,
     },
+    reportAreaUi: { setNotesContent },
   } = useAppStore();
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -288,6 +289,7 @@ export function ReportSetupPage(): ReactElement {
       });
 
       setGeneratedReport(buildReportPreview(metadata, tableRows));
+      setNotesContent('');
       setIsReportDirty(false);
       setActivePage('reportArea');
     } finally {
