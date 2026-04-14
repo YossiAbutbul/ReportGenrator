@@ -251,14 +251,19 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       }
       frameRef.current = requestAnimationFrame(animate);
 
-      // Resize
+      // Resize — debounced via rAF to avoid thrashing on every pixel change
+      let resizeRaf: ReturnType<typeof requestAnimationFrame> | null = null;
       const resizeObserver = new ResizeObserver(() => {
-        const w = container.clientWidth;
-        const h = container.clientHeight;
-        if (w === 0 || h === 0) return;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
+        if (resizeRaf !== null) return;
+        resizeRaf = requestAnimationFrame(() => {
+          resizeRaf = null;
+          const w = container.clientWidth;
+          const h = container.clientHeight;
+          if (w === 0 || h === 0) return;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        });
       });
       resizeObserver.observe(container);
 

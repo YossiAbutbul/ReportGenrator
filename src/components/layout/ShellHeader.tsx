@@ -34,6 +34,7 @@ export function ShellHeader({
         {items.map((item) => (
           <button
             key={item.key}
+            aria-current={activePage === item.key ? 'page' : undefined}
             className={`shell-header__nav-item${activePage === item.key ? ' is-active' : ''}`}
             type="button"
             onClick={() => onNavigate(item.key)}

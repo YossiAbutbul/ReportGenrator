@@ -182,6 +182,9 @@ export function ReportSetupPage(): ReactElement {
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
+    const typeSet = new Set(selectedTypes);
+    const idSet = new Set(selectedIds);
+    const freqSet = new Set(selectedFrequencies);
 
     return tableRows.filter((row) => {
       const matchesQuery =
@@ -189,12 +192,9 @@ export function ReportSetupPage(): ReactElement {
         || [row.unit, row.frequency, row.unitType].some((value) =>
           value.toLowerCase().includes(normalizedQuery),
         );
-      const matchesType =
-        selectedTypes.length === 0 || selectedTypes.includes(row.unitType);
-      const matchesId =
-        selectedIds.length === 0 || selectedIds.includes(row.unit);
-      const matchesFrequency =
-        selectedFrequencies.length === 0 || selectedFrequencies.includes(row.frequency);
+      const matchesType = typeSet.size === 0 || typeSet.has(row.unitType);
+      const matchesId = idSet.size === 0 || idSet.has(row.unit);
+      const matchesFrequency = freqSet.size === 0 || freqSet.has(row.frequency);
 
       return matchesQuery && matchesType && matchesId && matchesFrequency;
     });
