@@ -276,6 +276,41 @@ function getSheetRowImageRefs(
     .filter((entry): entry is { rowNumber: number; vmIndex: number } => entry !== null);
 }
 
+async function buildSheetIdToPathMap(zip: JSZip): Promise<Map<number, string>> {
+  const workbookXml = await readZipText(zip, 'xl/workbook.xml');
+  const workbookRelsXml = await readZipText(zip, 'xl/_rels/workbook.xml.rels');
+  const result = new Map<number, string>();
+
+  if (!workbookXml || !workbookRelsXml) {
+    return result;
+  }
+
+  const relsDoc = parseXmlDocument(workbookRelsXml);
+  const relById = new Map<string, string>();
+  getDescendantElements(relsDoc, 'Relationship').forEach((el) => {
+    const id = getAttributeValue(el, ['Id', 'id']);
+    const target = getAttributeValue(el, ['Target', 'target']);
+    if (id && target) {
+      relById.set(id, `xl/${target.replace(/^\.\.\//, '').replace(/^xl\//, '')}`);
+    }
+  });
+
+  const wbDoc = parseXmlDocument(workbookXml);
+  getDescendantElements(wbDoc, 'sheet').forEach((el) => {
+    const sheetId = getNumericValue(getAttributeValue(el, ['sheetId']));
+    const rId = getAttributeValue(el, ['id', 'r:id']);
+    if (sheetId === null || !rId) {
+      return;
+    }
+    const path = relById.get(rId);
+    if (path) {
+      result.set(sheetId, path);
+    }
+  });
+
+  return result;
+}
+
 export async function extractWorkbookImageMap(
   buffer: ArrayBuffer,
   worksheets: Worksheet[],
@@ -295,10 +330,13 @@ export async function extractWorkbookImageMap(
 
   const metadataDocument = parseXmlDocument(metadataXml);
   const vmToRichValueIndex = extractVmToRichValueIndexes(metadataDocument);
+  const sheetIdToPath = await buildSheetIdToPathMap(zip);
   const imageMap = new Map<string, string>();
 
   for (const worksheet of worksheets) {
-    const worksheetXml = await readZipText(zip, `xl/worksheets/sheet${worksheet.id}.xml`);
+    const sheetPath = sheetIdToPath.get(worksheet.id)
+      ?? `xl/worksheets/sheet${worksheet.id}.xml`;
+    const worksheetXml = await readZipText(zip, sheetPath);
 
     if (!worksheetXml) {
       continue;
