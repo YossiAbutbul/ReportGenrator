@@ -43,6 +43,9 @@ type GraphPolarPlotProps = {
   points: PolarPoint[];
   radialRange?: [number, number];
   radialStep?: number;
+  angleTickValues?: number[];
+  angleTickText?: string[];
+  tooltipAngleFormatter?: (angle: number) => number;
 };
 
 type TooltipState = {
@@ -75,6 +78,9 @@ export function GraphPolarPlot({
   points,
   radialRange,
   radialStep = 2,
+  angleTickValues,
+  angleTickText,
+  tooltipAngleFormatter,
 }: GraphPolarPlotProps): ReactElement {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const plotRef = useRef<HTMLDivElement | null>(null);
@@ -116,12 +122,17 @@ export function GraphPolarPlot({
       return;
     }
 
+    const rawAngle = ((point.theta % 360) + 360) % 360;
+    const angle = tooltipAngleFormatter
+      ? tooltipAngleFormatter(rawAngle)
+      : formatTooltipAngle(point.theta);
+
     setTooltip({
-      angle: formatTooltipAngle(point.theta),
+      angle,
       power: point.r,
       ...pointerPositionRef.current,
     });
-  }, []);
+  }, [tooltipAngleFormatter]);
 
   const handlePlotlyUnhover = useCallback((): void => {
     setTooltip(null);
@@ -163,7 +174,12 @@ export function GraphPolarPlot({
         Math.floor(minValue - 2),
         Math.ceil(maxValue + 2),
       ];
-      const angleTicks = Array.from({ length: 24 }, (_, index) => index * 15);
+      const angleTicks = angleTickValues && angleTickValues.length > 0
+        ? angleTickValues
+        : Array.from({ length: 24 }, (_, index) => index * 15);
+      const angleTicksText = angleTickText && angleTickText.length === angleTicks.length
+        ? angleTickText
+        : null;
       const radialTickValueSet = new Set<number>([
         Number(computedRange[1].toFixed(6)),
       ]);
@@ -259,7 +275,7 @@ export function GraphPolarPlot({
             linecolor: 'rgba(180, 198, 220, 0.5)',
             rotation: 90,
             tickmode: 'array',
-            ticktext: angleTicks.map((v) => cardinalLabels[v] ?? `${v}°`),
+            ticktext: angleTicksText ?? angleTicks.map((v) => cardinalLabels[v] ?? `${v}°`),
             tickvals: angleTicks,
             tickfont: {
               color: '#8899b0',
@@ -366,7 +382,7 @@ export function GraphPolarPlot({
         onRenderStateChange?.(false);
       }
     };
-  }, [color, dataPoints, isInteractiveUpdate, maxReferenceLabel, metric, minReferenceLabel, onRenderStateChange, radialRange, radialStep]);
+  }, [angleTickText, angleTickValues, color, dataPoints, isInteractiveUpdate, maxReferenceLabel, metric, minReferenceLabel, onRenderStateChange, radialRange, radialStep]);
 
   return (
     <div

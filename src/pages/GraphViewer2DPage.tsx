@@ -96,6 +96,108 @@ function normalizeElevationPoints(
     .filter((point) => Number.isFinite(point.value));
 }
 
+function findNearestPhi(phiValues: number[], target: number): number | null {
+  if (phiValues.length === 0) {
+    return null;
+  }
+  const dist = (phi: number): number => {
+    const d = Math.abs(phi - target) % 360;
+    return Math.min(d, 360 - d);
+  };
+  return phiValues.reduce((best, current) => (dist(current) < dist(best) ? current : best));
+}
+
+function buildElevationFromSamples(
+  samples: GraphSample[],
+  variant: ElevationVariant,
+  metric: GraphMetric,
+  calibrationFactor: number,
+): Array<{ angle: number; value: number }> {
+  if (samples.length === 0) {
+    return [];
+  }
+
+  const planeA = variant === 'elevation2' ? 0 : 90;
+  const planeB = variant === 'elevation2' ? 90 : 180;
+
+  const byTheta = new Map<number, GraphSample[]>();
+  samples.forEach((s) => {
+    const list = byTheta.get(s.theta) ?? [];
+    list.push(s);
+    byTheta.set(s.theta, list);
+  });
+
+  const pickAtPlane = (target: number): GraphSample[] => {
+    const result: GraphSample[] = [];
+    byTheta.forEach((rowSamples) => {
+      const phis = rowSamples.map((s) => s.phi);
+      const nearest = findNearestPhi(phis, target);
+      if (nearest === null) {
+        return;
+      }
+      const match = rowSamples.find((s) => s.phi === nearest);
+      if (match) {
+        result.push(match);
+      }
+    });
+    return result.sort((a, b) => a.theta - b.theta);
+  };
+
+  const rowA = pickAtPlane(planeA);
+  const rowB = pickAtPlane(planeB);
+
+  if (rowA.length === 0 && rowB.length === 0) {
+    return [];
+  }
+
+  const forward = rowA.map((s) => ({
+    angle: s.theta,
+    value: getMetricValue(s, metric) + calibrationFactor,
+  }));
+
+  const backward = rowB
+    .filter((s) => s.theta > 0 && s.theta < 180)
+    .sort((a, b) => b.theta - a.theta)
+    .map((s) => ({
+      angle: 360 - s.theta,
+      value: getMetricValue(s, metric) + calibrationFactor,
+    }));
+
+  const thetas = rowA.map((s) => s.theta).sort((a, b) => a - b);
+  let step = 15;
+  for (let i = 1; i < thetas.length; i += 1) {
+    const d = thetas[i] - thetas[i - 1];
+    if (d > 0 && d < step) {
+      step = d;
+    }
+  }
+
+  const frontValue = forward.find((p) => p.angle === 0)?.value
+    ?? forward[0]?.value
+    ?? 0;
+  const lastForward = forward[forward.length - 1];
+  const firstBackward = backward[0];
+  const interp: Array<{ angle: number; value: number }> = [];
+
+  if (lastForward && firstBackward) {
+    const startAngle = lastForward.angle;
+    const endAngle = firstBackward.angle;
+    for (let a = startAngle + step; a < endAngle; a += step) {
+      let value: number;
+      if (a <= 180) {
+        const t = (a - startAngle) / (180 - startAngle);
+        value = lastForward.value + t * (frontValue - lastForward.value);
+      } else {
+        const t = (a - 180) / (endAngle - 180);
+        value = frontValue + t * (firstBackward.value - frontValue);
+      }
+      interp.push({ angle: a, value });
+    }
+  }
+
+  return [...forward, ...interp, ...backward].filter((p) => Number.isFinite(p.value));
+}
+
 function buildElevationRows(
   measurementRows: string[][],
   variant: ElevationVariant,
@@ -275,14 +377,40 @@ export function GraphViewer2DPage(): ReactElement {
   );
 
   const elevationPoints = useMemo(
-    () => normalizeElevationPoints(
-      graphData2d?.measurementRows ?? [],
-      elevationVariant,
-      metric,
-      calibrationFactor,
-    ),
-    [calibrationFactor, elevationVariant, graphData2d?.measurementRows, metric],
+    () => {
+      if (!graphData2d) {
+        return [];
+      }
+      const fromSamples = buildElevationFromSamples(
+        graphData2d.samples,
+        elevationVariant,
+        metric,
+        calibrationFactor,
+      );
+      if (fromSamples.length > 0) {
+        return fromSamples;
+      }
+      return normalizeElevationPoints(
+        graphData2d.measurementRows,
+        elevationVariant,
+        metric,
+        calibrationFactor,
+      );
+    },
+    [calibrationFactor, elevationVariant, graphData2d, metric],
   );
+
+  const elevationAngleTicks = useMemo(() => {
+    const values: number[] = [];
+    for (let a = 0; a < 360; a += 15) {
+      values.push(a);
+    }
+    const text = values.map((a) => {
+      const theta = a <= 180 ? a : 360 - a;
+      return `${theta}°`;
+    });
+    return { values, text };
+  }, []);
 
   const azimuthValues = azimuthPoints.map((p) => p.value);
   const elevationValues = elevationPoints.map((p) => p.value);
@@ -667,6 +795,9 @@ export function GraphViewer2DPage(): ReactElement {
                     points={elevationPoints}
                     radialRange={elevationRadialRange}
                     radialStep={elevationRadialStep}
+                    angleTickValues={elevationAngleTicks.values}
+                    angleTickText={elevationAngleTicks.text}
+                    tooltipAngleFormatter={(a) => (a <= 180 ? Math.round(a) : Math.round(360 - a))}
                   />
                 ) : (
                   <GraphPolarPlot
