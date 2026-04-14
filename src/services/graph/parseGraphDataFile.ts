@@ -1,4 +1,5 @@
 import type { GraphMetric, GraphSample, ParsedGraphFile } from '../../types/graphViewer';
+import { parseFirstNumber } from '../../utils';
 
 function formatMetric(value: number | null): string {
   return value === null ? '-' : `${value.toFixed(2)} dBm`;
@@ -11,10 +12,10 @@ function formatFrequency(value: string): string {
     return '-';
   }
 
-  const numericMatch = normalized.match(/-?\d+(?:\.\d+)?/);
+  const numericValue = parseFirstNumber(normalized);
 
-  if (numericMatch) {
-    return `${Number(numericMatch[0]).toFixed(2)} MHz`;
+  if (numericValue !== null) {
+    return `${numericValue.toFixed(2)} MHz`;
   }
 
   return normalized.toLowerCase().includes('mhz') ? normalized : `${normalized} MHz`;

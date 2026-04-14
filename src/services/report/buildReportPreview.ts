@@ -1,5 +1,6 @@
 import type { ReportPreview, ReportResultSection, SummaryTableRow } from '../../types/report';
 import type { ReportMetadataForm, ResultRow } from '../../types/trpDashboard';
+import { parseFirstNumber } from '../../utils';
 
 function getDisplayValue(value: string, fallback: string): string {
   const trimmed = value.trim();
@@ -13,14 +14,14 @@ function getUniqueValues(values: string[]): string[] {
 
 function sortFrequencyLabels(frequencies: string[]): string[] {
   return [...frequencies].sort((left, right) => {
-    const leftMatch = left.match(/-?\d+(?:\.\d+)?/);
-    const rightMatch = right.match(/-?\d+(?:\.\d+)?/);
+    const leftNum = parseFirstNumber(left);
+    const rightNum = parseFirstNumber(right);
 
-    if (!leftMatch || !rightMatch) {
+    if (leftNum === null || rightNum === null) {
       return left.localeCompare(right);
     }
 
-    return Number(leftMatch[0]) - Number(rightMatch[0]);
+    return leftNum - rightNum;
   });
 }
 

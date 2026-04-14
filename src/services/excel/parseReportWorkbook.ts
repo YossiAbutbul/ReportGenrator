@@ -51,6 +51,15 @@ function formatMetric(value: unknown): string {
   return String(primitiveValue ?? '').trim();
 }
 
+// ZIP/Office Open XML magic bytes: PK\x03\x04
+const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
+
+async function hasXlsxMagicBytes(file: File): Promise<boolean> {
+  const slice = await file.slice(0, 4).arrayBuffer();
+  const bytes = new Uint8Array(slice);
+  return XLSX_MAGIC.every((byte, index) => bytes[index] === byte);
+}
+
 export async function parseReportWorkbook(file: File): Promise<ResultRow[]> {
   const lowerName = file.name.toLowerCase();
 
@@ -58,8 +67,13 @@ export async function parseReportWorkbook(file: File): Promise<ResultRow[]> {
     throw new Error('Only .xlsx and .xlsm files are supported right now.');
   }
 
-  const workbook = new ExcelJS.Workbook();
   const buffer = await file.arrayBuffer();
+
+  if (!(await hasXlsxMagicBytes(file))) {
+    throw new Error('File does not appear to be a valid Excel workbook.');
+  }
+
+  const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer);
   const imageMap = await extractWorkbookImageMap(buffer, workbook.worksheets);
 

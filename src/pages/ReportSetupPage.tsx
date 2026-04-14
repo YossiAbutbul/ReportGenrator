@@ -1,5 +1,5 @@
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChevronDown,
   FileText,
@@ -149,6 +149,17 @@ export function ReportSetupPage(): ReactElement {
   } = useAppStore();
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  // Local input value — debounced 200ms before updating store searchQuery
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(searchInput), 200);
+    return () => clearTimeout(timer);
+  }, [searchInput, setSearchQuery]);
+  // Sync input when store resets (e.g. after file upload)
+  useEffect(() => {
+    if (searchQuery === '') setSearchInput('');
+  }, [searchQuery]);
 
   const typeOptions = useMemo(
     () => [...new Set(tableRows.map((row) => row.unitType))],
@@ -355,15 +366,15 @@ export function ReportSetupPage(): ReactElement {
                       name="results-search"
                       type="search"
                       placeholder="Search by unit ID, frequency, or unit type"
-                      value={searchQuery}
-                      onChange={(event) => setSearchQuery(event.target.value)}
+                      value={searchInput}
+                      onChange={(event) => setSearchInput(event.target.value)}
                     />
-                    {searchQuery ? (
+                    {searchInput ? (
                       <button
                         aria-label="Clear search"
                         className="table-search__clear"
                         type="button"
-                        onClick={() => setSearchQuery('')}
+                        onClick={() => { setSearchInput(''); setSearchQuery(''); }}
                       >
                         <X aria-hidden="true" />
                       </button>

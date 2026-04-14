@@ -15,6 +15,9 @@ type GraphSurfacePlotProps = {
   onRenderStateChange?: (isRendering: boolean) => void;
 };
 
+// Camera azimuth/elevation direction unit vector — controls viewing angle
+const CAM_DIR = { x: 0.65, y: 0.45, z: 0.55 } as const;
+
 const COLORSCALE: Array<[number, THREE.Color]> = [
   [0, new THREE.Color('#1e3a5f')],
   [0.15, new THREE.Color('#2563eb')],
@@ -178,7 +181,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
       const effectiveFov = aspect < 1 ? 2 * Math.atan(Math.tan(fovRad / 2) * aspect) : fovRad;
       const fitDist = geometry.maxRadius / Math.sin(effectiveFov / 2);
       const camDist = fitDist * 1.05;
-      camera.position.set(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+      camera.position.set(camDist * CAM_DIR.x, camDist * CAM_DIR.y, camDist * CAM_DIR.z);
       camera.lookAt(0, 0, 0);
       cameraRef.current = camera;
 
@@ -320,7 +323,7 @@ export const GraphSurfacePlot = forwardRef<GraphSurfacePlotHandle, GraphSurfaceP
         const fitDist = geometry.maxRadius / Math.sin(effectiveFov / 2);
         const camDist = fitDist * 1.05;
 
-        const targetPos = new THREE.Vector3(camDist * 0.65, camDist * 0.45, camDist * 0.55);
+        const targetPos = new THREE.Vector3(camDist * CAM_DIR.x, camDist * CAM_DIR.y, camDist * CAM_DIR.z);
         const targetLook = new THREE.Vector3(0, 0, 0);
         const startPos = camera.position.clone();
         const startTarget = controls.target.clone();

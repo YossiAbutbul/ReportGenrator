@@ -55,6 +55,9 @@ type TooltipState = {
   y: number;
 } | null;
 
+const TOOLTIP_OFFSET_X = 14; // px — horizontal distance from cursor to tooltip
+const TOOLTIP_OFFSET_Y = 10; // px — vertical lift above cursor
+
 // Start loading/parsing Plotly at module import time (app boot) so it's ready on first render
 const plotlyPromise: Promise<PlotlyLike> = import('plotly.js-dist-min').then(
   (mod) => (mod.default ?? mod) as PlotlyLike,
@@ -401,8 +404,8 @@ export function GraphPolarPlot({
           className="graph-polar-plot__tooltip"
           style={{
             position: 'fixed',
-            left: `${tooltip.x + 14}px`,
-            top: `${tooltip.y - 10}px`,
+            left: `${tooltip.x + TOOLTIP_OFFSET_X}px`,
+            top: `${tooltip.y - TOOLTIP_OFFSET_Y}px`,
           }}
         >
           <div className="graph-polar-plot__tooltip-line">Angle: {tooltip.angle}°</div>
